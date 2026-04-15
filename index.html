@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigBook</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0a0a0c;
+  --surface:  #111116;
+  --surface2: #18181f;
+  --surface3: #1f1f28;
+  --border:   #2a2a38;
+  --border2:  #3a3a50;
+  --text:     #f0f0f8;
+  --text2:    #8888aa;
+  --text3:    #55556a;
+  --radius:   4px;
+  --radius-lg:8px;
+  --acc:      #251131;
+  --acc-text: #c89ee0;
+  --acc-border:#4a2070;
+  --cyan:     #00b8cc;
+  --cyan-bg:  rgba(0,184,204,0.08);
+  --cyan-bdr: rgba(0,184,204,0.3);
+  --green:    #00c96e;
+  --green-bg: rgba(0,201,110,0.08);
+  --green-bdr:rgba(0,201,110,0.25);
+  --amber:    #e09800;
+  --amber-bg: rgba(224,152,0,0.08);
+  --amber-bdr:rgba(224,152,0,0.25);
+  --red:      #e03050;
+  --red-bg:   rgba(224,48,80,0.08);
+  --red-bdr:  rgba(224,48,80,0.25);
+  --blue:     #4488ff;
+  --blue-bg:  rgba(68,136,255,0.08);
+  --blue-bdr: rgba(68,136,255,0.25);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.layout{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:215px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.sidebar-logo{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;line-height:1;font-style:italic;display:inline-block;transform:skewX(-5deg);}
+.logo-gig{color:var(--text);}
+.logo-book{color:var(--acc-text);}
+.logo-sub{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-top:4px;font-family:'Barlow Condensed',sans-serif;}
+.profile-btn{margin-left:auto;flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--acc);border:1px solid var(--acc-border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--acc-text);letter-spacing:1px;transition:border-color .15s;}
+.profile-btn:hover{border-color:var(--acc-text);}
+
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.nav-section{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);padding:10px 10px 4px;font-family:'Barlow Condensed',sans-serif;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:'Barlow',sans-serif;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--acc);color:var(--acc-text);border-left:2px solid var(--acc-text);padding-left:8px;font-weight:500;}
+.nav-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.55;}
+.nav-item.active .nav-icon{opacity:1;}
+
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);}
+.tier-badge{border:1px solid var(--border2);border-radius:var(--radius);padding:7px 10px;margin-bottom:9px;text-align:center;}
+.tier-badge-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:1px;font-family:'Barlow Condensed',sans-serif;}
+.tier-badge-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
+.upgrade-btn{width:100%;background:var(--acc);color:var(--acc-text);border:1px solid var(--acc-border);border-radius:var(--radius);padding:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;transition:all .15s;}
+.upgrade-btn:hover{border-color:var(--acc-text);}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg);}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text);}
+.topbar-actions{display:flex;gap:8px;align-items:center;}
+
+.btn{padding:7px 15px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;transition:all .15s;border:1px solid transparent;}
+.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text);}
+.btn-primary{background:var(--acc);color:var(--acc-text);border-color:var(--acc-border);font-weight:700;}
+.btn-primary:hover{border-color:var(--acc-text);}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-bdr);}
+.btn-danger:hover{background:rgba(224,48,80,0.15);}
+.btn-sm{padding:5px 11px;font-size:11px;}
+
+/* ── PAGES ── */
+.page{padding:22px 24px;display:none;}
+.page.active{display:block;animation:pgfade .18s ease;}
+@keyframes pgfade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:15px 17px;}
+.stat-card.hi{background:var(--acc);border-color:var(--acc-border);}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;}
+.stat-card.hi .stat-label{color:rgba(200,158,224,0.6);}
+.stat-value{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:var(--text);line-height:1;}
+.stat-card.hi .stat-value{color:var(--acc-text);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.stat-card.hi .stat-sub{color:rgba(200,158,224,0.5);}
+
+/* ── SECTION ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--text);white-space:nowrap;}
+
+/* Search bar */
+.search-bar{flex:1;max-width:260px;position:relative;}
+.search-bar input{width:100%;padding:6px 10px 6px 28px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text);font-family:'Barlow',sans-serif;outline:none;transition:border-color .15s;}
+.search-bar input:focus{border-color:var(--border2);}
+.search-bar::before{content:'⌕';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none;}
+
+/* ── GIG LIST ── */
+.gig-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+.gig-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all .15s;}
+.gig-card:hover{border-color:var(--border2);background:var(--surface2);}
+.gig-card.acc-border{border-left:2px solid var(--acc-text);}
+.gig-date-block{flex-shrink:0;width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:5px 4px;}
+.gig-date-day{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:var(--text);}
+.gig-date-mon{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'Barlow Condensed',sans-serif;margin-top:1px;}
+.gig-info{flex:1;min-width:0;}
+.gig-venue{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em;}
+.gig-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+.gig-tags{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:2px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;border:1px solid;}
+.tag-confirmed{background:var(--green-bg);color:var(--green);border-color:var(--green-bdr);}
+.tag-pending{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bdr);}
+.tag-deposit{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bdr);}
+.tag-paid{background:var(--green-bg);color:var(--green);border-color:var(--green-bdr);}
+.tag-awaiting{background:var(--red-bg);color:var(--red);border-color:var(--red-bdr);}
+.gig-fee{flex-shrink:0;text-align:right;min-width:62px;}
+.gig-fee-amount{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--text);}
+.gig-fee-label{font-size:10px;color:var(--text3);}
+
+/* ── UPCOMING BANNER ── */
+.upcoming-banner{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--cyan);border-radius:var(--radius-lg);padding:15px 18px;margin-bottom:18px;display:flex;align-items:center;gap:15px;}
+.upcoming-icon{font-size:22px;flex-shrink:0;}
+.upcoming-text{flex:1;}
+.upcoming-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--text);margin-bottom:2px;}
+.upcoming-sub{font-size:11px;color:var(--text3);}
+.countdown{text-align:center;flex-shrink:0;background:var(--cyan-bg);border:1px solid var(--cyan-bdr);border-radius:var(--radius);padding:7px 13px;}
+.countdown-num{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--cyan);}
+.countdown-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'Barlow Condensed',sans-serif;}
+
+/* ── EMPTY STATE ── */
+.empty-gig{background:transparent;border:1px dashed var(--border2);border-radius:var(--radius-lg);padding:13px 16px;display:flex;align-items:center;gap:13px;opacity:.45;}
+.empty-date{flex-shrink:0;width:44px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius);padding:5px 4px;}
+.empty-day{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:var(--text3);}
+.empty-mon{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:'Barlow Condensed',sans-serif;}
+.empty-text{font-size:12px;color:var(--text3);flex:1;font-style:italic;}
+.empty-add{font-size:11px;color:var(--acc-text);cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0;opacity:1;}
+
+/* ── CALENDAR ── */
+.calendar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:22px;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid var(--border);}
+.cal-month-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:var(--text);}
+.cal-nav{display:flex;gap:6px;align-items:center;}
+.cal-nav button{width:27px;height:27px;border:1px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-nav button:hover{background:var(--surface2);color:var(--text);}
+.cal-nav .today-btn{padding:0 10px;width:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface2);border-bottom:1px solid var(--border);}
+.cal-dow div{padding:7px;text-align:center;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-family:'Barlow Condensed',sans-serif;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-cell{min-height:74px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.cal-cell:hover{background:var(--surface2);}
+.cal-cell:nth-child(7n){border-right:none;}
+.cal-cell.other{opacity:.3;cursor:default;}
+.cal-cell.other:hover{background:none;}
+.cal-cell.today{background:rgba(37,17,49,0.4);}
+.cal-num{font-size:12px;color:var(--text2);margin-bottom:3px;width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.cal-cell.today .cal-num{background:var(--acc-text);color:var(--bg);font-weight:700;}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;font-family:'Barlow Condensed',sans-serif;letter-spacing:.02em;border-left:2px solid;}
+.cal-event:hover{opacity:.75;}
+.cal-event.solo{background:rgba(37,17,49,0.5);color:var(--acc-text);border-color:var(--acc-text);}
+.cal-event.band{background:var(--cyan-bg);color:var(--cyan);border-color:var(--cyan);}
+.cal-event.session{background:var(--green-bg);color:var(--green);border-color:var(--green);}
+.cal-event.private{background:var(--amber-bg);color:var(--amber);border-color:var(--amber);}
+
+/* ── GIG DETAIL ── */
+.back-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;padding:0;transition:color .15s;}
+.back-btn:hover{color:var(--text);}
+.detail-hero{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:13px;position:relative;overflow:hidden;}
+.detail-hero::before{content:'♪';position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:88px;opacity:.03;font-family:serif;pointer-events:none;}
+.detail-hero-venue{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px;color:var(--text);margin-bottom:6px;}
+.detail-hero-meta{display:flex;gap:16px;font-size:11px;color:var(--text3);flex-wrap:wrap;}
+.detail-hero-actions{display:flex;gap:8px;margin-top:12px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;}
+.detail-card-title{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;}
+.detail-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-row-label{color:var(--text3);}
+.detail-row-value{font-weight:500;color:var(--text);text-align:right;max-width:60%;}
+.notes-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;margin-bottom:11px;}
+.notes-card textarea{width:100%;border:none;outline:none;resize:none;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text2);background:transparent;min-height:70px;line-height:1.6;}
+.notes-card textarea::placeholder{color:var(--text3);}
+
+/* Status selector in detail */
+.status-select{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:5px 9px;font-size:12px;color:var(--text);font-family:'Barlow',sans-serif;outline:none;cursor:pointer;}
+.status-select:focus{border-color:var(--acc-border);}
+
+/* ── INCOME ── */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:17px;margin-bottom:18px;}
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:120px;padding-bottom:4px;border-bottom:1px solid var(--border);margin-top:13px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar-val{font-size:8px;color:var(--text3);font-family:'Barlow Condensed',sans-serif;}
+.bar{width:100%;background:var(--acc-text);border-radius:2px 2px 0 0;min-height:3px;transition:opacity .15s;cursor:pointer;}
+.bar:hover{opacity:.7;}
+.bar.empty{background:var(--surface3);}
+.bar-lbl{font-size:8px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;font-family:'Barlow Condensed',sans-serif;}
+.locked-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.locked-banner-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+.locked-banner-sub{font-size:11px;color:var(--text3);}
+
+/* ── MILEAGE (pro) ── */
+.mileage-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.mileage-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.mileage-date{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--text2);width:60px;}
+.mileage-info{flex:1;}
+.mileage-venue{font-size:13px;font-weight:500;color:var(--text);font-family:'Barlow Condensed',sans-serif;}
+.mileage-sub{font-size:11px;color:var(--text3);}
+.mileage-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--cyan);flex-shrink:0;}
+
+.mileage-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.expense-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:16px;}
+.expense-form-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;margin-bottom:12px;color:var(--text);}
+
+/* ── LOCK SCREEN ── */
+.lock-screen{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);padding:48px 30px;text-align:center;}
+.lock-icon{font-size:38px;margin-bottom:12px;opacity:.4;}
+.lock-title{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px;margin-bottom:7px;}
+.lock-sub{font-size:13px;color:var(--text3);max-width:340px;margin:0 auto 22px;line-height:1.6;}
+
+/* ── SETTINGS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;}
+.settings-card-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:12px;}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-label{font-size:13px;color:var(--text2);}
+.settings-row-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:10px;cursor:pointer;transition:background .15s;}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--text3);border-radius:50%;transition:all .15s;}
+.toggle input:checked+.toggle-slider{background:var(--acc);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px);background:var(--acc-text);}
+
+/* Profile section */
+.profile-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:22px;display:flex;gap:20px;align-items:flex-start;}
+.profile-avatar-large{width:64px;height:64px;border-radius:50%;background:var(--acc);border:1px solid var(--acc-border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--acc-text);flex-shrink:0;letter-spacing:1px;}
+.profile-fields{flex:1;display:flex;flex-direction:column;gap:10px;}
+.profile-fields-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* Tiers */
+.tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 18px;position:relative;overflow:hidden;}
+.tier-card.pro-tier{border-color:var(--acc-border);}
+.tier-card.pro-tier::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc-text);}
+.tier-card-eyebrow{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;font-family:'Barlow Condensed',sans-serif;}
+.tier-card.pro-tier .tier-card-eyebrow{color:var(--acc-text);}
+.tier-card-name{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px;margin-bottom:3px;}
+.tier-card.pro-tier .tier-card-name{color:var(--acc-text);}
+.tier-card-price{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;color:var(--text);margin-bottom:15px;line-height:1;}
+.tier-card.pro-tier .tier-card-price{color:var(--acc-text);}
+.tier-card-price span{font-family:'Barlow',sans-serif;font-size:13px;color:var(--text3);font-weight:300;}
+.tier-features{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.tier-features li{font-size:12.5px;color:var(--text2);display:flex;align-items:flex-start;gap:7px;line-height:1.4;}
+.tier-features li .check{color:var(--green);flex-shrink:0;font-size:11px;}
+.tier-features li .lock{color:var(--text3);flex-shrink:0;font-size:11px;}
+.tier-action-btn{width:100%;margin-top:16px;padding:9px;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:transparent;color:var(--text3);}
+.tier-action-btn.current{cursor:default;}
+.tier-action-btn.upgrade{background:var(--acc);border-color:var(--acc-border);color:var(--acc-text);}
+.tier-action-btn.upgrade:hover{border-color:var(--acc-text);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.5);}
+.modal-header{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;}
+.modal-close{width:27px;height:27px;border:1px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;font-size:14px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{background:var(--surface2);color:var(--text);}
+.modal-body{padding:16px 20px;}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--surface);}
+
+/* ── PROFILE MODAL ── */
+.profile-modal-avatar{width:70px;height:70px;border-radius:50%;background:var(--acc);border:2px solid var(--acc-border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--acc-text);margin:0 auto 16px;letter-spacing:1px;}
+
+/* ── FORM ── */
+.form-section{margin-bottom:16px;}
+.form-section-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;}
+.form-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:9px;}
+.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.form-row.full{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:11px;font-weight:500;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;}
+.form-input,.form-select,.form-textarea{padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--surface2);transition:border-color .15s;outline:none;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--acc-border);}
+.form-select option{background:var(--surface2);}
+.form-textarea{resize:vertical;min-height:65px;}
+.currency-wrap{position:relative;}
+.currency-wrap span{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;}
+.currency-wrap .form-input{padding-left:20px;}
+
+/* ── FILTER ROW ── */
+.filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-btn{padding:5px 11px;border-radius:var(--radius);font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--border);background:none;color:var(--text3);transition:all .15s;}
+.filter-btn:hover{background:var(--surface2);color:var(--text);}
+.filter-btn.active{background:var(--acc);border-color:var(--acc-border);color:var(--acc-text);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* No-results */
+.no-results{text-align:center;padding:32px;color:var(--text3);font-size:13px;font-style:italic;}
+
+/* ── ONBOARDING / AUTH ── */
+.onboarding-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.onboarding-overlay.open{display:flex;}
+.onboarding-modal{background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);width:100%;max-width:420px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6);}
+.onboarding-header{padding:28px 28px 0;text-align:center;}
+.onboarding-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;font-style:italic;}
+.onboarding-logo .gig{color:var(--text);}
+.onboarding-logo .book{color:var(--acc-text);}
+.onboarding-tagline{font-size:13px;color:var(--text3);margin-top:4px;margin-bottom:20px;}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin:0 28px;}
+.auth-tab-btn{flex:1;padding:10px;background:none;border:none;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.auth-tab-btn.active{color:var(--acc-text);border-bottom-color:var(--acc-text);}
+.auth-tab-content{display:none;padding:22px 28px;}
+.auth-tab-content.active{display:block;}
+.social-btns{display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
+.social-btn{width:100%;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;}
+.social-btn:hover{background:var(--surface3);border-color:var(--border2);}
+.social-btn-icon{width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.social-divider{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.social-divider::before,.social-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.social-divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'Barlow Condensed',sans-serif;}
+.auth-guest-link{text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.auth-guest-link button{background:none;border:none;font-family:'Barlow',sans-serif;font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;}
+.auth-guest-link button:hover{color:var(--text2);}
+.guest-note{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:14px;}
+.guest-note strong{color:var(--text2);}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div>
+      <div class="logo-text"><span class="logo-gig">GIG</span><span class="logo-book">BOOK</span></div>
+      <div class="logo-sub">Musician's Diary</div>
+    </div>
+    <button class="profile-btn" id="profileBtn" onclick="openProfileModal()" title="Profile">GB</button>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◈</span>Dashboard</button>
+    <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">◷</span>Calendar</button>
+    <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">♪</span>All Gigs</button>
+    <div class="nav-section">Finance</div>
+    <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">£</span>Income</button>
+    <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">→</span>Mileage</button>
+    <div class="nav-section">Account</div>
+    <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">◎</span>Settings</button>
+    <button class="nav-item" id="pricingNavBtn" onclick="showPage('pricing',this)"><span class="nav-icon">★</span>Upgrade</button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="tier-badge">
+      <div class="tier-badge-label">Current Plan</div>
+      <div class="tier-badge-name" id="sidebarTierName">Free</div>
+    </div>
+    <button class="upgrade-btn" id="sidebarUpgradeBtn" onclick="showPage('pricing',null)">Upgrade — £5/mo</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="showPage('gigs',document.querySelectorAll('.nav-item')[2])">All Gigs</button>
+      <button class="btn btn-primary" onclick="openModal()">+ Add Gig</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div id="dash-next-banner"></div>
+    <div class="stats-row" id="dash-stats"></div>
+    <div class="section-header"><div class="section-title">Upcoming Gigs</div></div>
+    <div class="gig-list" id="dash-upcoming"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="page" id="page-calendar">
+    <div class="calendar-wrap">
+      <div class="cal-header">
+        <div class="cal-month-title" id="calMonthTitle" onclick="openCalPicker()" title="Jump to month/year" style="cursor:pointer;user-select:none">April 2026 ▾</div>
+        <div class="cal-nav">
+          <button onclick="calNav(-1)">‹</button>
+          <button class="today-btn" onclick="calToday()">Today</button>
+          <button onclick="calNav(1)">›</button>
+        </div>
+      </div>
+      <!-- Month/year quick-jump picker (hidden by default) -->
+      <div id="calPicker" style="display:none;padding:16px 18px;border-bottom:1px solid var(--border);background:var(--surface2)">
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:130px">
+            <label class="form-label">Month</label>
+            <select class="form-select" id="calPickerMonth">
+              <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+              <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+              <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+              <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;min-width:100px">
+            <label class="form-label">Year</label>
+            <select class="form-select" id="calPickerYear"></select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="applyCalPicker()" style="margin-bottom:1px">Go</button>
+          <button class="btn btn-ghost btn-sm" onclick="closeCalPicker()" style="margin-bottom:1px">✕</button>
+        </div>
+      </div>
+      <div class="cal-dow" id="calDow"></div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+  </div>
+
+  <!-- ALL GIGS -->
+  <div class="page" id="page-gigs">
+    <div class="section-header">
+      <div class="section-title">All Gigs</div>
+      <div class="search-bar"><input type="text" id="gigSearch" placeholder="Search venues, notes..." oninput="renderGigs()"></div>
+    </div>
+    <div class="filter-row" id="gigFilters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('upcoming',this)">Upcoming</button>
+      <button class="filter-btn" onclick="setFilter('past',this)">Past</button>
+      <button class="filter-btn" onclick="setFilter('confirmed',this)">Confirmed</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('paid',this)">Paid</button>
+    </div>
+    <div class="gig-list" id="gig-list-all"></div>
+  </div>
+
+  <!-- GIG DETAIL -->
+  <div class="page" id="page-gigdetail">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="detail-hero">
+      <div class="detail-hero-venue" id="detail-venue">—</div>
+      <div class="detail-hero-meta" id="detail-meta"></div>
+      <div class="detail-hero-actions">
+        <select class="status-select" id="detail-status-sel" onchange="updateGigStatus()"></select>
+        <button class="btn btn-sm btn-ghost" onclick="editCurrentGig()">Edit Gig</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCurrentGig()">Delete</button>
+      </div>
+    </div>
+    <div class="detail-grid" id="detail-grid"></div>
+    <div class="notes-card">
+      <div class="detail-card-title" style="margin-bottom:8px">📝 Notes</div>
+      <textarea id="detail-notes" placeholder="Add notes about this gig..." onblur="saveNotes()"></textarea>
+    </div>
+  </div>
+
+  <!-- INCOME -->
+  <div class="page" id="page-income">
+    <div class="stats-row" id="income-stats"></div>
+    <div class="chart-wrap">
+      <div class="section-header" style="margin-bottom:0">
+        <div class="section-title">Monthly Income — <span id="incomeYear"></span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-ghost" onclick="incomeYearNav(-1)">‹</button>
+          <button class="btn btn-sm btn-ghost" onclick="incomeYearNav(1)">›</button>
+        </div>
+      </div>
+      <div class="chart-bars" id="chartBars"></div>
+      <div style="display:flex;gap:5px;margin-top:5px" id="chartLabels"></div>
+    </div>
+    <div class="section-header"><div class="section-title">Income Log</div></div>
+    <div class="gig-list" id="income-log"></div>
+    <div id="income-locked-section"></div>
+  </div>
+
+  <!-- MILEAGE -->
+  <div class="page" id="page-mileage">
+    <div id="mileage-content"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="section-header" style="margin-bottom:16px"><div class="section-title">Profile</div></div>
+    <div class="profile-section">
+      <div class="profile-avatar-large" id="settingsAvatar">GB</div>
+      <div class="profile-fields">
+        <div class="profile-fields-row">
+          <div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="s-name" placeholder="Your name" oninput="saveProfileField('name',this.value)"></div>
+          <div class="form-group"><label class="form-label">Instrument</label><input type="text" class="form-input" id="s-instrument" placeholder="e.g. Guitar, Keys, DJ" oninput="saveProfileField('instrument',this.value)"></div>
+        </div>
+        <div class="profile-fields-row">
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="s-email" placeholder="your@email.com" oninput="saveProfileField('email',this.value)"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="s-phone" placeholder="07xxx xxxxxx" oninput="saveProfileField('phone',this.value)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-bottom:16px"><div class="section-title">Preferences</div></div>
+    <div class="settings-grid">
+      <div class="settings-card">
+        <div class="settings-card-title">📅 Calendar &amp; Display</div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">First day of week</div></div>
+          <select class="form-select" style="width:auto" id="s-weekstart" onchange="savePref('weekStart',this.value);buildCalendar()">
+            <option value="1">Monday</option>
+            <option value="0">Sunday</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Date format</div></div>
+          <select class="form-select" style="width:auto" id="s-dateformat" onchange="savePref('dateFormat',this.value)">
+            <option value="dmy">DD/MM/YYYY</option>
+            <option value="mdy">MM/DD/YYYY</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Currency</div></div>
+          <select class="form-select" style="width:auto" id="s-currency" onchange="savePref('currency',this.value)">
+            <option value="£">£ GBP</option>
+            <option value="€">€ EUR</option>
+            <option value="$">$ USD</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-title">🎸 Gig Defaults</div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Default transport</div></div>
+          <select class="form-select" style="width:auto" id="s-transport" onchange="savePref('defaultTransport',this.value)">
+            <option>Driving</option><option>Train</option><option>Bus</option><option>Walking</option><option>Other</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Default payment method</div></div>
+          <select class="form-select" style="width:auto" id="s-payment" onchange="savePref('defaultPayment',this.value)">
+            <option>Bank transfer</option><option>Cash</option><option>Cheque</option><option>PayPal</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Default PA</div></div>
+          <select class="form-select" style="width:auto" id="s-pa" onchange="savePref('defaultPA',this.value)">
+            <option>Yes — in house</option><option>Bring own</option><option>Unknown</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-title">🔔 Notifications</div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Pre-gig reminders</div><div class="settings-row-sub">Alert before each gig</div></div>
+          <label class="toggle"><input type="checkbox" id="s-reminders" onchange="savePref('reminders',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Unpaid fee alerts</div><div class="settings-row-sub">Flag overdue payments</div></div>
+          <label class="toggle"><input type="checkbox" id="s-unpaid" onchange="savePref('unpaidAlerts',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Deposit reminders</div><div class="settings-row-sub">Chase outstanding deposits</div></div>
+          <label class="toggle"><input type="checkbox" id="s-deposits" onchange="savePref('depositAlerts',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-title">🗂 Data</div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Show mileage prompts</div><div class="settings-row-sub">Ask to log miles after gigs</div></div>
+          <label class="toggle"><input type="checkbox" id="s-mileageprompt" onchange="savePref('mileagePrompts',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Export all data</div></div>
+          <button class="btn btn-sm btn-ghost" onclick="openExportModal()">Export</button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Clear all gig data</div><div class="settings-row-sub">Permanently deletes everything</div></div>
+          <button class="btn btn-sm btn-danger" onclick="clearAllData()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end page-settings -->
+
+  <!-- PRICING PAGE -->
+  <div class="page" id="page-pricing">
+    <div style="max-width:700px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--text);margin-bottom:6px">Plans &amp; Pricing</div>
+        <div style="font-size:13px;color:var(--text3)">Simple pricing. No surprises.</div>
+      </div>
+      <div class="tier-grid">
+        <div class="tier-card" id="freeTierCard">
+          <div class="tier-card-eyebrow" id="freeTierEyebrow">Current plan</div>
+          <div class="tier-card-name">Free</div>
+          <div class="tier-card-price">£0 <span>/ month</span></div>
+          <ul class="tier-features">
+            <li><span class="check">✓</span>Gig calendar &amp; diary</li>
+            <li><span class="check">✓</span>All logistics fields</li>
+            <li><span class="check">✓</span>6 months gig history</li>
+            <li><span class="check">✓</span>Basic income overview</li>
+            <li><span class="check">✓</span>Contact details per gig</li>
+            <li><span class="lock">🔒</span>Mileage &amp; expense tracking</li>
+            <li><span class="lock">🔒</span>Full income history &amp; tax summaries</li>
+            <li><span class="lock">🔒</span>Band &amp; crew sharing</li>
+            <li><span class="lock">🔒</span>Contract &amp; rider storage</li>
+            <li><span class="lock">🔒</span>PDF gig sheets &amp; data export</li>
+          </ul>
+          <button class="tier-action-btn current" id="freeTierBtn">Current Plan</button>
+        </div>
+        <div class="tier-card pro-tier" id="proTierCard">
+          <div class="tier-card-eyebrow" id="proTierEyebrow">Full access</div>
+          <div class="tier-card-name">Pro</div>
+          <div class="tier-card-price">£5 <span>/ month</span></div>
+          <ul class="tier-features">
+            <li><span class="check">✓</span>Everything in Free</li>
+            <li><span class="check">✓</span>Unlimited gig history</li>
+            <li><span class="check">✓</span>Mileage tracking per gig</li>
+            <li><span class="check">✓</span>Expense logging</li>
+            <li><span class="check">✓</span>Full income history &amp; log</li>
+            <li><span class="check">✓</span>Tax year summaries</li>
+            <li><span class="check">✓</span>Band &amp; crew sharing</li>
+            <li><span class="check">✓</span>Contract &amp; rider storage</li>
+            <li><span class="check">✓</span>PDF gig sheets</li>
+            <li><span class="check">✓</span>CSV &amp; PDF export for accountants</li>
+            <li><span class="check">✓</span>Recurring gig templates</li>
+            <li><span class="check">✓</span>Priority support</li>
+          </ul>
+          <button class="tier-action-btn upgrade" id="proTierBtn" onclick="togglePro()">Upgrade to Pro</button>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;text-align:center;font-size:12px;color:var(--text3)">
+        Cancel anytime. No long-term commitment. Billed monthly.
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ADD / EDIT GIG MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add New Gig</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editGigId">
+      <div class="form-section">
+        <div class="form-section-title">Gig details</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Venue name *</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date"></div><div class="form-group"><label class="form-label">Stage time</label><input type="time" class="form-input" id="f-stage"></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Soundcheck time</label><input type="time" class="form-input" id="f-soundcheck"></div><div class="form-group"><label class="form-label">Set length</label><select class="form-select" id="f-setlength"><option>30 min</option><option>45 min</option><option>60 min</option><option>90 min</option><option>2 hours</option><option>Custom</option></select></div></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Location</div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">Full address</label><input type="text" class="form-input" id="f-address" placeholder="Street, City, Postcode"></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="f-parking" placeholder="e.g. Loading bay, free after 6pm"></div><div class="form-group"><label class="form-label">PA provided?</label><select class="form-select" id="f-pa"><option>Yes — in house</option><option>Bring own</option><option>Unknown</option></select></div></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Fees &amp; payment</div>
+        <div class="form-row three">
+          <div class="form-group"><label class="form-label">Total fee</label><div class="currency-wrap"><span id="f-curr-sym">£</span><input type="number" class="form-input" id="f-fee" placeholder="0.00" min="0" step="0.01"></div></div>
+          <div class="form-group"><label class="form-label">Deposit</label><div class="currency-wrap"><span id="f-dep-sym">£</span><input type="number" class="form-input" id="f-deposit" placeholder="0.00" min="0" step="0.01"></div></div>
+          <div class="form-group"><label class="form-label">Payment method</label><select class="form-select" id="f-paymethod"><option>Bank transfer</option><option>Cash</option><option>Cheque</option><option>PayPal</option><option>Other</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Payment status</label><select class="form-select" id="f-paystatus"><option value="awaiting">Awaiting deposit</option><option value="deposit">Deposit paid</option><option value="awaiting-full">Awaiting full payment</option><option value="paid">Fully paid</option><option value="pending">Pending confirmation</option></select></div>
+          <div class="form-group"><label class="form-label">Balance due date</label><input type="date" class="form-input" id="f-balancedate"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Transport &amp; logistics</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Transport</label><select class="form-select" id="f-transport"><option>Driving</option><option>Train</option><option>Bus</option><option>Taxi/Uber</option><option>Walking</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Leave by</label><input type="time" class="form-input" id="f-leaveby"></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Distance (miles)</label><input type="number" class="form-input" id="f-distance" placeholder="e.g. 38" min="0" step="0.1"></div><div class="form-group"><label class="form-label">Hotel needed?</label><select class="form-select" id="f-hotel"><option value="no">No</option><option value="booked">Yes — booked</option><option value="unbooked">Yes — not yet booked</option></select></div></div>
+        <div class="form-row full" id="hotel-name-row" style="display:none"><div class="form-group"><label class="form-label">Hotel name / address</label><input type="text" class="form-input" id="f-hotelname" placeholder="Name and address"></div></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Contact</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Booker / promoter</label><input type="text" class="form-input" id="f-contact" placeholder="Full name"></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="f-phone" placeholder="07xxx xxxxxx"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="f-email" placeholder="booker@venue.co.uk"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="Anything else worth remembering..."></textarea></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGig()">Save Gig</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModalOverlay" onclick="closeProfileOutside(event)">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Profile</div>
+      <button class="modal-close" onclick="closeProfileModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="profile-modal-avatar" id="profileModalAvatar">GB</div>
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px" id="profileModalName">GigBook User</div>
+        <div style="font-size:12px;color:var(--text3)" id="profileModalInstrument">Musician</div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Display Name</label>
+        <input type="text" class="form-input" id="pm-name" placeholder="Your name" oninput="saveProfileField('name',this.value);updateProfileUI()">
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Instrument / Role</label>
+        <input type="text" class="form-input" id="pm-instrument" placeholder="e.g. Guitar, Vocalist, DJ" oninput="saveProfileField('instrument',this.value);updateProfileUI()">
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="pm-email" placeholder="your@email.com" oninput="saveProfileField('email',this.value)">
+      </div>
+      <div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius);padding:10px 14px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-size:12px;color:var(--acc-text)">Tier: <span id="pm-tier" style="font-weight:600">Free</span></div>
+        <button class="btn btn-sm btn-primary" id="pm-upgrade-btn" onclick="closeProfileModal();showPage('pricing',null)">Upgrade to Pro</button>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-danger btn-sm" onclick="signOut()">Sign Out</button>
+      <button class="btn btn-ghost" onclick="closeProfileModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModalOverlay" onclick="closeExportOutside(event)">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title">Export Data</div>
+      <button class="modal-close" onclick="closeExportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Choose a format to export all your gig data.</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;padding:12px 14px;width:100%" onclick="exportData('csv')">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">CSV — Spreadsheet</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">Opens in Excel, Numbers, or Google Sheets. Best for accountants.</div>
+          </div>
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;padding:12px 14px;width:100%" onclick="exportData('json')">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">JSON — Full backup</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">Complete data backup. Use to restore your data or migrate platforms.</div>
+          </div>
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;text-align:left;padding:12px 14px;width:100%" onclick="exportData('txt')">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Plain text</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">Readable summary of all gigs. Good for printing or sharing.</div>
+          </div>
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeExportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING / AUTH MODAL -->
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-modal">
+    <div class="onboarding-header">
+      <div class="onboarding-logo"><span class="gig">GIG</span><span class="book">BOOK</span></div>
+      <div class="onboarding-tagline">The diary built for working musicians</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab-btn active" data-tab="signup" onclick="showAuthTab('signup')">Sign Up</button>
+      <button class="auth-tab-btn" data-tab="signin" onclick="showAuthTab('signin')">Sign In</button>
+    </div>
+
+    <!-- SIGN UP TAB -->
+    <div class="auth-tab-content active" id="auth-tab-signup">
+      <div class="guest-note"><strong>Free account</strong> — full gig diary &amp; calendar. Upgrade to Pro for finance &amp; mileage tracking.</div>
+      <div class="social-btns">
+        <button class="social-btn" onclick="socialLogin('google')">
+          <div class="social-btn-icon" style="background:#fff">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </div>
+          Continue with Google
+        </button>
+        <button class="social-btn" onclick="socialLogin('apple')">
+          <div class="social-btn-icon" style="background:#000;border:1px solid #333">
+            <svg width="12" height="14" viewBox="0 0 814 1000" fill="white"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 661.2 0 537.2c0-222.9 142.2-340.9 281.3-340.9 75.4 0 138.2 44.9 185.2 44.9 45 0 115.3-49.3 199.3-49.3zm-48.2-199.7c35.7-42.1 61.1-99.3 61.1-156.5 0-8.1-.6-16.2-2-22.9-57.4 2.2-125.6 38.3-166.7 86.1-32.5 36.8-63.1 94.1-63.1 151.9 0 9 1.4 18 2 20.6 3.5.6 9 1.4 14.5 1.4 51.6 0 114.2-34.3 154.2-80.6z"/></svg>
+          </div>
+          Continue with Apple
+        </button>
+        <button class="social-btn" onclick="socialLogin('facebook')">
+          <div class="social-btn-icon" style="background:#1877F2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </div>
+          Continue with Facebook
+        </button>
+      </div>
+      <div class="social-divider"><span>or sign up with email</span></div>
+      <div class="form-group" style="margin-bottom:9px"><label class="form-label">Your name</label><input type="text" class="form-input" id="signup-name" placeholder="First name or stage name"></div>
+      <div class="form-group" style="margin-bottom:9px"><label class="form-label">Email</label><input type="email" class="form-input" id="signup-email" placeholder="your@email.com"></div>
+      <div class="form-group" style="margin-bottom:16px"><label class="form-label">Password</label><input type="password" class="form-input" id="signup-pass" placeholder="At least 6 characters"></div>
+      <button class="btn btn-primary" style="width:100%;padding:10px;font-size:13px" onclick="emailSignUp()">Create Free Account</button>
+      <div class="auth-guest-link"><button onclick="continueAsGuest()">Continue as guest — gig diary only, no account needed</button></div>
+    </div>
+
+    <!-- SIGN IN TAB -->
+    <div class="auth-tab-content" id="auth-tab-signin">
+      <div class="social-btns">
+        <button class="social-btn" onclick="socialLogin('google')">
+          <div class="social-btn-icon" style="background:#fff">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </div>
+          Sign in with Google
+        </button>
+        <button class="social-btn" onclick="socialLogin('apple')">
+          <div class="social-btn-icon" style="background:#000;border:1px solid #333">
+            <svg width="12" height="14" viewBox="0 0 814 1000" fill="white"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 661.2 0 537.2c0-222.9 142.2-340.9 281.3-340.9 75.4 0 138.2 44.9 185.2 44.9 45 0 115.3-49.3 199.3-49.3zm-48.2-199.7c35.7-42.1 61.1-99.3 61.1-156.5 0-8.1-.6-16.2-2-22.9-57.4 2.2-125.6 38.3-166.7 86.1-32.5 36.8-63.1 94.1-63.1 151.9 0 9 1.4 18 2 20.6 3.5.6 9 1.4 14.5 1.4 51.6 0 114.2-34.3 154.2-80.6z"/></svg>
+          </div>
+          Sign in with Apple
+        </button>
+      </div>
+      <div class="social-divider"><span>or sign in with email</span></div>
+      <div class="form-group" style="margin-bottom:9px"><label class="form-label">Email</label><input type="email" class="form-input" id="signin-email" placeholder="your@email.com"></div>
+      <div class="form-group" style="margin-bottom:16px"><label class="form-label">Password</label><input type="password" class="form-input" id="signin-pass" placeholder="Your password"></div>
+      <button class="btn btn-primary" style="width:100%;padding:10px;font-size:13px" onclick="emailSignIn()">Sign In</button>
+      <div class="auth-guest-link"><button onclick="continueAsGuest()">Continue as guest instead</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA LAYER — localStorage
+// ─────────────────────────────────────────────
+const STORE_GIGS     = 'gb_gigs';
+const STORE_PROFILE  = 'gb_profile';
+const STORE_PREFS    = 'gb_prefs';
+const STORE_EXPENSES = 'gb_expenses';
+
+function loadGigs(){ try{ return JSON.parse(localStorage.getItem(STORE_GIGS)||'[]'); }catch(e){return[];} }
+function saveGigs(g){ localStorage.setItem(STORE_GIGS, JSON.stringify(g)); }
+function loadProfile(){ try{ return JSON.parse(localStorage.getItem(STORE_PROFILE)||'{}'); }catch(e){return {};} }
+function saveProfile(p){ localStorage.setItem(STORE_PROFILE, JSON.stringify(p)); }
+function loadPrefs(){ try{ return JSON.parse(localStorage.getItem(STORE_PREFS)||'{}'); }catch(e){return {};} }
+function savePrefs(p){ localStorage.setItem(STORE_PREFS, JSON.stringify(p)); }
+function loadExpenses(){ try{ return JSON.parse(localStorage.getItem(STORE_EXPENSES)||'[]'); }catch(e){return [];} }
+function saveExpenses(e){ localStorage.setItem(STORE_EXPENSES, JSON.stringify(e)); }
+
+function savePref(k,v){ const p=loadPrefs(); p[k]=v; savePrefs(p); }
+function getPref(k,def){ const p=loadPrefs(); return p[k]!==undefined?p[k]:def; }
+
+function saveProfileField(k,v){
+  const p=loadProfile(); p[k]=v; saveProfile(p);
+  updateProfileUI();
+}
+
+// No demo seed — users start fresh
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+const TODAY = new Date();
+TODAY.setHours(0,0,0,0);
+
+function uid(){ return 'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function parseDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+
+function fmtDate(s){
+  if(!s) return '—';
+  const d=parseDate(s);
+  const fmt=getPref('dateFormat','dmy');
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const mons=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  if(fmt==='mdy') return `${days[d.getDay()]} ${mons[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  return `${days[d.getDay()]} ${d.getDate()} ${mons[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function fmtShortDate(s){
+  if(!s) return '—';
+  const d=parseDate(s);
+  const mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${mons[d.getMonth()]}`;
+}
+
+function daysUntil(s){
+  const d=parseDate(s); d.setHours(0,0,0,0);
+  return Math.ceil((d-TODAY)/(1000*60*60*24));
+}
+
+function currency(){ return getPref('currency','£'); }
+
+function fmtMoney(v){
+  if(!v&&v!==0) return '—';
+  return currency()+Number(v).toFixed(2).replace(/\.00$/,'');
+}
+
+function statusInfo(s){
+  const map={
+    'confirmed': {label:'Confirmed',cls:'tag-confirmed'},
+    'deposit':   {label:'Deposit paid',cls:'tag-deposit'},
+    'paid':      {label:'Fully paid',cls:'tag-paid'},
+    'awaiting':  {label:'Awaiting deposit',cls:'tag-awaiting'},
+    'awaiting-full':{label:'Awaiting payment',cls:'tag-awaiting'},
+    'pending':   {label:'Pending',cls:'tag-pending'},
+  };
+  return map[s]||{label:s,cls:'tag-pending'};
+}
+
+function gigTypeClass(t){
+  const m={'Solo':'solo','Band':'band','Session':'session','Private function':'private','Festival':'solo','Other':'solo'};
+  return m[t]||'solo';
+}
+
+function isPro(){ return getPref('isPro',false); }
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+let prevPage='dashboard';
+let currentGigId=null;
+
+const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Mileage & Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing'};
+
+function showPage(id,navEl){
+  // Auth gating
+  if((id==='calendar'||id==='gigs'||id==='settings')&&isGuest()){
+    showOnboarding(); return;
+  }
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  document.getElementById('pageTitle').textContent=PAGE_TITLES[id]||id;
+  if(id!=='gigdetail') prevPage=id;
+  if(id==='dashboard') renderDashboard();
+  if(id==='income') renderIncome();
+  if(id==='mileage') renderMileage();
+  if(id==='gigs') renderGigs();
+  if(id==='settings') loadSettingsUI();
+  if(id==='pricing') loadPricingUI();
+}
+
+function goBack(){
+  const navItems=document.querySelectorAll('.nav-item');
+  const map={dashboard:0,calendar:1,gigs:2,income:3,mileage:4,settings:5};
+  showPage(prevPage,navItems[map[prevPage]]||navItems[0]);
+}
+
+// ─────────────────────────────────────────────
+// PROFILE UI
+// ─────────────────────────────────────────────
+function getInitials(name){
+  if(!name||name.trim()==='') return 'GB';
+  return name.trim().split(/\s+/).map(w=>w[0].toUpperCase()).slice(0,2).join('');
+}
+
+function updateProfileUI(){
+  const p=loadProfile();
+  const name=p.name||'GigBook User';
+  const initials=getInitials(p.name);
+  const pro=isPro();
+  document.getElementById('profileBtn').textContent=initials;
+  const sa=document.getElementById('settingsAvatar'); if(sa) sa.textContent=initials;
+  const pma=document.getElementById('profileModalAvatar'); if(pma) pma.textContent=initials;
+  const pmn=document.getElementById('profileModalName'); if(pmn) pmn.textContent=name;
+  const pmi=document.getElementById('profileModalInstrument'); if(pmi) pmi.textContent=p.instrument||'Musician';
+  const pmt=document.getElementById('pm-tier'); if(pmt) pmt.textContent=pro?'Pro':'Free';
+  const pmub=document.getElementById('pm-upgrade-btn'); if(pmub) pmub.style.display=pro?'none':'';
+}
+
+function openProfileModal(){
+  const p=loadProfile();
+  document.getElementById('pm-name').value=p.name||'';
+  document.getElementById('pm-instrument').value=p.instrument||'';
+  document.getElementById('pm-email').value=p.email||'';
+  updateProfileUI();
+  document.getElementById('profileModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeProfileModal(){ document.getElementById('profileModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closeProfileOutside(e){ if(e.target===document.getElementById('profileModalOverlay')) closeProfileModal(); }
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard(){
+  const gigs=loadGigs();
+  const now=TODAY.getTime();
+  const level=authLevel();
+
+  const upcoming=gigs.filter(g=>parseDate(g.date).getTime()>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date));
+
+  // Banner
+  const bannerEl=document.getElementById('dash-next-banner');
+  if(gigs.length===0){
+    // First-time / empty state
+    bannerEl.innerHTML=`<div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:28px 24px;margin-bottom:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:10px">🎸</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:6px">Welcome to GigBook</div>
+      <div style="font-size:13px;color:rgba(200,158,224,0.7);max-width:380px;margin:0 auto 18px;line-height:1.6">Your musician's diary. Add gigs, track logistics, manage payments, and never miss a soundcheck. Start by adding your first gig below.</div>
+      <button class="btn btn-primary" onclick="openModal()" style="font-size:13px;padding:9px 22px">+ Add your first gig</button>
+    </div>`;
+    document.getElementById('dash-stats').innerHTML='';
+    document.getElementById('dash-upcoming').innerHTML=`<div class="empty-gig" style="border-style:dashed;opacity:1;padding:20px 18px;justify-content:center;flex-direction:column;gap:10px;text-align:center">
+      <div style="font-size:24px">📅</div>
+      <div style="font-size:13px;color:var(--text2);font-weight:500">Add your first gig</div>
+      <div style="font-size:12px;color:var(--text3)">It will appear here once added</div>
+      <button class="btn btn-primary btn-sm" onclick="openModal()" style="margin-top:4px">+ Add Gig</button>
+    </div>`;
+    return;
+  }
+
+  // Normal banner
+  if(upcoming.length>0){
+    const n=upcoming[0];
+    const days=daysUntil(n.date);
+    bannerEl.innerHTML=`<div class="upcoming-banner">
+      <div class="upcoming-icon">🎸</div>
+      <div class="upcoming-text">
+        <div class="upcoming-title">Next Up — ${n.venue}</div>
+        <div class="upcoming-sub">${fmtDate(n.date)}${n.soundcheck?` · Soundcheck ${n.soundcheck}`:''}${n.stage?` · Stage ${n.stage}`:''}${n.fee?` · ${fmtMoney(n.fee-(n.deposit||0))} balance`:''}</div>
+      </div>
+      <div class="countdown"><div class="countdown-num">${days<=0?'Today':days}</div><div class="countdown-lbl">${days<=0?'':days===1?'Day':'Days'}</div></div>
+    </div>`;
+  } else {
+    bannerEl.innerHTML='';
+  }
+
+  // Stats — only for signed-in users
+  if(level==='guest'){
+    document.getElementById('dash-stats').innerHTML=`<div style="grid-column:1/-1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px"><div><div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Sign up to unlock statistics, calendar sync and more</div><div style="font-size:11px;color:var(--text3)">Free account — no payment required</div></div><button class="btn btn-primary btn-sm" onclick="showOnboarding()">Sign Up Free</button></div>`;
+  } else {
+    const thisMonth=gigs.filter(g=>{const d=parseDate(g.date);return d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();});
+    const thisMonthIncome=thisMonth.filter(g=>g.paystatus==='paid').reduce((s,g)=>s+(Number(g.fee)||0),0);
+    const unpaid=gigs.filter(g=>g.paystatus!=='paid'&&parseDate(g.date).getTime()<now);
+    const unpaidAmt=unpaid.reduce((s,g)=>s+(Number(g.fee)-(Number(g.deposit)||0)||0),0);
+    document.getElementById('dash-stats').innerHTML=`
+      <div class="stat-card hi"><div class="stat-label">This Month</div><div class="stat-value">${fmtMoney(thisMonthIncome)}</div><div class="stat-sub">${thisMonth.length} gig${thisMonth.length!==1?'s':''} in ${new Date().toLocaleString('default',{month:'long'})}</div></div>
+      <div class="stat-card"><div class="stat-label">Gigs This Year</div><div class="stat-value">${gigs.filter(g=>parseDate(g.date).getFullYear()===TODAY.getFullYear()).length}</div><div class="stat-sub">Total logged</div></div>
+      <div class="stat-card"><div class="stat-label">Upcoming (30d)</div><div class="stat-value">${upcoming.filter(g=>daysUntil(g.date)<=30).length}</div><div class="stat-sub">${upcoming.length>0?'Next: '+fmtShortDate(upcoming[0].date):'None scheduled'}</div></div>
+      <div class="stat-card"><div class="stat-label">Unpaid Fees</div><div class="stat-value">${fmtMoney(unpaidAmt)}</div><div class="stat-sub">${unpaid.length} gig${unpaid.length!==1?'s':''} awaiting payment</div></div>`;
+  }
+
+  // Upcoming gigs list
+  const listEl=document.getElementById('dash-upcoming');
+  listEl.innerHTML=upcoming.slice(0,4).map((g,i)=>gigCardHTML(g,i===0)).join('')+`<div class="empty-gig"><div class="empty-date"><div class="empty-day">—</div><div class="empty-mon">—</div></div><div class="empty-text">Add more upcoming gigs</div><div class="empty-add" onclick="openModal()">+ Add gig</div></div>`;
+}
+
+// ─────────────────────────────────────────────
+// GIG CARD HTML
+// ─────────────────────────────────────────────
+function gigCardHTML(g, highlight=false){
+  const d=parseDate(g.date);
+  const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const si=statusInfo(g.paystatus);
+  const balance=(Number(g.fee)||0)-(Number(g.deposit)||0);
+  const isPast=parseDate(g.date).getTime()<TODAY.getTime();
+  return `<div class="gig-card${highlight?' acc-border':''}" onclick="showGigDetail('${g.id}')">
+    <div class="gig-date-block"><div class="gig-date-day">${d.getDate()}</div><div class="gig-date-mon">${mon[d.getMonth()]}</div></div>
+    <div class="gig-info">
+      <div class="gig-venue">${g.venue}</div>
+      <div class="gig-meta">${g.stage?`<span>🕐 ${g.stage}</span>`:''}${g.address?`<span>📍 ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span>🚗 ${g.distance} mi</span>`:''}</div>
+    </div>
+    <div class="gig-tags"><span class="tag ${si.cls}">${si.label}</span>${g.type&&g.type!=='Solo'?`<span class="tag tag-pending">${g.type}</span>`:''}</div>
+    <div class="gig-fee"><div class="gig-fee-amount">${g.fee?fmtMoney(g.fee):'—'}</div><div class="gig-fee-label">${isPast&&g.paystatus==='paid'?'received':balance>0?'balance: '+fmtMoney(balance):g.paystatus==='paid'?'paid':'fee'}</div></div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// ALL GIGS PAGE
+// ─────────────────────────────────────────────
+let gigFilter='all';
+function setFilter(f,btn){
+  gigFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGigs();
+}
+
+function renderGigs(){
+  let gigs=loadGigs();
+  const search=(document.getElementById('gigSearch')||{}).value||'';
+  const now=TODAY.getTime();
+
+  // Search
+  if(search.trim()){
+    const q=search.toLowerCase();
+    gigs=gigs.filter(g=>(g.venue||'').toLowerCase().includes(q)||(g.notes||'').toLowerCase().includes(q)||(g.address||'').toLowerCase().includes(q)||(g.contact||'').toLowerCase().includes(q));
+  }
+
+  // Filter
+  if(gigFilter==='upcoming') gigs=gigs.filter(g=>parseDate(g.date).getTime()>=now);
+  if(gigFilter==='past') gigs=gigs.filter(g=>parseDate(g.date).getTime()<now);
+  if(gigFilter==='confirmed') gigs=gigs.filter(g=>g.paystatus==='confirmed'||g.paystatus==='deposit');
+  if(gigFilter==='pending') gigs=gigs.filter(g=>g.paystatus==='pending'||g.paystatus==='awaiting');
+  if(gigFilter==='paid') gigs=gigs.filter(g=>g.paystatus==='paid');
+
+  gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+
+  const listEl=document.getElementById('gig-list-all');
+  if(!listEl) return;
+
+  if(gigs.length===0){
+    listEl.innerHTML=`<div class="no-results">No gigs found${search?' matching "'+search+'"':''}</div><div class="empty-gig"><div class="empty-date"><div class="empty-day">—</div><div class="empty-mon">—</div></div><div class="empty-text">Got more gigs lined up? Add them here</div><div class="empty-add" onclick="openModal()">+ Add gig</div></div>`;
+    return;
+  }
+  listEl.innerHTML=gigs.map(g=>gigCardHTML(g)).join('')+`<div class="empty-gig"><div class="empty-date"><div class="empty-day">—</div><div class="empty-mon">—</div></div><div class="empty-text">More gigs to add?</div><div class="empty-add" onclick="openModal()">+ Add gig</div></div>`;
+}
+
+// ─────────────────────────────────────────────
+// GIG DETAIL
+// ─────────────────────────────────────────────
+function showGigDetail(id){
+  const gigs=loadGigs();
+  const g=gigs.find(x=>x.id===id);
+  if(!g) return;
+  currentGigId=id;
+
+  document.getElementById('detail-venue').textContent=g.venue;
+  document.getElementById('detail-meta').innerHTML=`<span>📅 ${fmtDate(g.date)}</span>${g.soundcheck?`<span>🕐 Soundcheck ${g.soundcheck}`+(g.stage?` · Stage ${g.stage}`:'')+`</span>`:''}${g.setlength?`<span>⏱ ${g.setlength}</span>`:''}`;
+
+  // Status selector
+  const sel=document.getElementById('detail-status-sel');
+  const opts=[['awaiting','Awaiting deposit'],['deposit','Deposit paid'],['confirmed','Confirmed'],['awaiting-full','Awaiting full payment'],['paid','Fully paid'],['pending','Pending']];
+  sel.innerHTML=opts.map(([v,l])=>`<option value="${v}"${g.paystatus===v?' selected':''}>${l}</option>`).join('');
+
+  const balance=(Number(g.fee)||0)-(Number(g.deposit)||0);
+
+  document.getElementById('detail-grid').innerHTML=`
+    <div class="detail-card">
+      <div class="detail-card-title">💰 Financials</div>
+      <div class="detail-row"><span class="detail-row-label">Total fee</span><span class="detail-row-value">${fmtMoney(g.fee)}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Deposit</span><span class="detail-row-value">${g.deposit?fmtMoney(g.deposit):'None'}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Balance due</span><span class="detail-row-value">${balance>0?fmtMoney(balance):'—'}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Payment method</span><span class="detail-row-value">${g.paymethod||'—'}</span></div>
+      ${g.balancedate?`<div class="detail-row"><span class="detail-row-label">Balance due by</span><span class="detail-row-value">${fmtShortDate(g.balancedate)}</span></div>`:''}
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">📍 Venue &amp; Contact</div>
+      <div class="detail-row"><span class="detail-row-label">Address</span><span class="detail-row-value">${g.address||'—'}</span></div>
+      ${g.contact?`<div class="detail-row"><span class="detail-row-label">Contact</span><span class="detail-row-value">${g.contact}</span></div>`:''}
+      ${g.phone?`<div class="detail-row"><span class="detail-row-label">Phone</span><span class="detail-row-value">${g.phone}</span></div>`:''}
+      ${g.email?`<div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value">${g.email}</span></div>`:''}
+      <div class="detail-row"><span class="detail-row-label">PA provided</span><span class="detail-row-value">${g.pa||'—'}</span></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">🚗 Getting There</div>
+      <div class="detail-row"><span class="detail-row-label">Transport</span><span class="detail-row-value">${g.transport||'—'}</span></div>
+      ${g.distance?`<div class="detail-row"><span class="detail-row-label">Distance</span><span class="detail-row-value">${g.distance} miles</span></div>`:''}
+      ${g.leaveby?`<div class="detail-row"><span class="detail-row-label">Leave by</span><span class="detail-row-value">${g.leaveby}</span></div>`:''}
+      ${g.parking?`<div class="detail-row"><span class="detail-row-label">Parking</span><span class="detail-row-value">${g.parking}</span></div>`:''}
+      <div class="detail-row"><span class="detail-row-label">Hotel</span><span class="detail-row-value">${g.hotel==='no'?'Not needed':g.hotel==='booked'?'Booked'+(g.hotelname?' — '+g.hotelname:''):'Needed — not booked'}</span></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">🎵 Performance</div>
+      <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">${g.type||'—'}</span></div>
+      ${g.setlength?`<div class="detail-row"><span class="detail-row-label">Set length</span><span class="detail-row-value">${g.setlength}</span></div>`:''}
+      ${g.soundcheck?`<div class="detail-row"><span class="detail-row-label">Soundcheck</span><span class="detail-row-value">${g.soundcheck}</span></div>`:''}
+      ${g.stage?`<div class="detail-row"><span class="detail-row-label">Stage time</span><span class="detail-row-value">${g.stage}</span></div>`:''}
+      ${g.distance?`<div class="detail-row"><span class="detail-row-label">Mileage (return)</span><span class="detail-row-value">${Math.round(g.distance*2)} miles</span></div>`:''}
+    </div>`;
+
+  document.getElementById('detail-notes').value=g.notes||'';
+  showPage('gigdetail',null);
+}
+
+function updateGigStatus(){
+  if(!currentGigId) return;
+  const gigs=loadGigs();
+  const idx=gigs.findIndex(g=>g.id===currentGigId);
+  if(idx<0) return;
+  gigs[idx].paystatus=document.getElementById('detail-status-sel').value;
+  saveGigs(gigs);
+}
+
+function saveNotes(){
+  if(!currentGigId) return;
+  const gigs=loadGigs();
+  const idx=gigs.findIndex(g=>g.id===currentGigId);
+  if(idx<0) return;
+  gigs[idx].notes=document.getElementById('detail-notes').value;
+  saveGigs(gigs);
+}
+
+function editCurrentGig(){
+  if(!currentGigId) return;
+  const gigs=loadGigs();
+  const g=gigs.find(x=>x.id===currentGigId);
+  if(!g) return;
+  populateForm(g);
+  document.getElementById('modalTitle').textContent='Edit Gig';
+  document.getElementById('editGigId').value=g.id;
+  openModal();
+}
+
+function deleteCurrentGig(){
+  if(!currentGigId) return;
+  if(!confirm('Delete this gig? This cannot be undone.')) return;
+  let gigs=loadGigs();
+  gigs=gigs.filter(g=>g.id!==currentGigId);
+  saveGigs(gigs);
+  currentGigId=null;
+  goBack();
+}
+
+// ─────────────────────────────────────────────
+// ADD / EDIT MODAL
+// ─────────────────────────────────────────────
+function openModal(prefillDate){
+  const p=loadPrefs();
+  document.getElementById('modalTitle').textContent='Add New Gig';
+  document.getElementById('editGigId').value='';
+  clearForm();
+  // Apply defaults from settings
+  if(p.defaultTransport) document.getElementById('f-transport').value=p.defaultTransport;
+  if(p.defaultPayment) document.getElementById('f-paymethod').value=p.defaultPayment;
+  if(p.defaultPA) document.getElementById('f-pa').value=p.defaultPA;
+  if(prefillDate) document.getElementById('f-date').value=prefillDate;
+  // Update currency symbols
+  const c=currency();
+  document.getElementById('f-curr-sym').textContent=c;
+  document.getElementById('f-dep-sym').textContent=c;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closeModalOutside(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+function clearForm(){
+  ['f-venue','f-date','f-stage','f-soundcheck','f-address','f-parking','f-fee','f-deposit','f-balancedate','f-distance','f-hotelname','f-contact','f-phone','f-email','f-notes','f-leaveby'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  document.getElementById('hotel-name-row').style.display='none';
+}
+
+function populateForm(g){
+  clearForm();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  set('f-venue',g.venue); set('f-date',g.date); set('f-stage',g.stage); set('f-soundcheck',g.soundcheck);
+  set('f-address',g.address); set('f-parking',g.parking); set('f-fee',g.fee); set('f-deposit',g.deposit);
+  set('f-balancedate',g.balancedate); set('f-distance',g.distance); set('f-hotelname',g.hotelname);
+  set('f-contact',g.contact); set('f-phone',g.phone); set('f-email',g.email); set('f-notes',g.notes);
+  set('f-leaveby',g.leaveby);
+  ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    const key=id.replace('f-','');
+    const keyMap={'type':'type','setlength':'setlength','pa':'pa','paymethod':'paymethod','paystatus':'paystatus','transport':'transport','hotel':'hotel'};
+    const val=g[keyMap[key]]; if(val!==undefined) el.value=val;
+  });
+  const hotel=document.getElementById('f-hotel');
+  if(hotel&&hotel.value!=='no') document.getElementById('hotel-name-row').style.display='';
+}
+
+function saveGig(){
+  const venue=document.getElementById('f-venue').value.trim();
+  const date=document.getElementById('f-date').value;
+  if(!venue){ alert('Please enter a venue name.'); return; }
+  if(!date){ alert('Please select a date.'); return; }
+
+  const editId=document.getElementById('editGigId').value;
+  const gigs=loadGigs();
+
+  const g={
+    id: editId||uid(),
+    venue, date,
+    type: document.getElementById('f-type').value,
+    stage: document.getElementById('f-stage').value,
+    soundcheck: document.getElementById('f-soundcheck').value,
+    setlength: document.getElementById('f-setlength').value,
+    address: document.getElementById('f-address').value,
+    parking: document.getElementById('f-parking').value,
+    pa: document.getElementById('f-pa').value,
+    fee: parseFloat(document.getElementById('f-fee').value)||0,
+    deposit: parseFloat(document.getElementById('f-deposit').value)||0,
+    paymethod: document.getElementById('f-paymethod').value,
+    paystatus: document.getElementById('f-paystatus').value,
+    balancedate: document.getElementById('f-balancedate').value,
+    transport: document.getElementById('f-transport').value,
+    distance: parseFloat(document.getElementById('f-distance').value)||0,
+    leaveby: document.getElementById('f-leaveby').value,
+    hotel: document.getElementById('f-hotel').value,
+    hotelname: document.getElementById('f-hotelname').value,
+    contact: document.getElementById('f-contact').value,
+    phone: document.getElementById('f-phone').value,
+    email: document.getElementById('f-email').value,
+    notes: document.getElementById('f-notes').value,
+    mileage: (parseFloat(document.getElementById('f-distance').value)||0)*2,
+  };
+
+  if(editId){
+    const idx=gigs.findIndex(x=>x.id===editId);
+    if(idx>=0) gigs[idx]=g; else gigs.push(g);
+  } else {
+    gigs.push(g);
+  }
+  saveGigs(gigs);
+  closeModal();
+
+  // Refresh current page
+  const cur=document.querySelector('.page.active');
+  if(cur){
+    const id=cur.id.replace('page-','');
+    if(id==='dashboard') renderDashboard();
+    if(id==='gigs') renderGigs();
+    if(id==='calendar') buildCalendar();
+    if(id==='income') renderIncome();
+    if(id==='gigdetail'&&editId===currentGigId) showGigDetail(currentGigId);
+  }
+}
+
+// Hotel field toggle
+document.getElementById('f-hotel').addEventListener('change',function(){
+  document.getElementById('hotel-name-row').style.display=this.value!=='no'?'':'none';
+});
+
+// ─────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────
+let calYear=TODAY.getFullYear(), calMonth=TODAY.getMonth();
+
+function calNav(dir){ calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;} buildCalendar(); }
+function calToday(){ calYear=TODAY.getFullYear(); calMonth=TODAY.getMonth(); buildCalendar(); }
+
+function buildCalendar(){
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const weekStart=parseInt(getPref('weekStart','1'));
+  const DOW_LABELS_MON=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const DOW_LABELS_SUN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const labels=weekStart===1?DOW_LABELS_MON:DOW_LABELS_SUN;
+
+  const titleEl=document.getElementById('calMonthTitle');
+  if(titleEl) titleEl.textContent=`${MONTHS[calMonth]} ${calYear} ▾`;
+  document.getElementById('calDow').innerHTML=labels.map(d=>`<div>${d}</div>`).join('');
+
+  const gigs=loadGigs();
+  const gigsByDate={};
+  gigs.forEach(g=>{
+    if(!gigsByDate[g.date]) gigsByDate[g.date]=[];
+    gigsByDate[g.date].push(g);
+  });
+
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+  const offset=weekStart===1?(firstDow===0?6:firstDow-1):firstDow;
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const daysInPrev=new Date(calYear,calMonth,0).getDate();
+  const pad=n=>String(n).padStart(2,'0');
+
+  let html='';
+  for(let i=0;i<42;i++){
+    let dayNum, thisMonth=true, dateStr='';
+    if(i<offset){ dayNum=daysInPrev-offset+i+1; thisMonth=false; }
+    else if(i-offset+1>daysInMonth){ dayNum=i-offset+1-daysInMonth; thisMonth=false; }
+    else{ dayNum=i-offset+1; dateStr=`${calYear}-${pad(calMonth+1)}-${pad(dayNum)}`; }
+
+    const isToday=thisMonth&&new Date(calYear,calMonth,dayNum).toDateString()===TODAY.toDateString();
+    const dayGigs=dateStr&&gigsByDate[dateStr]||[];
+
+    html+=`<div class="cal-cell${!thisMonth?' other':''}${isToday?' today':''}" ${thisMonth&&dateStr?`onclick="calCellClick('${dateStr}')"`:''}>
+      <div class="cal-num">${dayNum}</div>
+      ${dayGigs.slice(0,2).map(g=>`<div class="cal-event ${gigTypeClass(g.type)}" onclick="event.stopPropagation();showGigDetail('${g.id}')">${g.venue.split(',')[0]}</div>`).join('')}
+      ${dayGigs.length>2?`<div style="font-size:9px;color:var(--text3);padding:1px 5px">+${dayGigs.length-2} more</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calDays').innerHTML=html;
+}
+
+function calCellClick(dateStr){
+  // If there's one gig on this day, open it; if multiple, open all gigs filtered; if none, open add modal
+  const gigs=loadGigs();
+  const dayGigs=gigs.filter(g=>g.date===dateStr);
+  if(dayGigs.length===1){ showGigDetail(dayGigs[0].id); }
+  else if(dayGigs.length>1){ showPage('gigs',document.querySelectorAll('.nav-item')[2]); }
+  else{ openModal(dateStr); }
+}
+
+// ─────────────────────────────────────────────
+// INCOME
+// ─────────────────────────────────────────────
+let incomeYear=TODAY.getFullYear();
+function incomeYearNav(d){ incomeYear+=d; renderIncome(); }
+
+function renderIncome(){
+  const level=authLevel();
+
+  // Free users see blurred preview + upgrade prompt
+  if(level==='free'||level==='guest'){
+    const el=document.getElementById('income-stats');
+    const chartEl=document.getElementById('chartBars');
+    const logEl=document.getElementById('income-log');
+    const lockedEl=document.getElementById('income-locked-section');
+    document.getElementById('incomeYear').textContent=TODAY.getFullYear();
+
+    // Blurred ghost stats
+    el.innerHTML=`
+      <div class="stat-card hi" style="filter:blur(4px);pointer-events:none;user-select:none"><div class="stat-label">2026 Total</div><div class="stat-value">£0,000</div><div class="stat-sub">— gigs</div></div>
+      <div class="stat-card" style="filter:blur(4px);pointer-events:none;user-select:none"><div class="stat-label">Avg Per Gig</div><div class="stat-value">£000</div><div class="stat-sub">—</div></div>
+      <div class="stat-card" style="filter:blur(4px);pointer-events:none;user-select:none"><div class="stat-label">Outstanding</div><div class="stat-value">£000</div><div class="stat-sub">—</div></div>
+      <div class="stat-card" style="filter:blur(4px);pointer-events:none;user-select:none"><div class="stat-label">Year Estimate</div><div class="stat-value">£0.0k</div><div class="stat-sub">—</div></div>`;
+
+    // Blurred ghost chart bars
+    const ghostHeights=[60,80,45,100,70,50,30,65,85,40,55,75];
+    if(chartEl){
+      chartEl.innerHTML=ghostHeights.map(h=>`<div class="bar-col" style="filter:blur(3px);pointer-events:none"><div class="bar" style="height:${h}px;opacity:0.3"></div></div>`).join('');
+    }
+    const lbls=document.getElementById('chartLabels');
+    if(lbls) lbls.innerHTML=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m=>`<div class="bar-lbl" style="flex:1;text-align:center;filter:blur(3px)">${m}</div>`).join('');
+
+    // Ghost log
+    if(logEl) logEl.innerHTML=`<div style="filter:blur(4px);pointer-events:none">${[1,2,3].map(()=>`<div class="gig-card" style="margin-bottom:8px"><div class="gig-date-block"><div class="gig-date-day">00</div><div class="gig-date-mon">Xxx</div></div><div class="gig-info"><div class="gig-venue">Venue Name Here</div><div class="gig-meta"><span>00:00</span></div></div><div class="gig-fee"><div class="gig-fee-amount">£000</div></div></div>`).join('')}</div>`;
+
+    // Upgrade gate overlay
+    lockedEl.innerHTML=`<div style="background:var(--surface);border:1px solid var(--acc-border);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);padding:32px 24px;text-align:center;margin-top:16px">
+      <div style="font-size:28px;margin-bottom:10px">💰</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:6px">Finance is a Pro feature</div>
+      <div style="font-size:13px;color:var(--text3);max-width:340px;margin:0 auto 20px;line-height:1.6">Track income, log expenses, calculate mileage for HMRC, and generate year-end summaries. All locked behind the Pro plan.</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${level==='guest'?`<button class="btn btn-ghost" onclick="showOnboarding()">Sign Up Free First</button>`:''}
+        <button class="btn btn-primary" onclick="showPage('settings',document.querySelectorAll('.nav-item')[5])">Upgrade to Pro — £5/mo</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const gigs=loadGigs();
+  const paidGigs=gigs.filter(g=>g.paystatus==='paid');
+  const thisYearPaid=paidGigs.filter(g=>parseDate(g.date).getFullYear()===TODAY.getFullYear());
+  const totalIncome=thisYearPaid.reduce((s,g)=>s+(Number(g.fee)||0),0);
+  const avgPerGig=thisYearPaid.length>0?totalIncome/thisYearPaid.length:0;
+  const outstanding=gigs.filter(g=>g.paystatus!=='paid'&&parseDate(g.date)<TODAY).reduce((s,g)=>s+(Number(g.fee)-Number(g.deposit||0)||0),0);
+  const yearRate=totalIncome/(TODAY.getMonth()+1)*12;
+
+  document.getElementById('incomeYear').textContent=incomeYear;
+  document.getElementById('income-stats').innerHTML=`
+    <div class="stat-card hi"><div class="stat-label">${incomeYear} Total</div><div class="stat-value">${fmtMoney(totalIncome)}</div><div class="stat-sub">${thisYearPaid.length} paid gigs</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Per Gig</div><div class="stat-value">${fmtMoney(avgPerGig)}</div><div class="stat-sub">Paid gigs only</div></div>
+    <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value">${fmtMoney(outstanding)}</div><div class="stat-sub">Past gigs unpaid</div></div>
+    <div class="stat-card"><div class="stat-label">Year Estimate</div><div class="stat-value">${fmtMoney(yearRate)}</div><div class="stat-sub">At current rate</div></div>`;
+
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthlyTotals=months.map((_,m)=>paidGigs.filter(g=>{const d=parseDate(g.date);return d.getFullYear()===incomeYear&&d.getMonth()===m;}).reduce((s,g)=>s+(Number(g.fee)||0),0));
+  const max=Math.max(...monthlyTotals,1);
+
+  document.getElementById('chartBars').innerHTML=months.map((_,i)=>{
+    const h=monthlyTotals[i]?Math.round((monthlyTotals[i]/max)*110):3;
+    return `<div class="bar-col"><div class="bar-val">${monthlyTotals[i]?currency()+monthlyTotals[i]:''}</div><div class="bar${monthlyTotals[i]?'':' empty'}" style="height:${h}px" title="${months[i]}: ${fmtMoney(monthlyTotals[i])}"></div></div>`;
+  }).join('');
+  document.getElementById('chartLabels').innerHTML=months.map(m=>`<div class="bar-lbl" style="flex:1;text-align:center">${m}</div>`).join('');
+
+  const log=paidGigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,10);
+  const logEl=document.getElementById('income-log');
+  if(log.length===0){
+    logEl.innerHTML=`<div class="empty-gig"><div class="empty-date"><div class="empty-day">—</div><div class="empty-mon">—</div></div><div class="empty-text">Paid gigs will appear in your income log</div><div class="empty-add" onclick="openModal()">+ Add gig</div></div>`;
+  } else {
+    logEl.innerHTML=log.map(g=>gigCardHTML(g)).join('');
+  }
+  document.getElementById('income-locked-section').innerHTML='';
+}
+
+// ─────────────────────────────────────────────
+// MILEAGE (Pro)
+// ─────────────────────────────────────────────
+function renderMileage(){
+  const pro=isPro();
+  const el=document.getElementById('mileage-content');
+
+  if(!pro){
+    el.innerHTML=`<div class="lock-screen"><div class="lock-icon">🚗</div><div class="lock-title">Mileage &amp; Expenses</div><div class="lock-sub">Automatically log miles per gig, track deductible expenses, and generate a summary ready for your HMRC self-assessment. Available on the Pro plan.</div><button class="btn btn-primary" style="font-size:13px;padding:10px 24px" onclick="showPage('settings',document.querySelectorAll('.nav-item')[5])">Unlock — £5/month</button></div>`;
+    return;
+  }
+
+  const gigs=loadGigs().filter(g=>g.distance>0);
+  const expenses=loadExpenses();
+  const totalMiles=gigs.reduce((s,g)=>s+((Number(g.distance)||0)*2),0);
+  const hmrcRate=0.45; // £0.45/mile HMRC approved rate
+  const mileageValue=totalMiles*hmrcRate;
+  const totalExpenses=expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
+
+  el.innerHTML=`
+    <div class="mileage-summary stats-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card hi"><div class="stat-label">Total Miles (${TODAY.getFullYear()})</div><div class="stat-value">${Math.round(totalMiles)}</div><div class="stat-sub">Return trips logged</div></div>
+      <div class="stat-card"><div class="stat-label">HMRC Value</div><div class="stat-value">${fmtMoney(mileageValue)}</div><div class="stat-sub">@ £0.45/mile</div></div>
+      <div class="stat-card"><div class="stat-label">Other Expenses</div><div class="stat-value">${fmtMoney(totalExpenses)}</div><div class="stat-sub">${expenses.length} items logged</div></div>
+    </div>
+
+    <div class="section-header" style="margin-bottom:12px"><div class="section-title">Mileage Log</div></div>
+    <div class="mileage-list">
+      ${gigs.length===0?'<div class="no-results">No mileage logged yet. Distance is calculated from gig entries.</div>':gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date)).map(g=>`
+        <div class="mileage-row">
+          <div class="mileage-date">${fmtShortDate(g.date)}</div>
+          <div class="mileage-info"><div class="mileage-venue">${g.venue}</div><div class="mileage-sub">${g.transport||'Driving'} · ${g.distance} mi each way</div></div>
+          <div class="mileage-val">${Math.round((Number(g.distance)||0)*2)} mi</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-header" style="margin-bottom:12px"><div class="section-title">Add Expense</div></div>
+    <div class="expense-form">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="exp-desc" placeholder="e.g. Guitar strings, travel food"></div>
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="exp-cat"><option>Equipment</option><option>Travel</option><option>Accommodation</option><option>Promotion</option><option>Other</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Amount</label><div class="currency-wrap"><span>${currency()}</span><input type="number" class="form-input" id="exp-amount" placeholder="0.00" min="0" step="0.01"></div></div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="exp-date"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
+    </div>
+
+    ${expenses.length>0?`<div class="section-header" style="margin-bottom:12px"><div class="section-title">Expense Log</div></div>
+    <div class="mileage-list">
+      ${expenses.sort((a,b)=>new Date(b.date)-new Date(a.date)).map((e,i)=>`
+        <div class="mileage-row">
+          <div class="mileage-date">${e.date?fmtShortDate(e.date):'—'}</div>
+          <div class="mileage-info"><div class="mileage-venue">${e.desc}</div><div class="mileage-sub">${e.cat}</div></div>
+          <div style="display:flex;align-items:center;gap:10px"><div class="mileage-val" style="color:var(--amber)">${fmtMoney(e.amount)}</div><button class="btn btn-sm btn-danger" onclick="deleteExpense(${i})">✕</button></div>
+        </div>`).join('')}
+    </div>`:''} `;
+}
+
+function addExpense(){
+  const desc=document.getElementById('exp-desc').value.trim();
+  const amount=parseFloat(document.getElementById('exp-amount').value)||0;
+  const cat=document.getElementById('exp-cat').value;
+  const date=document.getElementById('exp-date').value;
+  if(!desc||!amount){ alert('Please enter a description and amount.'); return; }
+  const expenses=loadExpenses();
+  expenses.push({desc,amount,cat,date,id:uid()});
+  saveExpenses(expenses);
+  renderMileage();
+}
+
+function deleteExpense(i){
+  const expenses=loadExpenses();
+  expenses.splice(i,1);
+  saveExpenses(expenses);
+  renderMileage();
+}
+
+// ─────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────
+function loadSettingsUI(){
+  const p=loadPrefs();
+  const profile=loadProfile();
+
+  // Profile fields
+  ['name','instrument','email','phone'].forEach(k=>{const el=document.getElementById('s-'+k);if(el)el.value=profile[k]||'';});
+  updateProfileUI();
+
+  // Pref dropdowns
+  const setVal=(id,val)=>{const el=document.getElementById(id);if(el&&val!==undefined)el.value=val;};
+  setVal('s-weekstart',p.weekStart||'1');
+  setVal('s-dateformat',p.dateFormat||'dmy');
+  setVal('s-currency',p.currency||'£');
+  setVal('s-transport',p.defaultTransport||'Driving');
+  setVal('s-payment',p.defaultPayment||'Bank transfer');
+  setVal('s-pa',p.defaultPA||'Yes — in house');
+
+  // Toggles
+  const setCheck=(id,val)=>{const el=document.getElementById(id);if(el)el.checked=!!val;};
+  setCheck('s-reminders',p.reminders);
+  setCheck('s-unpaid',p.unpaidAlerts);
+  setCheck('s-deposits',p.depositAlerts);
+  setCheck('s-mileageprompt',p.mileagePrompts);
+}
+
+function togglePro(){
+  const pro=isPro();
+  if(pro){ if(!confirm('Downgrade to Free plan? Some features will be locked.')) return; }
+  savePref('isPro',!pro);
+  refreshAuthUI();
+  loadPricingUI();
+}
+
+function clearAllData(){
+  const first=confirm('This will permanently delete ALL your gig data. Are you absolutely sure?\n\nThis cannot be undone.');
+  if(!first) return;
+  const second=confirm('Last chance — are you certain you want to delete everything?\n\nPress OK to permanently clear all gig data.');
+  if(!second) return;
+  localStorage.removeItem(STORE_GIGS);
+  localStorage.removeItem(STORE_EXPENSES);
+  renderDashboard();
+  alert('All gig data has been cleared.');
+}
+
+function openExportModal(){
+  const gigs=loadGigs();
+  if(gigs.length===0){ alert('No gig data to export yet.'); return; }
+  document.getElementById('exportModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeExportModal(){ document.getElementById('exportModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closeExportOutside(e){ if(e.target===document.getElementById('exportModalOverlay')) closeExportModal(); }
+
+function exportData(format){
+  const gigs=loadGigs();
+  if(gigs.length===0){ alert('No gig data to export yet.'); return; }
+  let content='', filename='', mime='';
+
+  if(format==='csv'){
+    const headers=['Date','Venue','Type','Stage','Soundcheck','Set Length','Address','Fee','Deposit','Payment Status','Transport','Distance (mi)','Contact','Phone','Email','Notes'];
+    const rows=gigs.map(g=>[g.date,g.venue,g.type,g.stage,g.soundcheck,g.setlength,g.address,g.fee,g.deposit,g.paystatus,g.transport,g.distance,g.contact,g.phone,g.email,(g.notes||'').replace(/"/g,"'")].map(v=>`"${v===undefined||v===null?'':v}"`).join(','));
+    content=[headers.join(','),...rows].join('\n');
+    filename='gigbook-export.csv'; mime='text/csv';
+  }
+  else if(format==='json'){
+    content=JSON.stringify({exported: new Date().toISOString(), gigs, expenses: loadExpenses()}, null, 2);
+    filename='gigbook-backup.json'; mime='application/json';
+  }
+  else if(format==='txt'){
+    const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const lines=['GIGBOOK EXPORT — '+new Date().toLocaleDateString(),'='.repeat(40),''];
+    gigs.sort((a,b)=>parseDate(a.date)-parseDate(b.date)).forEach(g=>{
+      const d=parseDate(g.date);
+      lines.push(`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} — ${g.venue}`);
+      if(g.stage) lines.push(`  Stage time: ${g.stage}${g.soundcheck?' (Soundcheck '+g.soundcheck+')':''}`);
+      if(g.address) lines.push(`  Address: ${g.address}`);
+      if(g.fee) lines.push(`  Fee: ${currency()}${g.fee}${g.deposit?' (deposit: '+currency()+g.deposit+')':''}`);
+      if(g.contact) lines.push(`  Contact: ${g.contact}${g.phone?' — '+g.phone:''}`);
+      if(g.notes) lines.push(`  Notes: ${g.notes}`);
+      lines.push('');
+    });
+    content=lines.join('\n');
+    filename='gigbook-gigs.txt'; mime='text/plain';
+  }
+
+  const a=document.createElement('a');
+  a.href=`data:${mime};charset=utf-8,`+encodeURIComponent(content);
+  a.download=filename;
+  a.click();
+  closeExportModal();
+}
+
+// ─────────────────────────────────────────────
+// CALENDAR MONTH/YEAR PICKER
+// ─────────────────────────────────────────────
+function openCalPicker(){
+  const picker=document.getElementById('calPicker');
+  if(picker.style.display!=='none'){ closeCalPicker(); return; }
+
+  // Populate year dropdown: current year -5 to +10
+  const yearSel=document.getElementById('calPickerYear');
+  yearSel.innerHTML='';
+  for(let y=TODAY.getFullYear()-5; y<=TODAY.getFullYear()+10; y++){
+    const opt=document.createElement('option');
+    opt.value=y; opt.textContent=y;
+    if(y===calYear) opt.selected=true;
+    yearSel.appendChild(opt);
+  }
+  document.getElementById('calPickerMonth').value=calMonth;
+  picker.style.display='';
+}
+
+function closeCalPicker(){
+  document.getElementById('calPicker').style.display='none';
+}
+
+function applyCalPicker(){
+  calYear=parseInt(document.getElementById('calPickerYear').value);
+  calMonth=parseInt(document.getElementById('calPickerMonth').value);
+  closeCalPicker();
+  buildCalendar();
+}
+
+// ─────────────────────────────────────────────
+// PRICING PAGE
+// ─────────────────────────────────────────────
+function loadPricingUI(){
+  const pro=isPro();
+  const fBtn=document.getElementById('freeTierBtn');
+  const pBtn=document.getElementById('proTierBtn');
+  const fEy=document.getElementById('freeTierEyebrow');
+  const pEy=document.getElementById('proTierEyebrow');
+  if(fBtn) fBtn.textContent=pro?'Downgrade':'Current Plan';
+  if(pBtn){ pBtn.textContent=pro?'Current Plan':'Upgrade to Pro'; pBtn.className='tier-action-btn '+(pro?'current':'upgrade'); }
+  if(fEy) fEy.textContent=pro?'Basic plan':'Current plan';
+  if(pEy) pEy.textContent=pro?'Current plan':'Full access';
+}
+
+// ─────────────────────────────────────────────
+// AUTH STATE
+// ─────────────────────────────────────────────
+const STORE_AUTH = 'gb_auth';
+
+function getAuth(){ try{ return JSON.parse(localStorage.getItem(STORE_AUTH)||'null'); }catch(e){return null;} }
+function setAuth(a){ if(a) localStorage.setItem(STORE_AUTH,JSON.stringify(a)); else localStorage.removeItem(STORE_AUTH); }
+
+// Auth levels: 'guest' | 'free' | 'pro'
+function authLevel(){
+  const a=getAuth();
+  if(!a) return 'guest';
+  if(isPro()) return 'pro';
+  return 'free';
+}
+function isGuest(){ return authLevel()==='guest'; }
+function isSignedIn(){ return !isGuest(); }
+
+// ─────────────────────────────────────────────
+// ONBOARDING / AUTH MODAL
+// ─────────────────────────────────────────────
+function showOnboarding(){
+  document.getElementById('onboardingOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeOnboarding(){
+  document.getElementById('onboardingOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function showAuthTab(tab){
+  document.querySelectorAll('.auth-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.auth-tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.auth-tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`auth-tab-${tab}`).classList.add('active');
+}
+
+function socialLogin(provider){
+  // In production this would trigger OAuth. Here we simulate successful sign-in.
+  const names={google:'Google User',apple:'Apple User',facebook:'Facebook User'};
+  const p=loadProfile();
+  if(!p.name) { p.name=names[provider]; saveProfile(p); }
+  setAuth({provider, signedInAt: Date.now()});
+  closeOnboarding();
+  refreshAuthUI();
+  renderDashboard();
+}
+
+function emailSignUp(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-pass').value;
+  if(!name||!email||!pass){ alert('Please fill in all fields.'); return; }
+  if(pass.length<6){ alert('Password must be at least 6 characters.'); return; }
+  const p=loadProfile(); p.name=name; p.email=email; saveProfile(p);
+  setAuth({provider:'email', email, signedInAt: Date.now()});
+  closeOnboarding();
+  refreshAuthUI();
+  renderDashboard();
+}
+
+function emailSignIn(){
+  const email=document.getElementById('signin-email').value.trim();
+  const pass=document.getElementById('signin-pass').value;
+  if(!email||!pass){ alert('Please enter your email and password.'); return; }
+  // Simulate sign-in (in production: verify against backend)
+  setAuth({provider:'email', email, signedInAt: Date.now()});
+  closeOnboarding();
+  refreshAuthUI();
+  renderDashboard();
+}
+
+function continueAsGuest(){
+  // Guest gets minimal access — gig add/view only
+  closeOnboarding();
+  refreshAuthUI();
+}
+
+function signOut(){
+  if(!confirm('Sign out of GigBook?')) return;
+  setAuth(null);
+  refreshAuthUI();
+  renderDashboard();
+  showOnboarding();
+}
+
+function refreshAuthUI(){
+  const level=authLevel();
+
+  const tierName=document.getElementById('sidebarTierName');
+  const upBtn=document.getElementById('sidebarUpgradeBtn');
+  const pricingNav=document.getElementById('pricingNavBtn');
+
+  if(level==='guest'){
+    tierName.textContent='Guest';
+    upBtn.textContent='Sign Up Free';
+    upBtn.onclick=()=>showOnboarding();
+    upBtn.style.display='';
+    if(pricingNav) pricingNav.style.display='';
+  } else if(level==='free'){
+    tierName.textContent='Free';
+    upBtn.textContent='Upgrade — £5/mo';
+    upBtn.onclick=()=>showPage('pricing',null);
+    upBtn.style.display='';
+    if(pricingNav) pricingNav.style.display='';
+  } else {
+    tierName.textContent='Pro';
+    upBtn.style.display='none';
+    if(pricingNav) pricingNav.style.display='none';
+  }
+
+  updateNavLocks();
+  updateProfileUI();
+}
+
+function updateNavLocks(){
+  const level=authLevel();
+  // Nav items for calendar, all gigs, income, mileage, settings
+  const navItems=document.querySelectorAll('.nav-item');
+  // index 0=dashboard,1=calendar,2=gigs,3=income,4=mileage,5=settings
+  navItems.forEach((btn,i)=>{
+    if(i===1||i===2||i===5){ // calendar, all gigs, settings — need sign-in
+      btn.onclick=i===1?()=>requireSignIn(()=>showPage('calendar',btn)):
+                  i===2?()=>requireSignIn(()=>showPage('gigs',btn)):
+                  ()=>requireSignIn(()=>showPage('settings',btn));
+    }
+    if(i===3||i===4){ // income, mileage — need pro
+      btn.onclick=i===3?()=>showPage('income',btn):()=>showPage('mileage',btn);
+    }
+  });
+}
+
+function requireSignIn(cb){
+  if(isGuest()){ showOnboarding(); return; }
+  cb();
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+updateProfileUI();
+refreshAuthUI();
+
+// Show onboarding if first visit (no auth set)
+const _auth = getAuth();
+if(!_auth){
+  showOnboarding();
+  // Show a minimal guest dashboard
+  renderDashboard();
+  buildCalendar();
+} else {
+  renderDashboard();
+  buildCalendar();
+}
+</script>
+</body>
+</html>
