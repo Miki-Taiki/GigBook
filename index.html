@@ -438,6 +438,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .tax-row-label{color:var(--text2);}
 .tax-row-value{color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;}
 
+/* ── COLOUR SWATCHES ── */
+.colour-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
+.colour-swatch:hover{transform:scale(1.15);}
+.colour-swatch.selected{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,0.4);}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -495,11 +500,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">♪</span>All Gigs</button>
     <div class="nav-section">Tools</div>
     <button class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">◎</span>Contacts</button>
-    <button class="nav-item" onclick="showPage('templates',this)"><span class="nav-icon">⊞</span>Templates</button>
     <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">£</span>Income</button>
     <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">→</span>Expenses</button>
-    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">◧</span>Contracts</button>
-    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Tax Report</button>
+    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">◧</span>Documents</button>
+    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Finances</button>
     <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">◈</span>Gig History</button>
     <div class="nav-section">Account</div>
     <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Band</button>
@@ -771,7 +775,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
             <li><span class="check">✓</span>Payment chasing reminders</li>
             <li><span class="check">✓</span>Basic income overview</li>
             <li><span class="lock">🔒</span>Mileage &amp; expense tracking</li>
-            <li><span class="lock">🔒</span>Contract &amp; rider storage</li>
+            <li><span class="lock">🔒</span>Document storage (contracts, rider, EPK)</li>
             <li><span class="lock">🔒</span>Tax year summary report</li>
             <li><span class="lock">🔒</span>Gig history &amp; career stats</li>
             <li><span class="lock">🔒</span>PDF &amp; data export</li>
@@ -787,7 +791,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
             <li><span class="check">✓</span>Unlimited gig history</li>
             <li><span class="check">✓</span>Mileage tracking &amp; HMRC calc</li>
             <li><span class="check">✓</span>Expense logging</li>
-            <li><span class="check">✓</span>Contract &amp; rider storage</li>
+            <li><span class="check">✓</span>Document storage (contracts, rider, EPK)</li>
             <li><span class="check">✓</span>Tax year summary report</li>
             <li><span class="check">✓</span>Gig history &amp; career stats</li>
             <li><span class="check">✓</span>Full income history &amp; log</li>
@@ -930,8 +934,29 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editGigId">
       <div class="form-section">
         <div class="form-section-title">Gig details</div>
-        <div class="form-row"><div class="form-group"><label class="form-label">Venue name *</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div></div>
-        <div class="form-row"><div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="f-date"></div><div class="form-group"><label class="form-label">Stage time</label><input type="time" class="form-input" id="f-stage"></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Performing as (alias)</label>
+            <input type="text" class="form-input" id="f-alias" placeholder="e.g. DJ Nova, The Taiki Trio">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Colour tag</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="f-colour" value="#251131" style="width:36px;height:36px;border:1px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;padding:2px">
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                <div class="colour-swatch" style="background:#251131" onclick="setGigColour('#251131')" title="Default"></div>
+                <div class="colour-swatch" style="background:#00b8cc" onclick="setGigColour('#00b8cc')" title="Cyan"></div>
+                <div class="colour-swatch" style="background:#00c96e" onclick="setGigColour('#00c96e')" title="Green"></div>
+                <div class="colour-swatch" style="background:#e09800" onclick="setGigColour('#e09800')" title="Amber"></div>
+                <div class="colour-swatch" style="background:#e03050" onclick="setGigColour('#e03050')" title="Red"></div>
+                <div class="colour-swatch" style="background:#4488ff" onclick="setGigColour('#4488ff')" title="Blue"></div>
+                <div class="colour-swatch" style="background:#9f5af7" onclick="setGigColour('#9f5af7')" title="Purple"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="f-date"></div><div class="form-group"><label class="form-label">Stage time</label><input type="time" class="form-input" id="f-stage"></div></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Soundcheck time</label><input type="time" class="form-input" id="f-soundcheck"></div><div class="form-group"><label class="form-label">Set length</label><select class="form-select" id="f-setlength"><option>30 min</option><option>45 min</option><option>60 min</option><option>90 min</option><option>2 hours</option><option>Custom</option></select></div></div>
       </div>
       <div class="form-section">
@@ -962,6 +987,39 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row"><div class="form-group"><label class="form-label">Booker / promoter</label><input type="text" class="form-input" id="f-contact" placeholder="Full name"></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="f-phone" placeholder="07xxx xxxxxx"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="f-email" placeholder="booker@venue.co.uk"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="Anything else worth remembering..."></textarea></div></div>
+      </div>
+      <!-- RECURRING TEMPLATE SECTION -->
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0" onclick="toggleTemplateSection()">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">⊞ Save as recurring template</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">For residencies or regular gigs — create future instances in one tap</div>
+          </div>
+          <label class="toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="f-make-template" onchange="toggleTemplateSection()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div id="template-extra-fields" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Template name</label>
+              <input type="text" class="form-input" id="f-tpl-name" placeholder="e.g. Monthly residency — The Stag">
+            </div>
+            <div class="form-group">
+              <label class="form-label">How often?</label>
+              <select class="form-select" id="f-tpl-freq">
+                <option value="weekly">Weekly</option>
+                <option value="fortnightly">Fortnightly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="irregular">Irregular / as needed</option>
+              </select>
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--text3);line-height:1.5">
+            A template will be saved with this gig's venue, transport, contacts, and logistics pre-filled. Use it next time from <strong style="color:var(--text2)">+ Add Gig</strong> to create a new instance in seconds.
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1023,7 +1081,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="form-section">
         <div class="form-section-title">Template name &amp; gig type</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Template name *</label><input type="text" class="form-input" id="t-name" placeholder="e.g. Monthly residency — The Stag"></div>
+          <div class="form-group"><label class="form-label">Template name</label><input type="text" class="form-input" id="t-name" placeholder="e.g. Monthly residency — The Stag"></div>
           <div class="form-group"><label class="form-label">Gig type</label><select class="form-select" id="t-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div>
         </div>
       </div>
@@ -1073,7 +1131,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="modal-body">
       <input type="hidden" id="editContactId">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Name *</label><input type="text" class="form-input" id="c-name" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="c-name" placeholder="Full name"></div>
         <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Session Musician</option><option>Other</option></select></div>
       </div>
       <div class="form-row">
@@ -1294,7 +1352,7 @@ function isPro(){ return getPref('isPro',false); }
 let prevPage='dashboard';
 let currentGigId=null;
 
-const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Contracts & Documents',taxreport:'Tax Year Summary',gigstats:'Gig History',band:'Band'};
+const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Documents',taxreport:'Finances',gigstats:'Gig History',band:'Band'};
 
 function showPage(id,navEl){
   // Auth gating
@@ -1379,15 +1437,13 @@ function renderDashboard(){
   const bannerEl=document.getElementById('dash-next-banner');
   if(gigs.length===0){
     // First-time / empty state
-    bannerEl.innerHTML=`<div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:28px 24px;margin-bottom:20px;text-align:center">
-      <div style="font-size:32px;margin-bottom:10px">🎸</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:6px">Welcome to GigBook</div>
+    bannerEl.innerHTML=`<div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:32px 24px;margin-bottom:20px;text-align:center">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:8px">Welcome to GigBook</div>
       <div style="font-size:13px;color:rgba(200,158,224,0.7);max-width:380px;margin:0 auto 18px;line-height:1.6">Your musician's diary. Add gigs, track logistics, manage payments, and never miss a soundcheck. Start by adding your first gig below.</div>
       <button class="btn btn-primary" onclick="openModal()" style="font-size:13px;padding:9px 22px">+ Add your first gig</button>
     </div>`;
     document.getElementById('dash-stats').innerHTML='';
-    document.getElementById('dash-upcoming').innerHTML=`<div class="empty-gig" style="border-style:dashed;opacity:1;padding:20px 18px;justify-content:center;flex-direction:column;gap:10px;text-align:center">
-      <div style="font-size:24px">📅</div>
+    document.getElementById('dash-upcoming').innerHTML=`<div class="empty-gig" style="border-style:dashed;opacity:1;padding:22px 18px;justify-content:center;flex-direction:column;gap:8px;text-align:center">
       <div style="font-size:13px;color:var(--text2);font-weight:500">Add your first gig</div>
       <div style="font-size:12px;color:var(--text3)">It will appear here once added</div>
       <button class="btn btn-primary btn-sm" onclick="openModal()" style="margin-top:4px">+ Add Gig</button>
@@ -1400,7 +1456,7 @@ function renderDashboard(){
     const n=upcoming[0];
     const days=daysUntil(n.date);
     bannerEl.innerHTML=`<div class="upcoming-banner">
-      <div class="upcoming-icon">🎸</div>
+      <div class="upcoming-icon" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--cyan);letter-spacing:1px">♪</div>
       <div class="upcoming-text">
         <div class="upcoming-title">Next Up — ${n.venue}</div>
         <div class="upcoming-sub">${fmtDate(n.date)}${n.soundcheck?` · Soundcheck ${n.soundcheck}`:''}${n.stage?` · Stage ${n.stage}`:''}${n.fee?` · ${fmtMoney(n.fee-(n.deposit||0))} balance`:''}</div>
@@ -1501,8 +1557,22 @@ function showGigDetail(id){
   if(!g) return;
   currentGigId=id;
 
-  document.getElementById('detail-venue').textContent=g.venue;
-  document.getElementById('detail-meta').innerHTML=`<span>📅 ${fmtDate(g.date)}</span>${g.soundcheck?`<span>🕐 Soundcheck ${g.soundcheck}`+(g.stage?` · Stage ${g.stage}`:'')+`</span>`:''}${g.setlength?`<span>⏱ ${g.setlength}</span>`:''}`;
+  const hero = document.getElementById('detail-hero-container') || document.querySelector('.detail-hero');
+  if(hero && g.colour && g.colour !== '#251131'){
+    hero.style.borderTopColor = g.colour;
+  }
+  document.getElementById('detail-venue').textContent = g.venue;
+  // Show alias beneath venue name if set
+  let aliasEl = document.getElementById('detail-alias');
+  if(!aliasEl){
+    aliasEl = document.createElement('div');
+    aliasEl.id = 'detail-alias';
+    aliasEl.style.cssText = 'font-size:12px;color:var(--acc-text);margin-top:-2px;margin-bottom:4px;font-family:"Barlow Condensed",sans-serif;letter-spacing:.06em';
+    document.getElementById('detail-venue').after(aliasEl);
+  }
+  aliasEl.textContent = g.alias ? 'Performing as: ' + g.alias : '';
+  aliasEl.style.display = g.alias ? '' : 'none';
+  document.getElementById('detail-meta').innerHTML=`<span>◷ ${fmtDate(g.date)}</span>${g.soundcheck?`<span>Soundcheck ${g.soundcheck}`+(g.stage?` · Stage ${g.stage}`:'')+`</span>`:''}${g.setlength?`<span>${g.setlength}</span>`:''}${g.alias?`<span style="color:var(--acc-text)">as ${g.alias}</span>`:''}`;
 
   // Status selector
   const sel=document.getElementById('detail-status-sel');
@@ -1613,9 +1683,21 @@ function closeModal(){ document.getElementById('modalOverlay').classList.remove(
 function closeModalOutside(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
 
 function clearForm(){
-  ['f-venue','f-date','f-stage','f-soundcheck','f-address','f-parking','f-fee','f-deposit','f-balancedate','f-distance','f-hotelname','f-contact','f-phone','f-email','f-notes','f-leaveby'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-venue','f-date','f-stage','f-soundcheck','f-address','f-parking','f-fee','f-deposit','f-balancedate','f-distance','f-hotelname','f-contact','f-phone','f-email','f-notes','f-leaveby','f-alias'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   document.getElementById('hotel-name-row').style.display='none';
+  const colPicker=document.getElementById('f-colour'); if(colPicker) colPicker.value='#251131';
+  document.querySelectorAll('.colour-swatch').forEach(s=>s.classList.remove('selected'));
+  document.querySelector('.colour-swatch')?.classList.add('selected');
+  // Reset template toggle
+  const tplCb = document.getElementById('f-make-template');
+  if(tplCb){ tplCb.checked=false; }
+  const tplFields = document.getElementById('template-extra-fields');
+  if(tplFields) tplFields.style.display='none';
+  const tplName = document.getElementById('f-tpl-name');
+  if(tplName) tplName.value='';
+  const tplFreq = document.getElementById('f-tpl-freq');
+  if(tplFreq) tplFreq.selectedIndex=2; // monthly
 }
 
 function populateForm(g){
@@ -1626,6 +1708,8 @@ function populateForm(g){
   set('f-balancedate',g.balancedate); set('f-distance',g.distance); set('f-hotelname',g.hotelname);
   set('f-contact',g.contact); set('f-phone',g.phone); set('f-email',g.email); set('f-notes',g.notes);
   set('f-leaveby',g.leaveby);
+  set('f-alias', g.alias||'');
+  if(g.colour){ setGigColour(g.colour); }
   ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     const key=id.replace('f-','');
@@ -1670,6 +1754,8 @@ function saveGig(){
     email: document.getElementById('f-email').value,
     notes: document.getElementById('f-notes').value,
     mileage: (parseFloat(document.getElementById('f-distance').value)||0)*2,
+    alias: (document.getElementById('f-alias')?.value||'').trim(),
+    colour: document.getElementById('f-colour')?.value||'#251131',
   };
 
   if(editId){
@@ -1679,6 +1765,25 @@ function saveGig(){
     gigs.push(g);
   }
   saveGigs(gigs);
+
+  // Save as template if the toggle was checked
+  const makeTemplate = document.getElementById('f-make-template');
+  if(makeTemplate && makeTemplate.checked){
+    const tplName = (document.getElementById('f-tpl-name')?.value.trim()) || (g.venue + ' (template)');
+    const freq = document.getElementById('f-tpl-freq')?.value || 'monthly';
+    const templates = loadTemplates();
+    const t = {
+      id: uid(), name: tplName, freq,
+      venue: g.venue, type: g.type, setlength: g.setlength,
+      address: g.address, parking: g.parking, pa: g.pa,
+      transport: g.transport, distance: g.distance,
+      fee: g.fee, paymethod: g.paymethod,
+      contact: g.contact, phone: g.phone, notes: g.notes,
+    };
+    templates.push(t);
+    saveTemplates(templates);
+  }
+
   closeModal();
 
   // Refresh current page
@@ -1697,6 +1802,29 @@ function saveGig(){
 document.getElementById('f-hotel').addEventListener('change',function(){
   document.getElementById('hotel-name-row').style.display=this.value!=='no'?'':'none';
 });
+
+// Colour swatch selector
+function setGigColour(hex){
+  const picker = document.getElementById('f-colour');
+  if(picker) picker.value = hex;
+  document.querySelectorAll('.colour-swatch').forEach(s=>{
+    s.classList.toggle('selected', s.style.background===hex || s.style.backgroundColor===hex);
+  });
+}
+
+// Template section toggle in Add Gig modal
+function toggleTemplateSection(){
+  const cb = document.getElementById('f-make-template');
+  const fields = document.getElementById('template-extra-fields');
+  if(!cb||!fields) return;
+  fields.style.display = cb.checked ? '' : 'none';
+  // Pre-fill template name from venue if blank
+  if(cb.checked){
+    const venue = document.getElementById('f-venue').value.trim();
+    const tplName = document.getElementById('f-tpl-name');
+    if(tplName && !tplName.value && venue) tplName.value = venue + ' (template)';
+  }
+}
 
 // ─────────────────────────────────────────────
 // CALENDAR
@@ -1795,7 +1923,7 @@ function renderIncome(){
 
     // Upgrade gate overlay
     lockedEl.innerHTML=`<div style="background:var(--surface);border:1px solid var(--acc-border);border-top:2px solid var(--acc-text);border-radius:var(--radius-lg);padding:32px 24px;text-align:center;margin-top:16px">
-      <div style="font-size:28px;margin-bottom:10px">💰</div>
+      <div style="font-size:28px;margin-bottom:10px;opacity:.4;color:var(--acc-text);font-family:'Bebas Neue',sans-serif;letter-spacing:2px">£</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:6px">Finance is a Pro feature</div>
       <div style="font-size:13px;color:var(--text3);max-width:340px;margin:0 auto 20px;line-height:1.6">Track income, log expenses, calculate mileage for HMRC, and generate year-end summaries. All locked behind the Pro plan.</div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
@@ -2460,7 +2588,7 @@ function renderReminders(){
 
   if(unpaid.length === 0){
     el.innerHTML = `<div class="empty-gig" style="opacity:1;padding:20px;flex-direction:column;text-align:center;gap:8px">
-      <div style="font-size:24px">✅</div>
+      <div style="font-size:24px;color:var(--green);opacity:.7">◉</div>
       <div style="font-size:13px;color:var(--green);font-weight:500">All clear — no outstanding payments</div>
       <div style="font-size:12px;color:var(--text3)">Past gigs with unpaid balances will appear here.</div>
     </div>`;
@@ -2503,13 +2631,13 @@ function renderContracts(){
   const el = document.getElementById('contracts-content');
   if(!el) return;
   if(!isPro()){
-    el.innerHTML = proLockScreen('◧','Contracts & Documents','Store venue contracts, your technical rider, and your Electronic Press Kit. Share them instantly via email or social media.');
+    el.innerHTML = proLockScreen('◧','Documents','Store venue contracts, your technical rider, and your Electronic Press Kit. Share them instantly via email or social media.');
     return;
   }
   const gigs = loadGigs().filter(g => g.notes && g.notes.length > 10);
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:6px">
-      <div class="section-title">Contracts &amp; Documents</div>
+      <div class="section-title">Documents</div>
     </div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.5">
       Store your documents and share them directly via email or social media. Tap Edit to write or paste your rider and EPK text now.
@@ -2587,7 +2715,7 @@ function renderTaxReport(){
   const el = document.getElementById('taxreport-content');
   if(!el) return;
   if(!isPro()){
-    el.innerHTML = proLockScreen('📊','Tax Year Summary','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
+    el.innerHTML = proLockScreen('≡','Finances','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
     return;
   }
 
@@ -2615,8 +2743,14 @@ function renderTaxReport(){
 
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:16px">
-      <div class="section-title">Tax Year Summary</div>
-      <button class="btn btn-primary btn-sm" onclick="exportTaxReport('${taxYearLabel}')">Export PDF</button>
+      <div class="section-title">Finances</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-ghost" onclick="exportTaxReport('${taxYearLabel}','txt')">↓ Text</button>
+        <button class="btn btn-sm btn-ghost" onclick="exportTaxReport('${taxYearLabel}','csv')">↓ CSV</button>
+        <button class="btn btn-sm btn-ghost" onclick="exportTaxReport('${taxYearLabel}','json')">↓ JSON</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.print()">↓ PDF</button>
+        <button class="btn btn-sm btn-primary" onclick="emailTaxReport('${taxYearLabel}')">✉ Email</button>
+      </div>
     </div>
     <div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:16px;font-size:12px;color:var(--acc-text)">
       UK Tax Year ${taxYearLabel} (6 April ${taxYearStart.getFullYear()} – 5 April ${taxYearEnd.getFullYear()})
@@ -2645,28 +2779,100 @@ function renderTaxReport(){
     </div>`;
 }
 
-function exportTaxReport(year){
+function exportTaxReport(year, format){
   const gigs = loadGigs();
   const expenses = loadExpenses();
-  const lines = [`GigBook Tax Year Summary — ${year}`, '='.repeat(44), ''];
   const taxGigs = gigs.filter(g=>g.paystatus==='paid');
   const totalIncome = taxGigs.reduce((s,g)=>s+(Number(g.fee)||0),0);
   const totalMiles = gigs.reduce((s,g)=>s+((Number(g.distance)||0)*2),0);
-  lines.push(`Total income: ${fmtMoney(totalIncome)}`);
-  lines.push(`Total miles: ${Math.round(totalMiles)}`);
-  lines.push(`Mileage deduction: ${fmtMoney(totalMiles*0.45)}`);
-  lines.push(`Other expenses: ${fmtMoney(expenses.reduce((s,e)=>s+(Number(e.amount)||0),0))}`);
-  lines.push('');
-  lines.push('GIG INCOME LOG:');
-  taxGigs.forEach(g=>lines.push(`  ${g.date}  ${g.venue.padEnd(30)} ${fmtMoney(g.fee)}`));
+  const mileageVal = totalMiles*0.45;
+  const totalExp = expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const taxable = Math.max(0, totalIncome - mileageVal - totalExp);
+
+  let content='', filename='', mime='';
+
+  if(format==='csv'){
+    const headers=['Date','Venue','Fee','Payment Method'];
+    const rows=taxGigs.map(g=>[g.date,`"${g.venue}"`,g.fee,g.paymethod||''].join(','));
+    const summary=[
+      '',
+      `"SUMMARY"`,
+      `"Total income",${totalIncome}`,
+      `"Total miles",${Math.round(totalMiles)}`,
+      `"Mileage deduction (£0.45/mi)",${mileageVal.toFixed(2)}`,
+      `"Other expenses",${totalExp.toFixed(2)}`,
+      `"Estimated taxable income",${taxable.toFixed(2)}`
+    ];
+    content=[headers.join(','),...rows,...summary].join('\n');
+    filename=`gigbook-tax-${year}.csv`; mime='text/csv';
+  } else if(format==='json'){
+    content=JSON.stringify({
+      taxYear: year,
+      exported: new Date().toISOString(),
+      summary:{ totalIncome, totalMiles:Math.round(totalMiles), mileageDeduction:mileageVal, otherExpenses:totalExp, taxableIncome:taxable },
+      gigs: taxGigs,
+      expenses
+    }, null, 2);
+    filename=`gigbook-tax-${year}.json`; mime='application/json';
+  } else {
+    const lines=[`GIGBOOK TAX YEAR SUMMARY — ${year}`, '='.repeat(44), ''];
+    lines.push(`Gross performance income:  ${fmtMoney(totalIncome)}`);
+    lines.push(`Total miles (return):      ${Math.round(totalMiles)} mi`);
+    lines.push(`Mileage deduction (£0.45): ${fmtMoney(mileageVal)}`);
+    lines.push(`Other expenses:            ${fmtMoney(totalExp)}`);
+    lines.push(`Estimated taxable income:  ${fmtMoney(taxable)}`);
+    lines.push('');
+    lines.push('GIG INCOME LOG:');
+    taxGigs.sort((a,b)=>a.date.localeCompare(b.date)).forEach(g=>
+      lines.push(`  ${g.date}  ${(g.venue||'').padEnd(30).slice(0,30)}  ${fmtMoney(g.fee)}`)
+    );
+    if(expenses.length){
+      lines.push(''); lines.push('EXPENSES:');
+      expenses.forEach(e=>lines.push(`  ${e.date||'--'}  ${(e.desc||'').padEnd(30).slice(0,30)}  ${fmtMoney(e.amount)}`));
+    }
+    lines.push('');
+    lines.push('This is an estimate. Confirm with a qualified accountant before submitting your self-assessment.');
+    content=lines.join('\n');
+    filename=`gigbook-tax-${year}.txt`; mime='text/plain';
+  }
+
   const a=document.createElement('a');
-  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(lines.join('\n'));
-  a.download=`gigbook-tax-${year}.txt`; a.click();
+  a.href=`data:${mime};charset=utf-8,`+encodeURIComponent(content);
+  a.download=filename; a.click();
 }
 
-// ─────────────────────────────────────────────
-// GIG HISTORY STATS (Pro)
-// ─────────────────────────────────────────────
+function emailTaxReport(year){
+  const gigs = loadGigs();
+  const expenses = loadExpenses();
+  const taxGigs = gigs.filter(g=>g.paystatus==='paid');
+  const totalIncome = taxGigs.reduce((s,g)=>s+(Number(g.fee)||0),0);
+  const totalMiles = gigs.reduce((s,g)=>s+((Number(g.distance)||0)*2),0);
+  const mileageVal = totalMiles*0.45;
+  const totalExp = expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const taxable = Math.max(0, totalIncome - mileageVal - totalExp);
+
+  const subject = encodeURIComponent(`GigBook Finances — ${year}`);
+  const body = encodeURIComponent(
+`GigBook Financial Summary — Tax Year ${year}
+${'='.repeat(44)}
+
+Gross performance income:  ${fmtMoney(totalIncome)}
+Total miles (return):      ${Math.round(totalMiles)} mi
+Mileage deduction (£0.45): ${fmtMoney(mileageVal)}
+Other expenses:            ${fmtMoney(totalExp)}
+─────────────────────────────────────────────
+Estimated taxable income:  ${fmtMoney(taxable)}
+
+GIG LOG:
+${taxGigs.sort((a,b)=>a.date.localeCompare(b.date)).map(g=>`  ${g.date}  ${(g.venue||'').slice(0,28).padEnd(28)}  ${fmtMoney(g.fee)}`).join('\n')}
+
+This is an estimate. Confirm with a qualified accountant before submitting your self-assessment.
+Generated by GigBook.`
+  );
+  window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+
 function renderGigStats(){
   const el = document.getElementById('gigstats-content');
   if(!el) return;
@@ -2747,7 +2953,7 @@ function renderBand(){
             <li><span class="check">✓</span>One account</li>
             <li><span class="check">✓</span>Mileage &amp; HMRC calculator</li>
             <li><span class="check">✓</span>Expense logging</li>
-            <li><span class="check">✓</span>Contract &amp; rider storage</li>
+            <li><span class="check">✓</span>Document storage (contracts, rider, EPK)</li>
             <li><span class="check">✓</span>Tax year summary report</li>
             <li><span class="check">✓</span>Gig history &amp; career stats</li>
             <li><span class="check">✓</span>Full income history</li>
