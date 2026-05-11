@@ -3155,20 +3155,8 @@ function refreshAuthUI(){
 }
 
 function updateNavLocks(){
-  const level=authLevel();
-  // Nav items for calendar, all gigs, income, mileage, settings
-  const navItems=document.querySelectorAll('.nav-item');
-  // index 0=dashboard,1=calendar,2=gigs,3=income,4=mileage,5=settings
-  navItems.forEach((btn,i)=>{
-    if(i===1||i===2||i===5){ // calendar, all gigs, settings — need sign-in
-      btn.onclick=i===1?()=>requireSignIn(()=>showPage('calendar',btn)):
-                  i===2?()=>requireSignIn(()=>showPage('gigs',btn)):
-                  ()=>requireSignIn(()=>showPage('settings',btn));
-    }
-    if(i===3||i===4){ // income, mileage — need pro
-      btn.onclick=i===3?()=>showPage('income',btn):()=>showPage('mileage',btn);
-    }
-  });
+  // Auth gating is handled in showPage() itself.
+  // Previous index-based approach broke when nav items were added — removed.
 }
 
 function requireSignIn(cb){
