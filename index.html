@@ -438,6 +438,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .tax-row-label{color:var(--text2);}
 .tax-row-value{color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;}
 
+
+/* ── ALIAS FILTER BAR ── */
+.alias-bar{display:flex;align-items:center;gap:8px;padding:8px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;overflow-x:auto;}
+.alias-bar-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);transition:all .15s;white-space:nowrap;}
+.alias-bar-pill:hover{border-color:var(--border2);background:var(--surface2);color:var(--text);}
+.alias-bar-pill.active{color:#fff;border-color:transparent;}
+.alias-bar-pill .alias-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
 /* ── COLOUR SWATCHES ── */
 .colour-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
 .colour-swatch:hover{transform:scale(1.15);}
@@ -489,7 +497,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="sidebar-logo">
     <div>
       <div class="logo-text"><span class="logo-gig">GIG</span><span class="logo-book">BOOK</span></div>
-      <div class="logo-sub">Musician's Diary</div>
+      <div class="logo-sub">Artist's Diary</div>
     </div>
     <button class="profile-btn" id="profileBtn" onclick="openProfileModal()" title="Profile">GB</button>
   </div>
@@ -506,7 +514,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Finances</button>
     <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">◈</span>Gig History</button>
     <div class="nav-section">Account</div>
-    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Band</button>
+    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Ensemble</button>
     <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">◎</span>Settings</button>
     <button class="nav-item" id="pricingNavBtn" onclick="showPage('pricing',this)"><span class="nav-icon">★</span>Upgrade</button>
   </div>
@@ -642,7 +650,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="profile-fields">
         <div class="profile-fields-row">
           <div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="s-name" placeholder="Your name" oninput="saveProfileField('name',this.value)"></div>
-          <div class="form-group"><label class="form-label">Instrument</label><input type="text" class="form-input" id="s-instrument" placeholder="e.g. Guitar, Keys, DJ" oninput="saveProfileField('instrument',this.value)"></div>
+          <div class="form-group"><label class="form-label">Discipline / Role</label><input type="text" class="form-input" id="s-instrument" placeholder="e.g. Guitar, Keys, DJ" oninput="saveProfileField('instrument',this.value)"></div>
         </div>
         <div class="profile-fields-row">
           <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="s-email" placeholder="your@email.com" oninput="saveProfileField('email',this.value)"></div>
@@ -653,6 +661,16 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 
     <div class="section-header" style="margin-bottom:16px"><div class="section-title">Preferences</div></div>
     <div class="settings-grid">
+      <!-- ALIAS MANAGEMENT -->
+      <div class="settings-card" style="grid-column:1/-1">
+        <div class="settings-card-title">◎ Aliases</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+          Aliases let you separate your work under different names — each with its own colour and filtered view across the whole app.
+          <span id="alias-tier-note" style="color:var(--acc-text)"></span>
+        </div>
+        <div id="alias-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+        <button class="btn btn-primary btn-sm" id="add-alias-btn" onclick="openAddAliasModal()">+ Add Alias</button>
+      </div>
       <div class="settings-card">
         <div class="settings-card-title">📅 Calendar &amp; Display</div>
         <div class="settings-row">
@@ -768,12 +786,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
           <div class="tier-card-price">£0 <span>/ month</span></div>
           <ul class="tier-features">
             <li><span class="check">✓</span>Gig calendar &amp; diary</li>
+            <li><span class="check">✓</span>1 alias included</li>
             <li><span class="check">✓</span>All logistics fields</li>
             <li><span class="check">✓</span>6 months gig history</li>
             <li><span class="check">✓</span>Contacts book</li>
             <li><span class="check">✓</span>Recurring gig templates</li>
             <li><span class="check">✓</span>Payment chasing reminders</li>
             <li><span class="check">✓</span>Basic income overview</li>
+            <li><span class="check">✓</span>1 alias included</li>
             <li><span class="lock">🔒</span>Mileage &amp; expense tracking</li>
             <li><span class="lock">🔒</span>Document storage (contracts, rider, EPK)</li>
             <li><span class="lock">🔒</span>Tax year summary report</li>
@@ -788,6 +808,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
           <div class="tier-card-price">£5 <span>/ month</span></div>
           <ul class="tier-features">
             <li><span class="check">✓</span>Everything in Free</li>
+            <li><span class="check">✓</span>5 aliases included</li>
             <li><span class="check">✓</span>Unlimited gig history</li>
             <li><span class="check">✓</span>Mileage tracking &amp; HMRC calc</li>
             <li><span class="check">✓</span>Expense logging</li>
@@ -802,8 +823,8 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         </div>
         <!-- BAND TIER -->
         <div class="band-tier-card">
-          <div class="tier-card-eyebrow" style="color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">For bands &amp; groups</div>
-          <div class="tier-card-name" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px;color:var(--cyan)">Band</div>
+          <div class="tier-card-eyebrow" style="color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">For groups &amp; ensembles</div>
+          <div class="tier-card-name" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px;color:var(--cyan)">Ensemble</div>
           <div style="margin-bottom:16px">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);line-height:1">£3 <span style="font-family:'Barlow',sans-serif;font-size:13px;color:var(--text3);font-weight:300">/ member / month</span></div>
             <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">Min 2 members · Max 10 members<br>A 4-piece = £12/month total</div>
@@ -816,7 +837,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
             <li><span class="check">✓</span>Members keep own data if they leave</li>
             <li><span class="check">✓</span>Billing adjusts automatically</li>
           </ul>
-          <button class="tier-action-btn" style="width:100%;margin-top:16px;padding:10px;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:var(--cyan);border:1px solid var(--cyan);color:#001820;transition:all .15s" onclick="showPage('band',document.querySelector('[onclick*=band]'))">Set Up Band Plan</button>
+          <button class="tier-action-btn" style="width:100%;margin-top:16px;padding:10px;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:var(--cyan);border:1px solid var(--cyan);color:#001820;transition:all .15s" onclick="showPage('band',document.querySelector('[onclick*=band]'))">Set Up Ensemble Plan</button>
         </div>
 
         <!-- ORCHESTRA TIER -->
@@ -829,9 +850,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
             <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">Minimum 11 members · No upper limit<br>A 25-piece pays £50/month total<br><span style="color:var(--green)">Better per-member rate than Band</span></div>
           </div>
           <ul class="tier-features">
-            <li><span class="check">✓</span>Everything in Band plan</li>
+            <li><span class="check">✓</span>Everything in Ensemble plan</li>
             <li><span class="check">✓</span>11+ members (no maximum)</li>
-            <li><span class="check">✓</span>£2/member vs £3 on Band plan</li>
+            <li><span class="check">✓</span>£2/member vs £3 on Ensemble plan</li>
             <li><span class="check">✓</span>Section management (Strings, Brass etc.)</li>
             <li><span class="check">✓</span>Programme &amp; setlist distribution</li>
             <li><span class="check">✓</span>Shared rider for full ensemble</li>
@@ -873,7 +894,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <button class="filter-btn" onclick="setContactFilter('Agent',this)">Agents</button>
       <button class="filter-btn" onclick="setContactFilter('Manager',this)">Managers</button>
       <button class="filter-btn" onclick="setContactFilter('Session Musician',this)">Musicians</button>
-      <button class="filter-btn" onclick="setContactFilter('Band Member',this)">Band</button>
+      <button class="filter-btn" onclick="setContactFilter('Band Member',this)">Ensemble</button>
       <button class="filter-btn" onclick="setContactFilter('Other',this)">Other</button>
     </div>
     <div id="contact-list"></div>
@@ -934,11 +955,13 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editGigId">
       <div class="form-section">
         <div class="form-section-title">Gig details</div>
-        <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Session</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div></div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Performing as (alias)</label>
-            <input type="text" class="form-input" id="f-alias" placeholder="e.g. DJ Nova, The Taiki Trio">
+            <select class="form-select alias-select" id="f-alias">
+              <option value="">None (no alias)</option>
+            </select>
           </div>
           <div class="form-group">
             <label class="form-label">Colour tag</label>
@@ -962,7 +985,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="form-section">
         <div class="form-section-title">Location</div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Full address</label><input type="text" class="form-input" id="f-address" placeholder="Street, City, Postcode"></div></div>
-        <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="f-parking" placeholder="e.g. Loading bay, free after 6pm"></div><div class="form-group"><label class="form-label">PA provided?</label><select class="form-select" id="f-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="f-parking" placeholder="e.g. Loading bay, free after 6pm"></div><div class="form-group"><label class="form-label">PA / Sound provided?</label><select class="form-select" id="f-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div></div>
       </div>
       <div class="form-section">
         <div class="form-section-title">Fees &amp; payment</div>
@@ -1066,6 +1089,43 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   </div>
 </div>
 
+
+<!-- ALIAS MODAL -->
+<div class="modal-overlay" id="aliasModalOverlay" onclick="if(event.target===this)closeAliasModal()">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title" id="aliasModalTitle">New Alias</div>
+      <button class="modal-close" onclick="closeAliasModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editAliasId">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Alias name</label>
+        <input type="text" class="form-input" id="alias-name-input" placeholder="e.g. DJ Nova, The Taiki Trio">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Colour</label>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <input type="color" id="alias-colour-input" value="#c89ee0" style="width:36px;height:36px;border:1px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;padding:2px">
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <div class="colour-swatch" style="background:#c89ee0" onclick="document.getElementById('alias-colour-input').value='#c89ee0'" title="Default"></div>
+            <div class="colour-swatch" style="background:#00b8cc" onclick="document.getElementById('alias-colour-input').value='#00b8cc'" title="Cyan"></div>
+            <div class="colour-swatch" style="background:#00c96e" onclick="document.getElementById('alias-colour-input').value='#00c96e'" title="Green"></div>
+            <div class="colour-swatch" style="background:#e09800" onclick="document.getElementById('alias-colour-input').value='#e09800'" title="Amber"></div>
+            <div class="colour-swatch" style="background:#e03050" onclick="document.getElementById('alias-colour-input').value='#e03050'" title="Red"></div>
+            <div class="colour-swatch" style="background:#4488ff" onclick="document.getElementById('alias-colour-input').value='#4488ff'" title="Blue"></div>
+            <div class="colour-swatch" style="background:#9f5af7" onclick="document.getElementById('alias-colour-input').value='#9f5af7'" title="Purple"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAliasModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAlias()">Save Alias</button>
+    </div>
+  </div>
+</div>
+
 <!-- TEMPLATE MODAL -->
 <div class="modal-overlay" id="templateModalOverlay" onclick="if(event.target===this)closeTemplateModal()">
   <div class="modal" style="max-width:520px">
@@ -1082,14 +1142,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-section-title">Template name &amp; gig type</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Template name</label><input type="text" class="form-input" id="t-name" placeholder="e.g. Monthly residency — The Stag"></div>
-          <div class="form-group"><label class="form-label">Gig type</label><select class="form-select" id="t-type"><option>Solo</option><option>Band</option><option>Session</option><option>Private function</option><option>Festival</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Gig type</label><select class="form-select" id="t-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Session</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div>
         </div>
       </div>
       <div class="form-section">
         <div class="form-section-title">Venue &amp; location</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="t-venue" placeholder="e.g. The Stag Inn, Bristol"></div>
-          <div class="form-group"><label class="form-label">PA provided?</label><select class="form-select" id="t-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div>
+          <div class="form-group"><label class="form-label">PA / Sound provided?</label><select class="form-select" id="t-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div>
         </div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Address</label><input type="text" class="form-input" id="t-address" placeholder="Full address"></div></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="t-parking" placeholder="e.g. Loading bay available"></div><div class="form-group"><label class="form-label">Set length</label><select class="form-select" id="t-setlength"><option>30 min</option><option>45 min</option><option>60 min</option><option>90 min</option><option>2 hours</option></select></div></div>
@@ -1189,7 +1249,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="onboarding-modal">
     <div class="onboarding-header">
       <div class="onboarding-logo"><span class="gig">GIG</span><span class="book">BOOK</span></div>
-      <div class="onboarding-tagline">The diary built for working musicians</div>
+      <div class="onboarding-tagline">The diary built for working artists</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab-btn active" data-tab="signup" onclick="showAuthTab('signup')">Sign Up</button>
@@ -1406,7 +1466,7 @@ function updateProfileUI(){
   const sa=document.getElementById('settingsAvatar'); if(sa) sa.textContent=initials;
   const pma=document.getElementById('profileModalAvatar'); if(pma) pma.textContent=initials;
   const pmn=document.getElementById('profileModalName'); if(pmn) pmn.textContent=name;
-  const pmi=document.getElementById('profileModalInstrument'); if(pmi) pmi.textContent=p.instrument||'Musician';
+  const pmi=document.getElementById('profileModalInstrument'); if(pmi) pmi.textContent=p.instrument||'Artist';
   const pmt=document.getElementById('pm-tier'); if(pmt) pmt.textContent=pro?'Pro':'Free';
   const pmub=document.getElementById('pm-upgrade-btn'); if(pmub) pmub.style.display=pro?'none':'';
 }
@@ -1439,7 +1499,7 @@ function renderDashboard(){
     // First-time / empty state
     bannerEl.innerHTML=`<div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:32px 24px;margin-bottom:20px;text-align:center">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:8px">Welcome to GigBook</div>
-      <div style="font-size:13px;color:rgba(200,158,224,0.7);max-width:380px;margin:0 auto 18px;line-height:1.6">Your musician's diary. Add gigs, track logistics, manage payments, and never miss a soundcheck. Start by adding your first gig below.</div>
+      <div style="font-size:13px;color:rgba(200,158,224,0.7);max-width:380px;margin:0 auto 18px;line-height:1.6">Your artist's diary. Add gigs, track logistics, manage payments, and never miss a soundcheck. Start by adding your first gig below.</div>
       <button class="btn btn-primary" onclick="openModal()" style="font-size:13px;padding:9px 22px">+ Add your first gig</button>
     </div>`;
     document.getElementById('dash-stats').innerHTML='';
@@ -1708,7 +1768,7 @@ function populateForm(g){
   set('f-balancedate',g.balancedate); set('f-distance',g.distance); set('f-hotelname',g.hotelname);
   set('f-contact',g.contact); set('f-phone',g.phone); set('f-email',g.email); set('f-notes',g.notes);
   set('f-leaveby',g.leaveby);
-  set('f-alias', g.alias||'');
+  setTimeout(()=>{ const sel=document.getElementById('f-alias'); if(sel&&g.aliasId){ sel.value=g.aliasId; } else if(sel&&g.alias){ const opt=[...sel.options].find(o=>o.text===g.alias); if(opt) sel.value=opt.value; } }, 80);
   if(g.colour){ setGigColour(g.colour); }
   ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
@@ -1754,7 +1814,8 @@ function saveGig(){
     email: document.getElementById('f-email').value,
     notes: document.getElementById('f-notes').value,
     mileage: (parseFloat(document.getElementById('f-distance').value)||0)*2,
-    alias: (document.getElementById('f-alias')?.value||'').trim(),
+    aliasId: document.getElementById('f-alias')?.value||'',
+    alias: (()=>{ const sel=document.getElementById('f-alias'); return sel?.selectedOptions[0]?.text!=='None (no alias)'?sel?.selectedOptions[0]?.text||'':''; })(),
     colour: document.getElementById('f-colour')?.value||'#251131',
   };
 
@@ -2111,6 +2172,7 @@ function deleteExpense(i){
 // SETTINGS
 // ─────────────────────────────────────────────
 function loadSettingsUI(){
+  renderAliasSettings();
   const p=loadPrefs();
   const profile=loadProfile();
 
@@ -2347,7 +2409,7 @@ function renderContacts(){
   // Sectioned display when showing All with no search
   if(contactFilter === 'all' && !search.trim()){
     const CATS = ['Venue Booker','Promoter','Agent','Manager','Session Musician','Band Member','Other'];
-    const CAT_LABELS = {'Venue Booker':'Venue Bookers','Promoter':'Promoters','Agent':'Agents','Manager':'Managers','Session Musician':'Session Musicians','Band Member':'Band Members','Other':'Other'};
+    const CAT_LABELS = {'Venue Booker':'Venue Bookers','Promoter':'Promoters','Agent':'Agents','Manager':'Managers','Session Musician':'Session Musicians','Band Member':'Ensemble Members','Other':'Other'};
 
     // Build per-category groups, put uncategorised into Other
     const grouped = {};
@@ -2943,7 +3005,7 @@ function renderBand(){
 
   if(!tier){
     el.innerHTML = `
-      <div class="section-header" style="margin-bottom:18px"><div class="section-title">Band Plan</div></div>
+      <div class="section-header" style="margin-bottom:18px"><div class="section-title">Ensemble Plan</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin:0 auto">
         <div class="tier-card">
           <div class="tier-card-eyebrow">For solo artists</div>
@@ -2964,13 +3026,14 @@ function renderBand(){
           <button class="tier-action-btn upgrade" onclick="togglePro()">Upgrade to Pro</button>
         </div>
         <div class="band-tier-card">
-          <div class="tier-card-eyebrow" style="color:var(--cyan)">For bands &amp; groups</div>
-          <div class="tier-card-name" style="color:var(--cyan)">Band</div>
+          <div class="tier-card-eyebrow" style="color:var(--cyan)">For groups &amp; ensembles</div>
+          <div class="tier-card-name" style="color:var(--cyan)">Ensemble</div>
           <div style="margin-bottom:14px">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text);line-height:1">£3 <span style="font-family:'Barlow',sans-serif;font-size:13px;color:var(--text3);font-weight:300">/ member / month</span></div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Minimum 2 members. Maximum 10 members.<br>A 4-piece pays £12/month total.</div>
           </div>
           <ul class="tier-features">
+            <li><span class="check">✓</span>5 aliases per member</li>
             <li><span class="check">✓</span>Every member gets full Pro</li>
             <li><span class="check">✓</span>Shared gig calendar</li>
             <li><span class="check">✓</span>Everyone sees same gig details</li>
@@ -2978,7 +3041,7 @@ function renderBand(){
             <li><span class="check">✓</span>Each member keeps own data</li>
             <li><span class="check">✓</span>Max 10 members</li>
           </ul>
-          <button class="tier-action-btn" style="background:var(--cyan);border-color:var(--cyan);color:#001820;margin-top:16px" onclick="alert('Band plan signup coming soon. In the full app this connects to Stripe for per-member billing.')">Set Up Band Plan</button>
+          <button class="tier-action-btn" style="background:var(--cyan);border-color:var(--cyan);color:#001820;margin-top:16px" onclick="alert('Ensemble plan signup coming soon. In the full app this connects to Stripe for per-member billing.')">Set Up Ensemble Plan</button>
         </div>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-top:16px;font-size:12px;color:var(--text3);max-width:700px;margin-left:auto;margin-right:auto">
@@ -2995,7 +3058,7 @@ function renderBand(){
       <button class="btn btn-primary btn-sm" onclick="openContactModal()">+ Add Member</button>
     </div>
     <div style="background:rgba(0,184,204,0.08);border:1px solid rgba(0,184,204,0.3);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--text3);margin-bottom:16px">
-      Band plan active &nbsp;·&nbsp; 2 members &nbsp;·&nbsp; £6/month total
+      Ensemble plan active &nbsp;·&nbsp; 2 members &nbsp;·&nbsp; £6/month total
     </div>
     <div class="detail-card" style="margin-bottom:14px">
       <div class="detail-card-title">Members</div>
@@ -3003,7 +3066,7 @@ function renderBand(){
         <div class="member-avatar">${myInitials}</div>
         <div style="flex:1">
           <div class="member-name">${profile.name||'You'}</div>
-          <div class="member-role">Admin &nbsp;·&nbsp; ${profile.instrument||'Musician'}</div>
+          <div class="member-role">Admin &nbsp;·&nbsp; ${profile.instrument||'Artist'}</div>
         </div>
         <span class="tag tag-confirmed">Admin</span>
       </div>
@@ -3019,7 +3082,7 @@ function renderBand(){
     <div class="detail-card">
       <div class="detail-card-title">Shared Gigs</div>
       <div style="padding:14px 0;font-size:13px;color:var(--text3);text-align:center;line-height:1.6">
-        Gigs you mark as shared will appear here for all band members.<br>
+        Gigs you mark as shared will appear here for all ensemble members.<br>
         <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="showPage('gigs',document.querySelectorAll('.nav-item')[2])">View your gigs →</button>
       </div>
     </div>`;
@@ -3036,6 +3099,186 @@ function proLockScreen(icon, title, desc){
       <button class="btn btn-primary" onclick="showPage('pricing',document.getElementById('pricingNavBtn'))">Upgrade to Pro — £5/mo</button>
     </div>
   </div>`;
+}
+
+
+// ─────────────────────────────────────────────
+// ALIAS MANAGEMENT
+// ─────────────────────────────────────────────
+const STORE_ALIASES = 'gb_aliases';
+const ALIAS_LIMITS = { guest: 0, free: 1, pro: 5, proplus: 999, band: 5, orchestra: 5 };
+
+function loadAliases(){ try{ return JSON.parse(localStorage.getItem(STORE_ALIASES)||'[]'); }catch(e){return[];} }
+function saveAliases(a){ localStorage.setItem(STORE_ALIASES, JSON.stringify(a)); }
+
+function aliasLimit(){
+  if(isPro()){
+    // Check for pro+ (unlimited)
+    if(getPref('isProPlus', false)) return 999;
+    return 5;
+  }
+  const auth = authLevel();
+  if(auth === 'guest') return 0;
+  return 1; // free
+}
+
+let activeAliasFilter = 'all';
+
+function renderAliasBar(){
+  const aliases = loadAliases();
+  const bar = document.getElementById('aliasBar');
+  if(!bar) return;
+
+  if(aliases.length === 0){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+
+  bar.innerHTML = [
+    `<button class="alias-bar-pill${activeAliasFilter==='all'?' active':''}" style="${activeAliasFilter==='all'?'background:var(--acc);border-color:var(--acc-border);':''}" onclick="setAliasFilter('all')">All</button>`
+  ].concat(aliases.map(a =>
+    `<button class="alias-bar-pill${activeAliasFilter===a.id?' active':''}" 
+      style="${activeAliasFilter===a.id?'background:'+a.colour+';border-color:'+a.colour+';':''}"
+      onclick="setAliasFilter('${a.id}')">
+      <span class="alias-dot" style="background:${a.colour}"></span>
+      ${a.name}
+    </button>`
+  )).join('');
+}
+
+function setAliasFilter(id){
+  activeAliasFilter = id;
+  renderAliasBar();
+  // Re-render current page to apply filter
+  const active = document.querySelector('.page.active');
+  if(!active) return;
+  const pageId = active.id.replace('page-','');
+  if(pageId==='dashboard') renderDashboard();
+  if(pageId==='gigs') renderGigs();
+  if(pageId==='income') renderIncome();
+  if(pageId==='calendar') buildCalendar();
+}
+
+function getFilteredGigs(){
+  const gigs = loadGigs();
+  if(activeAliasFilter === 'all') return gigs;
+  const alias = loadAliases().find(a => a.id === activeAliasFilter);
+  if(!alias) return gigs;
+  return gigs.filter(g => g.aliasId === activeAliasFilter || g.alias === alias.name);
+}
+
+// Alias Settings UI
+function renderAliasSettings(){
+  const aliases = loadAliases();
+  const limit = aliasLimit();
+  const listEl = document.getElementById('alias-list');
+  const noteEl = document.getElementById('alias-tier-note');
+  const addBtn = document.getElementById('add-alias-btn');
+  if(!listEl) return;
+
+  if(noteEl){
+    if(aliases.length >= limit && limit < 999){
+      noteEl.textContent = ' — ' + (isPro() ? 'Upgrade to Pro+ for unlimited aliases.' : 'Upgrade to Pro for up to 5 aliases.');
+    } else {
+      noteEl.textContent = ' (' + aliases.length + '/' + (limit===999?'∞':limit) + ')';
+    }
+  }
+
+  if(addBtn) addBtn.style.display = aliases.length >= limit ? 'none' : '';
+
+  if(aliases.length === 0){
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">No aliases yet. Create one to start separating your work by name.</div>';
+    return;
+  }
+
+  listEl.innerHTML = aliases.map(a => `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);border-left:3px solid ${a.colour}">
+      <span style="width:28px;height:28px;border-radius:50%;background:${a.colour};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-family:'Bebas Neue',sans-serif;flex-shrink:0">${a.name.slice(0,2).toUpperCase()}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${a.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${loadGigs().filter(g=>g.aliasId===a.id||g.alias===a.name).length} gigs</div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="openAddAliasModal('${a.id}')">Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteAlias('${a.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function openAddAliasModal(id){
+  const aliases = loadAliases();
+  const limit = aliasLimit();
+
+  if(!id && aliases.length >= limit){
+    // Show upgrade prompt
+    if(!isPro()){
+      if(confirm('Free accounts include 1 alias. Upgrade to Pro for up to 5 aliases — £5/month. View upgrade options?')){
+        showPage('pricing', null);
+      }
+    } else {
+      if(confirm('Pro accounts include 5 aliases. Upgrade to Pro+ for unlimited aliases — £8/month. Enable Pro+ now?')){
+        savePref('isProPlus', true);
+        renderAliasSettings();
+        renderAliasBar();
+        openAddAliasModal(); // reopen
+      }
+    }
+    return;
+  }
+
+  document.getElementById('aliasModalTitle').textContent = id ? 'Edit Alias' : 'New Alias';
+  document.getElementById('editAliasId').value = id || '';
+  if(id){
+    const a = aliases.find(x=>x.id===id);
+    if(a){
+      document.getElementById('alias-name-input').value = a.name;
+      document.getElementById('alias-colour-input').value = a.colour;
+    }
+  } else {
+    document.getElementById('alias-name-input').value = '';
+    document.getElementById('alias-colour-input').value = '#c89ee0';
+  }
+  document.getElementById('aliasModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeAliasModal(){
+  document.getElementById('aliasModalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function saveAlias(){
+  const name = document.getElementById('alias-name-input').value.trim();
+  if(!name){ alert('Please enter an alias name.'); return; }
+  const colour = document.getElementById('alias-colour-input').value;
+  const editId = document.getElementById('editAliasId').value;
+  const aliases = loadAliases();
+  const alias = { id: editId || uid(), name, colour };
+  if(editId){ const i=aliases.findIndex(a=>a.id===editId); if(i>=0) aliases[i]=alias; else aliases.push(alias); }
+  else aliases.push(alias);
+  saveAliases(aliases);
+  closeAliasModal();
+  renderAliasSettings();
+  renderAliasBar();
+  // Rebuild alias dropdowns in open modals
+  populateAliasDropdowns();
+}
+
+function deleteAlias(id){
+  if(!confirm('Delete this alias? Gigs tagged with it will still exist but will show under All.')) return;
+  saveAliases(loadAliases().filter(a=>a.id!==id));
+  if(activeAliasFilter===id) activeAliasFilter='all';
+  renderAliasSettings();
+  renderAliasBar();
+  populateAliasDropdowns();
+}
+
+function populateAliasDropdowns(){
+  const aliases = loadAliases();
+  const selects = document.querySelectorAll('.alias-select');
+  selects.forEach(sel => {
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">None (no alias)</option>' +
+      aliases.map(a => `<option value="${a.id}" style="color:${a.colour}">${a.name}</option>`).join('');
+    if(currentVal) sel.value = currentVal;
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -3204,6 +3447,8 @@ function requireSignIn(cb){
 updateProfileUI();
 refreshAuthUI();
 applySidebarState();
+renderAliasBar();
+populateAliasDropdowns();
 renderDashboard();
 buildCalendar();
 </script>
