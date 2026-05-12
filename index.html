@@ -3253,6 +3253,7 @@ function renderAliasBar(){
 function setAliasFilter(id){
   activeAliasFilter = id;
   renderAliasBar();
+renderAliasSwitcher();
   // Re-render current page to apply filter
   const active = document.querySelector('.page.active');
   if(!active) return;
@@ -3323,6 +3324,7 @@ function openAddAliasModal(id){
         savePref('isProPlus', true);
         renderAliasSettings();
         renderAliasBar();
+renderAliasSwitcher();
         openAddAliasModal(); // reopen
       }
     }
@@ -3382,6 +3384,7 @@ function saveAlias(){
   closeAliasModal();
   renderAliasSettings();
   renderAliasBar();
+renderAliasSwitcher();
   // Rebuild alias dropdowns in open modals
   populateAliasDropdowns();
 }
@@ -3392,6 +3395,7 @@ function deleteAlias(id){
   if(activeAliasFilter===id) activeAliasFilter='all';
   renderAliasSettings();
   renderAliasBar();
+renderAliasSwitcher();
   populateAliasDropdowns();
 }
 
