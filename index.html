@@ -1262,7 +1262,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editContactId">
       <div class="form-row">
         <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="c-name" placeholder="Full name"></div>
-        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role" onchange="const oi=document.getElementById('c-other-role-row');if(oi)oi.style.display=this.value==='other'?'':'none'"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Artist / Performer</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role" onchange="const oi=document.getElementById('c-other-role-row');if(oi)oi.style.display=this.value==='Other'?'':'none'"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Artist / Performer</option><option>Other</option></select></div>
       </div>
       <div class="form-row full" id="c-other-role-row" style="display:none">
         <div class="form-group"><label class="form-label">Custom role (max 15 chars)</label><input type="text" class="form-input" id="c-other-role" maxlength="15" placeholder="e.g. Stagehand, Driver, Lighting"></div>
