@@ -959,25 +959,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Performing as (alias)</label>
-            <select class="form-select alias-select" id="f-alias">
-              <option value="">None (no alias)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Colour tag</label>
-            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
-              <input type="color" id="f-colour" value="#251131" style="width:36px;height:36px;border:1px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;padding:2px">
-              <div style="display:flex;gap:5px;flex-wrap:wrap">
-                <div class="colour-swatch" style="background:#251131" onclick="setGigColour('#251131')" title="Default"></div>
-                <div class="colour-swatch" style="background:#00b8cc" onclick="setGigColour('#00b8cc')" title="Cyan"></div>
-                <div class="colour-swatch" style="background:#00c96e" onclick="setGigColour('#00c96e')" title="Green"></div>
-                <div class="colour-swatch" style="background:#e09800" onclick="setGigColour('#e09800')" title="Amber"></div>
-                <div class="colour-swatch" style="background:#e03050" onclick="setGigColour('#e03050')" title="Red"></div>
-                <div class="colour-swatch" style="background:#4488ff" onclick="setGigColour('#4488ff')" title="Blue"></div>
-                <div class="colour-swatch" style="background:#9f5af7" onclick="setGigColour('#9f5af7')" title="Purple"></div>
-              </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <select class="form-select alias-select" id="f-alias" onchange="onAliasChange(this)" style="flex:1">
+                <option value="">None (no alias)</option>
+              </select>
+              <span id="alias-colour-preview" style="width:12px;height:12px;border-radius:50%;background:transparent;flex-shrink:0;transition:background .2s"></span>
             </div>
           </div>
+          
         </div>
         <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="f-date"></div><div class="form-group"><label class="form-label">Stage time</label><input type="time" class="form-input" id="f-stage"></div></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Soundcheck time</label><input type="time" class="form-input" id="f-soundcheck"></div><div class="form-group"><label class="form-label">Set length</label><select class="form-select" id="f-setlength"><option>30 min</option><option>45 min</option><option>60 min</option><option>90 min</option><option>2 hours</option><option>Custom</option></select></div></div>
@@ -1746,9 +1735,8 @@ function clearForm(){
   ['f-venue','f-date','f-stage','f-soundcheck','f-address','f-parking','f-fee','f-deposit','f-balancedate','f-distance','f-hotelname','f-contact','f-phone','f-email','f-notes','f-leaveby','f-alias'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   document.getElementById('hotel-name-row').style.display='none';
-  const colPicker=document.getElementById('f-colour'); if(colPicker) colPicker.value='#251131';
-  document.querySelectorAll('.colour-swatch').forEach(s=>s.classList.remove('selected'));
-  document.querySelector('.colour-swatch')?.classList.add('selected');
+  window._selectedAliasColour = '';
+  const dot = document.getElementById('alias-colour-preview'); if(dot) dot.style.background='transparent';
   // Reset template toggle
   const tplCb = document.getElementById('f-make-template');
   if(tplCb){ tplCb.checked=false; }
@@ -1769,7 +1757,7 @@ function populateForm(g){
   set('f-contact',g.contact); set('f-phone',g.phone); set('f-email',g.email); set('f-notes',g.notes);
   set('f-leaveby',g.leaveby);
   setTimeout(()=>{ const sel=document.getElementById('f-alias'); if(sel&&g.aliasId){ sel.value=g.aliasId; } else if(sel&&g.alias){ const opt=[...sel.options].find(o=>o.text===g.alias); if(opt) sel.value=opt.value; } }, 80);
-  if(g.colour){ setGigColour(g.colour); }
+  if(g.colour){ window._selectedAliasColour = g.colour; const dot=document.getElementById('alias-colour-preview'); if(dot) dot.style.background=g.colour; }
   ['f-type','f-setlength','f-pa','f-paymethod','f-paystatus','f-transport','f-hotel'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     const key=id.replace('f-','');
@@ -1816,7 +1804,7 @@ function saveGig(){
     mileage: (parseFloat(document.getElementById('f-distance').value)||0)*2,
     aliasId: document.getElementById('f-alias')?.value||'',
     alias: (()=>{ const sel=document.getElementById('f-alias'); return sel?.selectedOptions[0]?.text!=='None (no alias)'?sel?.selectedOptions[0]?.text||'':''; })(),
-    colour: document.getElementById('f-colour')?.value||'#251131',
+    colour: window._selectedAliasColour || '#251131',
   };
 
   if(editId){
@@ -1863,6 +1851,19 @@ function saveGig(){
 document.getElementById('f-hotel').addEventListener('change',function(){
   document.getElementById('hotel-name-row').style.display=this.value!=='no'?'':'none';
 });
+
+// When alias is selected in Add Gig, inherit its colour
+function onAliasChange(sel){
+  const aliasId = sel.value;
+  const aliases = loadAliases();
+  const alias = aliases.find(a => a.id === aliasId);
+  const colour = alias ? alias.colour : '';
+  // Update preview dot
+  const dot = document.getElementById('alias-colour-preview');
+  if(dot) dot.style.background = colour || 'transparent';
+  // Store for saveGig
+  window._selectedAliasColour = colour;
+}
 
 // Colour swatch selector
 function setGigColour(hex){
@@ -3213,7 +3214,7 @@ function openAddAliasModal(id){
         showPage('pricing', null);
       }
     } else {
-      if(confirm('Pro accounts include 5 aliases. Upgrade to Pro+ for unlimited aliases — £8/month. Enable Pro+ now?')){
+      if(confirm('You\'ve reached your 5-alias limit on Pro.\n\nUpgrade to Pro+ (£8/month) for unlimited aliases. Enable now?')){
         savePref('isProPlus', true);
         renderAliasSettings();
         renderAliasBar();
