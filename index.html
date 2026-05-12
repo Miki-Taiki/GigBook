@@ -457,6 +457,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .alias-popup-item:hover{background:var(--surface2);}.alias-popup-item.active{background:var(--acc);color:var(--acc-text);}
 .alias-popup-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}.alias-popup-divider{height:1px;background:var(--border);margin:3px 0;}
 
+
+.form-section-title{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0 6px;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);user-select:none;}
+.form-section-title-arrow{font-size:9px;transition:transform .2s;color:var(--text3);}
+.form-section-content{overflow:hidden;transition:max-height .3s ease;}
+
 .colour-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
 .colour-swatch:hover{transform:scale(1.15);}
 .colour-swatch.selected{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,0.4);}
@@ -1003,7 +1008,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row"><div class="form-group"><label class="form-label">Soundcheck time</label><input type="time" class="form-input" id="f-soundcheck"></div><div class="form-group"><label class="form-label">Set length</label><select class="form-select" id="f-setlength"><option>30 min</option><option>45 min</option><option>60 min</option><option>90 min</option><option>2 hours</option><option>Custom</option></select></div></div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Location</div>
+        <div class="form-section-title" onclick="toggleFSection('fsc-location')"><span>Location</span><span class="form-section-title-arrow" id="fsc-location-arr">▼</span></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Full address</label><input type="text" class="form-input" id="f-address" placeholder="Street, City, Postcode"></div></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="f-parking" placeholder="e.g. Loading bay, free after 6pm"></div><div class="form-group"><label class="form-label">PA / Sound provided?</label><select class="form-select" id="f-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div></div>
       </div>
@@ -1026,7 +1031,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row full" id="hotel-name-row" style="display:none"><div class="form-group"><label class="form-label">Hotel name / address</label><input type="text" class="form-input" id="f-hotelname" placeholder="Name and address"></div></div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Contact</div>
+        <div class="form-section-title" onclick="toggleFSection('fsc-contact')"><span>Contact</span><span class="form-section-title-arrow" id="fsc-contact-arr">▼</span></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Booker / promoter</label><input type="text" class="form-input" id="f-contact" placeholder="Full name"></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="f-phone" placeholder="07xxx xxxxxx"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="f-email" placeholder="booker@venue.co.uk"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="Anything else worth remembering..."></textarea></div></div>
@@ -1943,6 +1948,40 @@ function setGigColour(hex){
 }
 
 // Template section toggle in Add Gig modal
+
+function toggleFSection(id){
+  var el=document.getElementById(id);
+  var arr=document.getElementById(id+'-arr');
+  if(!el) return;
+  var open=el.style.maxHeight&&el.style.maxHeight!=='0px';
+  el.style.maxHeight=open?'0':el.scrollHeight+'px';
+  if(arr) arr.style.transform=open?'':'rotate(180deg)';
+  if(!open) setTimeout(function(){if(el)el.style.maxHeight=el.scrollHeight+'px';},310);
+}
+function initFormSections(){
+  var names=['location','fees-payment','transport-logistics','contact'];
+  // Wait for modal to open then wrap content and collapse
+  // We wrap content in a div with id
+  ['Location','Fees & payment','Transport & logistics','Contact'].forEach(function(name){
+    var id='fsc-'+name.toLowerCase().replace(/[^a-z]/g,'-').replace(/-+/g,'-');
+    // Content is already after the title - we need to find form-section and wrap its content
+    var sections=[...document.querySelectorAll('.form-section')];
+    var sec=sections.find(function(s){return s.querySelector('.form-section-title span')?.textContent===name;});
+    if(!sec) return;
+    var title=sec.querySelector('.form-section-title');
+    if(!title) return;
+    // Wrap all siblings after title in a content div
+    if(sec.querySelector('#'+id)) return; // already done
+    var wrapper=document.createElement('div');
+    wrapper.id=id;
+    wrapper.className='form-section-content';
+    wrapper.style.maxHeight='0';
+    var children=[...sec.children].filter(function(c){return c!==title;});
+    children.forEach(function(c){wrapper.appendChild(c);});
+    sec.appendChild(wrapper);
+  });
+}
+
 function toggleTemplateSection(){
   const cb = document.getElementById('f-make-template');
   const fields = document.getElementById('template-extra-fields');
