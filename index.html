@@ -499,7 +499,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="logo-text"><span class="logo-gig">GIG</span><span class="logo-book">BOOK</span></div>
       <div class="logo-sub">Artist's Diary</div>
     </div>
-    <button class="profile-btn" id="profileBtn" onclick="openProfileModal()" title="Profile">GB</button>
+    <button class="profile-btn" id="profileBtn" onclick="openProfileModal()" title="Profile" style="overflow:hidden;padding:0">
+    <img id="sidebarAvatarImg" src="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%">
+    <span id="sidebarAvatarInitials">GB</span>
+  </button>
   </div>
   <div class="sidebar-nav">
     <div class="nav-section">Main</div>
@@ -511,7 +514,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">£</span>Income</button>
     <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">→</span>Expenses</button>
     <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">◧</span>Documents</button>
-    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Finances</button>
+    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Year Summary</button>
     <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">◈</span>Gig History</button>
     <div class="nav-section">Account</div>
     <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Ensemble</button>
@@ -672,7 +675,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <button class="btn btn-primary btn-sm" id="add-alias-btn" onclick="openAddAliasModal()">+ Add Alias</button>
       </div>
       <div class="settings-card">
-        <div class="settings-card-title">📅 Calendar &amp; Display</div>
+        <div class="settings-card-title">Calendar &amp; Display</div>
         <div class="settings-row">
           <div><div class="settings-row-label">First day of week</div></div>
           <select class="form-select" style="width:auto" id="s-weekstart" onchange="savePref('weekStart',this.value);buildCalendar()">
@@ -697,7 +700,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         </div>
       </div>
       <div class="settings-card">
-        <div class="settings-card-title">🎸 Gig Defaults</div>
+        <div class="settings-card-title">Gig Defaults</div>
         <div class="settings-row">
           <div><div class="settings-row-label">Default transport</div></div>
           <select class="form-select" style="width:auto" id="s-transport" onchange="savePref('defaultTransport',this.value)">
@@ -718,7 +721,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         </div>
       </div>
       <div class="settings-card">
-        <div class="settings-card-title">🔔 Notifications &amp; Reminders</div>
+        <div class="settings-card-title">Notifications &amp; Reminders</div>
         <div class="settings-row">
           <div><div class="settings-row-label">Pre-gig reminders</div><div class="settings-row-sub">Alert before each gig</div></div>
           <label class="toggle"><input type="checkbox" id="s-reminders" onchange="savePref('reminders',this.checked)"><span class="toggle-slider"></span></label>
@@ -754,7 +757,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         </div>
       </div>
       <div class="settings-card">
-        <div class="settings-card-title">🗂 Data</div>
+        <div class="settings-card-title">Data</div>
         <div class="settings-row">
           <div><div class="settings-row-label">Show mileage prompts</div><div class="settings-row-sub">Ask to log miles after gigs</div></div>
           <label class="toggle"><input type="checkbox" id="s-mileageprompt" onchange="savePref('mileagePrompts',this.checked)"><span class="toggle-slider"></span></label>
@@ -893,7 +896,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <button class="filter-btn" onclick="setContactFilter('Promoter',this)">Promoters</button>
       <button class="filter-btn" onclick="setContactFilter('Agent',this)">Agents</button>
       <button class="filter-btn" onclick="setContactFilter('Manager',this)">Managers</button>
-      <button class="filter-btn" onclick="setContactFilter('Session Musician',this)">Musicians</button>
+      <button class="filter-btn" onclick="setContactFilter('Artist / Performer',this)">Musicians</button>
       <button class="filter-btn" onclick="setContactFilter('Band Member',this)">Ensemble</button>
       <button class="filter-btn" onclick="setContactFilter('Other',this)">Other</button>
     </div>
@@ -955,7 +958,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editGigId">
       <div class="form-section">
         <div class="form-section-title">Gig details</div>
-        <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Session</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Artist / Performer</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div></div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Performing as (alias)</label>
@@ -1079,6 +1082,29 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 </div>
 
 
+
+<!-- DOC BUILDER MODAL -->
+<div class="modal-overlay" id="docBuilderModal" onclick="if(event.target===this)closeDocBuilder()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="docBuilderTitle">Build Document</div>
+      <button class="modal-close" onclick="closeDocBuilder()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="docBuilderType">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Write your document below. You can download it as a text file when done.</div>
+      <textarea id="docBuilderContent" class="form-textarea" style="min-height:320px;font-family:monospace;font-size:12px;line-height:1.6"></textarea>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-ghost btn-sm" onclick="downloadDocAsTxt(document.getElementById('docBuilderType').value)">↓ Download as text</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeDocBuilder()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDocBuilder()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ALIAS MODAL -->
 <div class="modal-overlay" id="aliasModalOverlay" onclick="if(event.target===this)closeAliasModal()">
   <div class="modal" style="max-width:400px">
@@ -1088,6 +1114,16 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
     <div class="modal-body">
       <input type="hidden" id="editAliasId">
+      <div style="display:flex;justify-content:center;margin-bottom:16px">
+        <div style="position:relative;cursor:pointer" onclick="document.getElementById('alias-photo-input').click()">
+          <div id="alias-photo-preview" style="width:60px;height:60px;border-radius:50%;background:var(--surface2);border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);overflow:hidden">
+            <span id="alias-photo-placeholder">Photo</span>
+            <img id="alias-photo-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
+          </div>
+          <div style="position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--acc-text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--bg)">+</div>
+        </div>
+        <input type="file" id="alias-photo-input" accept="image/*" style="display:none" onchange="handleAliasPhoto(this)">
+      </div>
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Alias name</label>
         <input type="text" class="form-input" id="alias-name-input" placeholder="e.g. DJ Nova, The Taiki Trio">
@@ -1131,7 +1167,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-section-title">Template name &amp; gig type</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Template name</label><input type="text" class="form-input" id="t-name" placeholder="e.g. Monthly residency — The Stag"></div>
-          <div class="form-group"><label class="form-label">Gig type</label><select class="form-select" id="t-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Session</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Gig type</label><select class="form-select" id="t-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Artist / Performer</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div>
         </div>
       </div>
       <div class="form-section">
@@ -1181,7 +1217,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editContactId">
       <div class="form-row">
         <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="c-name" placeholder="Full name"></div>
-        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Session Musician</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role" onchange="const oi=document.getElementById('c-other-role');if(oi)oi.style.display=this.value==='other'?'':'none'"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Artist / Performer</option><option>Other</option></select></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="c-phone" placeholder="07xxx xxxxxx"></div>
@@ -1401,7 +1437,7 @@ function isPro(){ return getPref('isPro',false); }
 let prevPage='dashboard';
 let currentGigId=null;
 
-const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Documents',taxreport:'Finances',gigstats:'Gig History',band:'Band'};
+const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Documents',taxreport:'Year Summary',aliases:'Aliases',gigstats:'Gig History',band:'Band'};
 
 function showPage(id,navEl){
   // Auth gating
@@ -1427,6 +1463,7 @@ function showPage(id,navEl){
   if(id==='contracts') renderContracts();
   if(id==='taxreport') renderTaxReport();
   if(id==='gigstats') renderGigStats();
+  if(id==='aliases') renderAliasesPage();
   if(id==='band') renderBand();
   // Auto-close sidebar on mobile after navigation
   if(window.innerWidth < 768) closeSidebar();
@@ -2409,8 +2446,8 @@ function renderContacts(){
 
   // Sectioned display when showing All with no search
   if(contactFilter === 'all' && !search.trim()){
-    const CATS = ['Venue Booker','Promoter','Agent','Manager','Session Musician','Band Member','Other'];
-    const CAT_LABELS = {'Venue Booker':'Venue Bookers','Promoter':'Promoters','Agent':'Agents','Manager':'Managers','Session Musician':'Session Musicians','Band Member':'Ensemble Members','Other':'Other'};
+    const CATS = ['Venue Booker','Promoter','Agent','Manager','Artist / Performer','Band Member','Other'];
+    const CAT_LABELS = {'Venue Booker':'Venue Bookers','Promoter':'Promoters','Agent':'Agents','Manager':'Managers','Artist / Performer':'Artist / Performers','Band Member':'Ensemble Members','Other':'Other'};
 
     // Build per-category groups, put uncategorised into Other
     const grouped = {};
@@ -2726,6 +2763,7 @@ function renderContracts(){
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
       <button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">Edit</button>
+            <button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="rider-preview">${localStorage.getItem('gb_rider')||'No rider saved yet. Tap Edit to create your technical rider — PA requirements, microphone inputs, monitor needs, backline etc.'}</div>
@@ -2738,6 +2776,7 @@ function renderContracts(){
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Electronic Press Kit <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your EPK</span></div>
       <button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">Edit</button>
+            <button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>
     </div>
     <div class="detail-card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="epk-preview">${localStorage.getItem('gb_epk')||'No EPK saved yet. Tap Edit to build your Electronic Press Kit — bio, genre, links to recordings, social media, press quotes, and booking contact.'}</div>
@@ -2778,7 +2817,7 @@ function renderTaxReport(){
   const el = document.getElementById('taxreport-content');
   if(!el) return;
   if(!isPro()){
-    el.innerHTML = proLockScreen('≡','Finances','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
+    el.innerHTML = proLockScreen('≡','Year Summary','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
     return;
   }
 
@@ -2806,7 +2845,7 @@ function renderTaxReport(){
 
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:16px">
-      <div class="section-title">Finances</div>
+      
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn btn-sm btn-ghost" onclick="exportTaxReport('${taxYearLabel}','txt')">↓ Text</button>
         <button class="btn btn-sm btn-ghost" onclick="exportTaxReport('${taxYearLabel}','csv')">↓ CSV</button>
@@ -3241,8 +3280,27 @@ function openAddAliasModal(id){
 }
 
 function closeAliasModal(){
+  window._aliasPhotoData = '';
+  const img = document.getElementById('alias-photo-img');
+  const ph = document.getElementById('alias-photo-placeholder');
+  if(img){ img.src=''; img.style.display='none'; }
+  if(ph) ph.style.display='';
   document.getElementById('aliasModalOverlay').classList.remove('open');
   document.body.style.overflow='';
+}
+
+function handleAliasPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    window._aliasPhotoData = e.target.result;
+    const img = document.getElementById('alias-photo-img');
+    const ph = document.getElementById('alias-photo-placeholder');
+    if(img){ img.src = e.target.result; img.style.display=''; }
+    if(ph) ph.style.display='none';
+  };
+  reader.readAsDataURL(file);
 }
 
 function saveAlias(){
@@ -3251,7 +3309,7 @@ function saveAlias(){
   const colour = document.getElementById('alias-colour-input').value;
   const editId = document.getElementById('editAliasId').value;
   const aliases = loadAliases();
-  const alias = { id: editId || uid(), name, colour };
+  const alias = { id: editId || uid(), name, colour, photo: window._aliasPhotoData||''  };
   if(editId){ const i=aliases.findIndex(a=>a.id===editId); if(i>=0) aliases[i]=alias; else aliases.push(alias); }
   else aliases.push(alias);
   saveAliases(aliases);
@@ -3282,6 +3340,171 @@ function populateAliasDropdowns(){
   });
 }
 
+
+function renderAliasesPage(){
+  const aliases = loadAliases();
+  const limit = aliasLimit();
+  const gigs = loadGigs();
+
+  const cardsEl = document.getElementById('aliases-cards');
+  const emptyEl = document.getElementById('aliases-empty');
+  const addBtn = document.getElementById('aliases-add-btn');
+  const noteEl = document.getElementById('aliases-tier-note');
+
+  if(!cardsEl) return;
+
+  if(noteEl){
+    if(aliases.length >= limit && limit < 999){
+      noteEl.textContent = aliases.length + '/' + limit + ' aliases used. ' + (isPro() ? 'Upgrade to Pro+ for unlimited.' : 'Upgrade to Pro for up to 5.');
+    } else {
+      noteEl.textContent = aliases.length + ' of ' + (limit===999?'unlimited':limit) + ' aliases used.';
+    }
+  }
+  if(addBtn) addBtn.style.display = aliases.length >= limit ? 'none' : '';
+
+  if(aliases.length === 0){
+    cardsEl.style.display='none';
+    if(emptyEl) emptyEl.style.display='';
+    return;
+  }
+  cardsEl.style.display='';
+  if(emptyEl) emptyEl.style.display='none';
+
+  cardsEl.innerHTML = aliases.map(a => {
+    const aliasGigs = gigs.filter(g => g.aliasId===a.id || g.alias===a.name);
+    const paid = aliasGigs.filter(g=>g.paystatus==='paid').reduce((t,g)=>t+(Number(g.fee)||0),0);
+    const upcoming = aliasGigs.filter(g=>g.date >= new Date().toISOString().split('T')[0]).length;
+    const photo = a.photo ? `<img src="${a.photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${a.colour}">` 
+      : `<div style="width:52px;height:52px;border-radius:50%;background:${a.colour};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:1px">${a.name.slice(0,2).toUpperCase()}</div>`;
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${a.colour};border-radius:var(--radius-lg);padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          ${photo}
+          <div style="flex:1">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text)">${a.name}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${aliasGigs.length} gig${aliasGigs.length!==1?'s':''} logged</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost" onclick="openAddAliasModal('${a.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteAlias('${a.id}')">✕</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${aliasGigs.length}</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Total Gigs</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--green)">${fmtMoney(paid)}</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Earned</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--cyan)">${upcoming}</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Upcoming</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function handleProfilePhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const prefs = JSON.parse(localStorage.getItem('gb_prefs')||'{}');
+    prefs.profilePhoto = dataUrl;
+    localStorage.setItem('gb_prefs', JSON.stringify(prefs));
+    applyProfilePhoto(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyProfilePhoto(dataUrl){
+  ['profilePhotoImg','profileAvatarImg','sidebarAvatarImg'].forEach(id => {
+    const img = document.getElementById(id);
+    if(!img) return;
+    img.src = dataUrl;
+    img.style.display = dataUrl ? '' : 'none';
+  });
+  ['profileAvatarInitials','sidebarAvatarInitials','profileAvatarLgInitials'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = dataUrl ? 'none' : '';
+  });
+}
+
+function loadProfilePhoto(){
+  const prefs = JSON.parse(localStorage.getItem('gb_prefs')||'{}');
+  if(prefs.profilePhoto) applyProfilePhoto(prefs.profilePhoto);
+}
+
+const STORE_RIDER_UPLOAD = 'gb_rider_upload';
+const STORE_EPK_UPLOAD = 'gb_epk_upload';
+
+function uploadDocument(type){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.pdf,.doc,.docx,.txt,image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const data = { name: file.name, type: file.type, data: ev.target.result, saved: new Date().toISOString() };
+      localStorage.setItem(type === 'rider' ? STORE_RIDER_UPLOAD : STORE_EPK_UPLOAD, JSON.stringify(data));
+      renderContracts();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function removeUpload(type){
+  if(!confirm('Remove this uploaded file?')) return;
+  localStorage.removeItem(type === 'rider' ? STORE_RIDER_UPLOAD : STORE_EPK_UPLOAD);
+  renderContracts();
+}
+
+function openDocBuilder(type){
+  const title = type === 'rider' ? 'Technical Rider' : 'Electronic Press Kit';
+  document.getElementById('docBuilderTitle').textContent = 'Build: ' + title;
+  document.getElementById('docBuilderType').value = type;
+  // Load existing content
+  const existing = localStorage.getItem('gb_' + type + '_content') || '';
+  document.getElementById('docBuilderContent').value = existing;
+  // Set placeholder
+  document.getElementById('docBuilderContent').placeholder = type === 'rider'
+    ? 'Describe your technical requirements...\n\nStage setup:\nPA requirements:\nMonitor mix:\nBackline needed:\nRunning time:\nSpecial requirements:'
+    : 'Your press kit content...\n\nArtist bio:\nGenre/Style:\nNotable performances:\nPrevious press coverage:\nContact for bookings:\nWebsite/Social links:';
+  document.getElementById('docBuilderModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDocBuilder(){
+  document.getElementById('docBuilderModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveDocBuilder(){
+  const type = document.getElementById('docBuilderType').value;
+  const content = document.getElementById('docBuilderContent').value;
+  localStorage.setItem('gb_' + type + '_content', content);
+  closeDocBuilder();
+  renderContracts();
+}
+
+function downloadDocAsTxt(type){
+  const content = localStorage.getItem('gb_' + type + '_content') || '';
+  if(!content){ alert('Nothing to download — build your document first.'); return; }
+  const title = type === 'rider' ? 'Technical Rider' : 'Electronic Press Kit';
+  const profile = JSON.parse(localStorage.getItem('gb_profile')||'{}');
+  const full = (profile.name || 'Artist') + ' — ' + title + '\n' + '='.repeat(44) + '\n\n' + content;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(full);
+  a.download = (profile.name||'gigbook') + '-' + type + '.txt';
+  a.click();
+}
 // ─────────────────────────────────────────────
 // AUTH STATE
 // ─────────────────────────────────────────────
@@ -3450,6 +3673,7 @@ refreshAuthUI();
 applySidebarState();
 renderAliasBar();
 populateAliasDropdowns();
+loadProfilePhoto();
 renderDashboard();
 buildCalendar();
 </script>
