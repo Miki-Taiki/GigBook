@@ -439,6 +439,28 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .tax-row-value{color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;}
 
 
+
+/* ── ALIAS SWITCHER (floating top-right) ── */
+.alias-switcher{
+  position:fixed;top:12px;right:16px;z-index:9999;
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:4px 8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.alias-switcher.visible{opacity:1;pointer-events:all;}
+.alias-switcher-pill{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:14px;border:1px solid transparent;
+  cursor:pointer;font-size:11px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--text3);background:none;transition:all .15s;white-space:nowrap;
+}
+.alias-switcher-pill:hover{background:var(--surface2);color:var(--text);}
+.alias-switcher-pill.active{color:#fff;border-color:transparent;}
+.alias-switcher-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
 /* ── ALIAS FILTER BAR ── */
 .alias-bar{display:flex;align-items:center;gap:8px;padding:8px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;overflow-x:auto;}
 .alias-bar-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);transition:all .15s;white-space:nowrap;}
@@ -509,16 +531,15 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◈</span>Dashboard</button>
     <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">◷</span>Calendar</button>
     <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">♪</span>All Gigs</button>
-    <div class="nav-section">Artists</div>
+    <div class="nav-section">Work</div>
     <button class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">◎</span>Contacts</button>
     <button class="nav-item" onclick="showPage('aliases',this)"><span class="nav-icon">◈</span>Aliases</button>
     <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">◈</span>Gig History</button>
-    <div class="nav-section">Money</div>
+    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">◧</span>Documents</button>
+    <div class="nav-section">Finance</div>
     <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">£</span>Income</button>
     <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">→</span>Expenses</button>
-    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Year Summary</button>
-    <div class="nav-section">Files</div>
-    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">◧</span>Documents</button>
+    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Tax Summary</button>
     <div class="nav-section">Account</div>
     <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Ensemble</button>
     <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">◎</span>Settings</button>
@@ -1456,7 +1477,7 @@ function isPro(){ return getPref('isPro',false); }
 let prevPage='dashboard';
 let currentGigId=null;
 
-const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Documents',taxreport:'Year Summary',aliases:'Aliases',gigstats:'Gig History',aliases:'Aliases',band:'Band'};
+const PAGE_TITLES={dashboard:'Dashboard',calendar:'Calendar',gigs:'All Gigs',income:'Income',mileage:'Expenses',settings:'Settings',gigdetail:'Gig Detail',pricing:'Plans & Pricing',contacts:'Contacts',templates:'Recurring Templates',reminders:'Payment Reminders',contracts:'Documents',taxreport:'Tax Summary',aliases:'Aliases',gigstats:'Gig History',aliases:'Aliases',band:'Band'};
 
 function showPage(id,navEl){
   // Auth gating
@@ -1606,7 +1627,7 @@ function gigCardHTML(g, highlight=false){
     <div class="gig-date-block"><div class="gig-date-day">${d.getDate()}</div><div class="gig-date-mon">${mon[d.getMonth()]}</div></div>
     <div class="gig-info">
       <div class="gig-venue">${g.venue}</div>
-      <div class="gig-meta">${g.stage?`<span>🕐 ${g.stage}</span>`:''}${g.address?`<span>📍 ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span>🚗 ${g.distance} mi</span>`:''}</div>
+      <div class="gig-meta">${g.stage?`<span>🕐 ${g.stage}</span>`:''}${g.address?`<span><span style="filter:grayscale(1);opacity:.6">📍</span> ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span><span style="filter:grayscale(1);opacity:.6">🚗</span> ${g.distance} mi</span>`:''}</div>
     </div>
     <div class="gig-tags"><span class="tag ${si.cls}">${si.label}</span>${g.type&&g.type!=='Solo'?`<span class="tag tag-pending">${g.type}</span>`:''}</div>
     <div class="gig-fee"><div class="gig-fee-amount">${g.fee?fmtMoney(g.fee):'—'}</div><div class="gig-fee-label">${isPast&&g.paystatus==='paid'?'received':balance>0?'balance: '+fmtMoney(balance):g.paystatus==='paid'?'paid':'fee'}</div></div>
@@ -1689,7 +1710,7 @@ function showGigDetail(id){
 
   document.getElementById('detail-grid').innerHTML=`
     <div class="detail-card">
-      <div class="detail-card-title">💰 Financials</div>
+      <div class="detail-card-title"><span style="filter:grayscale(1);opacity:.6">💰</span> Financials</div>
       <div class="detail-row"><span class="detail-row-label">Total fee</span><span class="detail-row-value">${fmtMoney(g.fee)}</span></div>
       <div class="detail-row"><span class="detail-row-label">Deposit</span><span class="detail-row-value">${g.deposit?fmtMoney(g.deposit):'None'}</span></div>
       <div class="detail-row"><span class="detail-row-label">Balance due</span><span class="detail-row-value">${balance>0?fmtMoney(balance):'—'}</span></div>
@@ -1697,7 +1718,7 @@ function showGigDetail(id){
       ${g.balancedate?`<div class="detail-row"><span class="detail-row-label">Balance due by</span><span class="detail-row-value">${fmtShortDate(g.balancedate)}</span></div>`:''}
     </div>
     <div class="detail-card">
-      <div class="detail-card-title">📍 Venue &amp; Contact</div>
+      <div class="detail-card-title"><span style="filter:grayscale(1);opacity:.6">📍</span> Venue &amp; Contact</div>
       <div class="detail-row"><span class="detail-row-label">Address</span><span class="detail-row-value">${g.address||'—'}</span></div>
       ${g.contact?`<div class="detail-row"><span class="detail-row-label">Contact</span><span class="detail-row-value">${g.contact}</span></div>`:''}
       ${g.phone?`<div class="detail-row"><span class="detail-row-label">Phone</span><span class="detail-row-value">${g.phone}</span></div>`:''}
@@ -1705,7 +1726,7 @@ function showGigDetail(id){
       <div class="detail-row"><span class="detail-row-label">PA provided</span><span class="detail-row-value">${g.pa||'—'}</span></div>
     </div>
     <div class="detail-card">
-      <div class="detail-card-title">🚗 Getting There</div>
+      <div class="detail-card-title"><span style="filter:grayscale(1);opacity:.6">🚗</span> Getting There</div>
       <div class="detail-row"><span class="detail-row-label">Transport</span><span class="detail-row-value">${g.transport||'—'}</span></div>
       ${g.distance?`<div class="detail-row"><span class="detail-row-label">Distance</span><span class="detail-row-value">${g.distance} miles</span></div>`:''}
       ${g.leaveby?`<div class="detail-row"><span class="detail-row-label">Leave by</span><span class="detail-row-value">${g.leaveby}</span></div>`:''}
@@ -1713,7 +1734,7 @@ function showGigDetail(id){
       <div class="detail-row"><span class="detail-row-label">Hotel</span><span class="detail-row-value">${g.hotel==='no'?'Not needed':g.hotel==='booked'?'Booked'+(g.hotelname?' — '+g.hotelname:''):'Needed — not booked'}</span></div>
     </div>
     <div class="detail-card">
-      <div class="detail-card-title">🎵 Performance</div>
+      <div class="detail-card-title"><span style="filter:grayscale(1);opacity:.6">🎵</span> Performance</div>
       <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">${g.type||'—'}</span></div>
       ${g.setlength?`<div class="detail-row"><span class="detail-row-label">Set length</span><span class="detail-row-value">${g.setlength}</span></div>`:''}
       ${g.soundcheck?`<div class="detail-row"><span class="detail-row-label">Soundcheck</span><span class="detail-row-value">${g.soundcheck}</span></div>`:''}
@@ -2784,6 +2805,7 @@ function renderContracts(){
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
       <button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">Edit</button>
             <button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>
+            
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="rider-preview">${localStorage.getItem('gb_rider')||'No rider saved yet. Tap Edit to create your technical rider — PA requirements, microphone inputs, monitor needs, backline etc.'}</div>
@@ -2837,7 +2859,7 @@ function renderTaxReport(){
   const el = document.getElementById('taxreport-content');
   if(!el) return;
   if(!isPro()){
-    el.innerHTML = proLockScreen('≡','Year Summary','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
+    el.innerHTML = proLockScreen('≡','Tax Summary','Generate a complete income and expenses summary for your HMRC self-assessment. Ready to hand to your accountant.');
     return;
   }
 
@@ -2973,9 +2995,9 @@ function emailTaxReport(year){
   const totalExp = expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
   const taxable = Math.max(0, totalIncome - mileageVal - totalExp);
 
-  const subject = encodeURIComponent(`GigBook Finances — ${year}`);
+  const subject = encodeURIComponent(`GigBook Tax Summary — ${year}`);
   const body = encodeURIComponent(
-`GigBook Financial Summary — Tax Year ${year}
+`GigBook Tax Summary — Tax Year ${year}
 ${'='.repeat(44)}
 
 Gross performance income:  ${fmtMoney(totalIncome)}
@@ -3160,7 +3182,7 @@ function renderBand(){
   const myInitials = getInitials(profile.name);
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:16px">
-      <div class="section-title">Your Band</div>
+      
       <button class="btn btn-primary btn-sm" onclick="openContactModal()">+ Add Member</button>
     </div>
     <div style="background:rgba(0,184,204,0.08);border:1px solid rgba(0,184,204,0.3);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--text3);margin-bottom:16px">
@@ -3250,9 +3272,34 @@ function renderAliasBar(){
   )).join('');
 }
 
+
+function renderAliasSwitcher(){
+  const aliases = loadAliases();
+  const sw = document.getElementById('aliasSwitcher');
+  if(!sw) return;
+  if(aliases.length === 0){ sw.classList.remove('visible'); return; }
+  sw.classList.add('visible');
+  // Build pills: All + each alias
+  const allPills = [
+    {id:'all', name:'All', colour:'var(--border2)'}
+  ].concat(aliases.map(a => ({id:a.id, name:a.name, colour:a.colour})));
+  // Keep the "View:" label (first child) and rebuild the rest
+  const label = sw.firstElementChild;
+  sw.innerHTML = '';
+  sw.appendChild(label);
+  allPills.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'alias-switcher-pill' + (activeAliasFilter===p.id?' active':'');
+    if(activeAliasFilter===p.id) btn.style.background = p.id==='all'?'var(--acc)':p.colour;
+    btn.innerHTML = p.id!=='all' ? '<span class="alias-switcher-dot" style="background:'+p.colour+'"></span>' + p.name : p.name;
+    btn.onclick = () => setAliasFilter(p.id);
+    sw.appendChild(btn);
+  });
+}
 function setAliasFilter(id){
   activeAliasFilter = id;
   renderAliasBar();
+  renderAliasSwitcher();
   // Re-render current page to apply filter
   const active = document.querySelector('.page.active');
   if(!active) return;
@@ -3382,6 +3429,7 @@ function saveAlias(){
   closeAliasModal();
   renderAliasSettings();
   renderAliasBar();
+  renderAliasSwitcher();
   // Rebuild alias dropdowns in open modals
   populateAliasDropdowns();
 }
@@ -3392,6 +3440,7 @@ function deleteAlias(id){
   if(activeAliasFilter===id) activeAliasFilter='all';
   renderAliasSettings();
   renderAliasBar();
+  renderAliasSwitcher();
   populateAliasDropdowns();
 }
 
@@ -3507,6 +3556,20 @@ function loadProfilePhoto(){
 
 const STORE_RIDER_UPLOAD = 'gb_rider_upload';
 const STORE_EPK_UPLOAD = 'gb_epk_upload';
+
+
+function getDocAliasColour(type){
+  // Documents can be tagged to aliases via gb_rider_alias / gb_epk_alias
+  const aliasId = localStorage.getItem('gb_' + type + '_alias') || 'all';
+  if(aliasId === 'all') return null;
+  const aliases = loadAliases();
+  return aliases.find(a => a.id === aliasId) || null;
+}
+
+function setDocAlias(type, aliasId){
+  localStorage.setItem('gb_' + type + '_alias', aliasId);
+  renderContracts();
+}
 
 function uploadDocument(type){
   const input = document.createElement('input');
@@ -3738,10 +3801,16 @@ updateProfileUI();
 refreshAuthUI();
 applySidebarState();
 renderAliasBar();
+renderAliasSwitcher();
 populateAliasDropdowns();
 loadProfilePhoto();
 renderDashboard();
 buildCalendar();
 </script>
+
+<!-- ALIAS SWITCHER (floating) -->
+<div class="alias-switcher" id="aliasSwitcher">
+  <span style="font-size:10px;color:var(--text3);font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-right:2px">View:</span>
+</div>
 </body>
 </html>
