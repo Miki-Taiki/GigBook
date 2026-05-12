@@ -1962,28 +1962,32 @@ function toggleFSection(id){
   if(!open) setTimeout(function(){if(el)el.style.maxHeight=el.scrollHeight+'px';},310);
 }
 function initFormSections(){
-  var names=['location','fees-payment','transport-logistics','contact'];
-  // Wait for modal to open then wrap content and collapse
-  // We wrap content in a div with id
-  ['Location','Fees & payment','Transport & logistics','Contact'].forEach(function(name){
-    var id='fsc-'+name.toLowerCase().replace(/[^a-z]/g,'-').replace(/-+/g,'-');
-    // Content is already after the title - we need to find form-section and wrap its content
-    var sections=[...document.querySelectorAll('.form-section')];
-    var sec=sections.find(function(s){return s.querySelector('.form-section-title span')?.textContent===name;});
-    if(!sec) return;
+  var targets=[
+    ['Location','fsc-location'],
+    ['Fees & payment','fsc-fees-payment'],
+    ['Transport & logistics','fsc-transport-logistics'],
+    ['Contact','fsc-contact']
+  ];
+  targets.forEach(function(t){
+    var name=t[0], id=t[1];
+    var allSecs=[...document.querySelectorAll('.form-section')];
+    var sec=null;
+    for(var i=0;i<allSecs.length;i++){
+      var titleEl=allSecs[i].querySelector('.form-section-title');
+      if(!titleEl) continue;
+      var txt=titleEl.textContent.trim().replace(/[▼▲]/g,'').trim();
+      if(txt===name){sec=allSecs[i];break;}
+    }
+    if(!sec||sec.querySelector('#'+id)) return;
     var title=sec.querySelector('.form-section-title');
     if(!title) return;
-    // Wrap all siblings after title in a content div
-    if(sec.querySelector('#'+id)) return; // already done
-    var wrapper=document.createElement('div');
-    wrapper.id=id;
-    wrapper.className='form-section-content';
-    wrapper.style.maxHeight='0';
-    var children=[...sec.children].filter(function(c){return c!==title;});
-    children.forEach(function(c){wrapper.appendChild(c);});
-    sec.appendChild(wrapper);
+    var wrap=document.createElement('div');
+    wrap.id=id; wrap.className='form-section-content'; wrap.style.maxHeight='0';
+    [...sec.children].filter(function(c){return c!==title;}).forEach(function(c){wrap.appendChild(c);});
+    sec.appendChild(wrap);
   });
 }
+
 
 function toggleTemplateSection(){
   const cb = document.getElementById('f-make-template');
