@@ -3863,6 +3863,24 @@ function closeAliasPopup(){
 }
 function selectAliasFromPopup(id){setAliasFilter(id);closeAliasPopup();}
 
+
+// Watch modal opening and collapse form sections
+(function(){
+  var mo = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      if(m.type==='attributes' && m.attributeName==='class'){
+        var el = m.target;
+        if(el.id==='modalOverlay' && el.classList.contains('open')){
+          setTimeout(initFormSections, 120);
+          setTimeout(initFormSections, 450);
+        }
+      }
+    });
+  });
+  var overlay = document.getElementById('modalOverlay');
+  if(overlay) mo.observe(overlay, {attributes:true});
+})();
+
 </script>
 </body>
 </html>
