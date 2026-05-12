@@ -2845,10 +2845,10 @@ function renderContracts(){
   const upEPK = !!localStorage.getItem('gb_epk_upload');
   const riderBtns = upRider
     ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('rider')">✕ Remove</button>`
-    : `${riderBtns}`;
+    : `<button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">${builtRider ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>`;
   const epkBtns = upEPK
     ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('epk')">✕ Remove</button>`
-    : `${epkBtns}`;
+    : `<button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">${builtEPK ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>`;
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:6px">
       
