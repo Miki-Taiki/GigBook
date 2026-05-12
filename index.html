@@ -1950,36 +1950,53 @@ function setGigColour(hex){
 // Template section toggle in Add Gig modal
 
 function toggleFSection(id){
+  initFormSections();
   var el=document.getElementById(id);
-  var arr=document.getElementById(id+'-arr');
   if(!el) return;
   var open=el.style.maxHeight&&el.style.maxHeight!=='0px';
   el.style.maxHeight=open?'0':el.scrollHeight+'px';
-  if(arr) arr.style.transform=open?'':'rotate(180deg)';
+  var title=el.parentElement?.querySelector('.form-section-title');
+  var arrow=title?.querySelector('.form-section-title-arrow');
+  if(arrow) arrow.style.transform=open?'':'rotate(180deg)';
   if(!open) setTimeout(function(){if(el)el.style.maxHeight=el.scrollHeight+'px';},310);
 }
 function initFormSections(){
-  var names=['location','fees-payment','transport-logistics','contact'];
-  // Wait for modal to open then wrap content and collapse
-  // We wrap content in a div with id
-  ['Location','Fees & payment','Transport & logistics','Contact'].forEach(function(name){
-    var id='fsc-'+name.toLowerCase().replace(/[^a-z]/g,'-').replace(/-+/g,'-');
-    // Content is already after the title - we need to find form-section and wrap its content
-    var sections=[...document.querySelectorAll('.form-section')];
-    var sec=sections.find(function(s){return s.querySelector('.form-section-title span')?.textContent===name;});
-    if(!sec) return;
+  var targets=[
+    {name:'Location',id:'fsc-location'},
+    {name:'Fees & payment',id:'fsc-fees-payment'},
+    {name:'Transport & logistics',id:'fsc-transport-logistics'},
+    {name:'Contact',id:'fsc-contact'}
+  ];
+  targets.forEach(function(t){
+    var secs=[...document.querySelectorAll('.form-section')];
+    var sec=null;
+    for(var i=0;i<secs.length;i++){
+      var titleEl=secs[i].querySelector('.form-section-title');
+      if(!titleEl) continue;
+      var spanText=titleEl.querySelector('span')?.textContent?.trim();
+      var fullText=titleEl.textContent?.trim()?.replace(/▼.*/,'').trim();
+      if(spanText===t.name||fullText===t.name){sec=secs[i];break;}
+    }
+    if(!sec){return;}
     var title=sec.querySelector('.form-section-title');
     if(!title) return;
-    // Wrap all siblings after title in a content div
-    if(sec.querySelector('#'+id)) return; // already done
+    if(sec.querySelector('#'+t.id)) return;
     var wrapper=document.createElement('div');
-    wrapper.id=id;
+    wrapper.id=t.id;
     wrapper.className='form-section-content';
     wrapper.style.maxHeight='0';
-    var children=[...sec.children].filter(function(c){return c!==title;});
-    children.forEach(function(c){wrapper.appendChild(c);});
+    var kids=[...sec.children].filter(function(c){return c!==title;});
+    kids.forEach(function(c){wrapper.appendChild(c);});
     sec.appendChild(wrapper);
   });
+}
+function expandFormSection(id){
+  var el=document.getElementById(id);
+  var titleEl=el?.previousElementSibling;
+  if(!el) return;
+  el.style.maxHeight=el.scrollHeight+'px';
+  var arr=titleEl?.querySelector('.form-section-title-arrow');
+  if(arr) arr.style.transform='rotate(180deg)';
 }
 
 function toggleTemplateSection(){
@@ -2833,8 +2850,9 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
-      <button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">Edit</button>
+      <button class="btn btn-sm btn-ghost" onclick="openDocBuilder('rider')">+ Add</button>
             <button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>
+            <button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">✎ Edit</button>
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="rider-preview">${localStorage.getItem('gb_rider')||'No rider saved yet. Tap Edit to create your technical rider — PA requirements, microphone inputs, monitor needs, backline etc.'}</div>
@@ -2846,8 +2864,9 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Electronic Press Kit <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your EPK</span></div>
-      <button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">Edit</button>
+      <button class="btn btn-sm btn-ghost" onclick="openDocBuilder('epk')">+ Add</button>
             <button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>
+            <button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">✎ Edit</button>
     </div>
     <div class="detail-card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="epk-preview">${localStorage.getItem('gb_epk')||'No EPK saved yet. Tap Edit to build your Electronic Press Kit — bio, genre, links to recordings, social media, press quotes, and booking contact.'}</div>
