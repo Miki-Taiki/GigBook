@@ -133,7 +133,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:'Barlow',sans-serif;white-space:nowrap;}
 .nav-item:hover{background:var(--surface2);color:var(--text);}
 .nav-item.active{background:var(--acc);color:var(--acc-text);border-left:2px solid var(--acc-text);padding-left:8px;font-weight:500;}
-.nav-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.55;}
+.nav-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.55;;filter:grayscale(1);opacity:.75}
 .nav-item.active .nav-icon{opacity:1;}
 
 .sidebar-footer{padding:12px;border-top:1px solid var(--border);}
@@ -500,6 +500,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .auth-guest-link button:hover{color:var(--text2);}
 .guest-note{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:14px;}
 .guest-note strong{color:var(--text2);}
+
+.gig-row .emoji, .gig-row [data-emoji], .gig-card .emoji{filter:grayscale(1);opacity:.65}
+.gig-meta-icon, .gig-meta span:has(+ span){filter:grayscale(1);opacity:.65}
 </style>
 </head>
 <body>
@@ -522,19 +525,19 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="sidebar-nav">
     <div class="nav-section">Main</div>
     <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">🏠</span>Dashboard</button>
-    <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">📆</span>Calendar</button>
+    <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">📅</span>Calendar</button>
     <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">🎤</span>All Gigs</button>
     <div class="nav-section">Artist Info</div>
     <button class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">👥</span>Contacts</button>
     <button class="nav-item" onclick="showPage('aliases',this)"><span class="nav-icon">🎭</span>Aliases</button>
-    <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">📈</span>Gig History</button>
+    <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">📜</span>Gig History</button>
     <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📁</span>Documents</button>
     <div class="nav-section">Finance</div>
     <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">💷</span>Income</button>
-    <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon"><span style="filter:grayscale(1);opacity:.5">🚗</span></span>Expenses</button>
-    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">📋</span>Tax Summary</button>
+    <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">🧾</span>Expenses</button>
+    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">📊</span>Tax Summary</button>
     <div class="nav-section">Account</div>
-    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">🎶</span>Ensemble</button>
+    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">🎵</span>Ensemble</button>
     <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span>Settings</button>
     <button class="nav-item upgrade-btn" onclick="showPage('pricing',this)"><span class="nav-icon">⭐</span>Upgrade</button>
   </div>
@@ -556,6 +559,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <button class="btn btn-primary" onclick="openModal()">+ Add Gig</button>
     </div>
   </div>
+<!-- Alias Switcher (floating top-right) -->
+<button class="alias-trigger" id="aliasTrigger" onclick="toggleAliasPopup(event)" type="button">
+  <span class="alias-trigger-dot" id="aliasTriggerDot" style="background:var(--border2)"></span>
+  <span id="aliasTriggerLabel">All</span>
+  <span style="margin-left:4px;font-size:9px;opacity:.7">▾</span>
+</button>
+<div class="alias-popup" id="aliasPopup"></div>
+
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
@@ -604,7 +615,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   <!-- ALL GIGS -->
   <div class="page" id="page-gigs">
     <div class="section-header">
-      <div class="section-title">All Gigs</div>
+      
       <div class="search-bar"><input type="text" id="gigSearch" placeholder="Search venues, notes..." oninput="renderGigs()"></div>
     </div>
     <div class="filter-row" id="gigFilters">
@@ -1251,7 +1262,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <input type="hidden" id="editContactId">
       <div class="form-row">
         <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="c-name" placeholder="Full name"></div>
-        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role" onchange="const oi=document.getElementById('c-other-role');if(oi)oi.style.display=this.value==='other'?'':'none'"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Artist / Performer</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="c-role" onchange="const oi=document.getElementById('c-other-role-row');if(oi)oi.style.display=this.value==='other'?'':'none'"><option>Venue Booker</option><option>Promoter</option><option>Agent</option><option>Manager</option><option>Artist / Performer</option><option>Other</option></select></div>
+      </div>
+      <div class="form-row full" id="c-other-role-row" style="display:none">
+        <div class="form-group"><label class="form-label">Custom role (max 15 chars)</label><input type="text" class="form-input" id="c-other-role" maxlength="15" placeholder="e.g. Stagehand, Driver, Lighting"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="c-phone" placeholder="07xxx xxxxxx"></div>
@@ -1621,7 +1635,7 @@ function gigCardHTML(g, highlight=false){
     <div class="gig-date-block"><div class="gig-date-day">${d.getDate()}</div><div class="gig-date-mon">${mon[d.getMonth()]}</div></div>
     <div class="gig-info">
       <div class="gig-venue">${g.venue}</div>
-      <div class="gig-meta">${g.stage?`<span>🕐 ${g.stage}</span>`:''}${g.address?`<span>📍 ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span>🚗 ${g.distance} mi</span>`:''}</div>
+      <div class="gig-meta">${g.stage?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">🕐</span> ${g.stage}</span>`:''}${g.address?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">📍</span> ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">🚗</span> ${g.distance} mi</span>`:''}</div>
     </div>
     <div class="gig-tags"><span class="tag ${si.cls}">${si.label}</span>${g.type&&g.type!=='Solo'?`<span class="tag tag-pending">${g.type}</span>`:''}</div>
     <div class="gig-fee"><div class="gig-fee-amount">${g.fee?fmtMoney(g.fee):'—'}</div><div class="gig-fee-label">${isPast&&g.paystatus==='paid'?'received':balance>0?'balance: '+fmtMoney(balance):g.paystatus==='paid'?'paid':'fee'}</div></div>
@@ -1712,7 +1726,7 @@ function showGigDetail(id){
       ${g.balancedate?`<div class="detail-row"><span class="detail-row-label">Balance due by</span><span class="detail-row-value">${fmtShortDate(g.balancedate)}</span></div>`:''}
     </div>
     <div class="detail-card">
-      <div class="detail-card-title">📍 Venue &amp; Contact</div>
+      <div class="detail-card-title"><span class="gemoji" style="filter:grayscale(1);opacity:.65">📍</span> Venue &amp; Contact</div>
       <div class="detail-row"><span class="detail-row-label">Address</span><span class="detail-row-value">${g.address||'—'}</span></div>
       ${g.contact?`<div class="detail-row"><span class="detail-row-label">Contact</span><span class="detail-row-value">${g.contact}</span></div>`:''}
       ${g.phone?`<div class="detail-row"><span class="detail-row-label">Phone</span><span class="detail-row-value">${g.phone}</span></div>`:''}
@@ -1720,7 +1734,7 @@ function showGigDetail(id){
       <div class="detail-row"><span class="detail-row-label">PA provided</span><span class="detail-row-value">${g.pa||'—'}</span></div>
     </div>
     <div class="detail-card">
-      <div class="detail-card-title">🚗 Getting There</div>
+      <div class="detail-card-title"><span class="gemoji" style="filter:grayscale(1);opacity:.65">🚗</span> Getting There</div>
       <div class="detail-row"><span class="detail-row-label">Transport</span><span class="detail-row-value">${g.transport||'—'}</span></div>
       ${g.distance?`<div class="detail-row"><span class="detail-row-label">Distance</span><span class="detail-row-value">${g.distance} miles</span></div>`:''}
       ${g.leaveby?`<div class="detail-row"><span class="detail-row-label">Leave by</span><span class="detail-row-value">${g.leaveby}</span></div>`:''}
@@ -1978,9 +1992,21 @@ function initFormSections(){
       var txt=titleEl.textContent.trim().replace(/[▼▲]/g,'').trim();
       if(txt===name){sec=allSecs[i];break;}
     }
-    if(!sec||sec.querySelector('#'+id)) return;
+    if(!sec) return;
     var title=sec.querySelector('.form-section-title');
     if(!title) return;
+    // Add onclick + arrow span if missing
+    if(!title.getAttribute('onclick')){
+      title.setAttribute('onclick',"toggleFSection('"+id+"')");
+      title.style.cursor='pointer';
+      // Wrap text in span + add arrow if not already present
+      if(!title.querySelector('.form-section-title-arrow')){
+        var origText=title.textContent.trim();
+        title.innerHTML='<span>'+origText+'</span><span class="form-section-title-arrow" id="'+id+'-arr">▼</span>';
+      }
+    }
+    // Wrap content if not already wrapped
+    if(sec.querySelector('#'+id)) return;
     var wrap=document.createElement('div');
     wrap.id=id; wrap.className='form-section-content'; wrap.style.maxHeight='0';
     [...sec.children].filter(function(c){return c!==title;}).forEach(function(c){wrap.appendChild(c);});
@@ -2552,7 +2578,7 @@ function contactCardHTML(c, gigs){
   const initials = words.length >= 2
     ? words[0][0].toUpperCase() + words[words.length-1][0].toUpperCase()
     : c.name.slice(0,2).toUpperCase();
-  const subParts = [c.role, c.venue].filter(Boolean);
+  const subParts = [(c.role === 'Other' && c.roleNote) ? c.roleNote : c.role, c.venue].filter(Boolean);
   const contactParts = [c.phone, c.email].filter(Boolean);
   return `<div class="contact-card" style="margin-bottom:8px" onclick="openContactModal('${c.id}')">
     <div class="contact-avatar">${initials}</div>
@@ -2813,6 +2839,16 @@ function renderContracts(){
     return;
   }
   const gigs = loadGigs().filter(g => g.notes && g.notes.length > 10);
+  const builtRider = !!localStorage.getItem('gb_rider');
+  const upRider = !!localStorage.getItem('gb_rider_upload');
+  const builtEPK = !!localStorage.getItem('gb_epk');
+  const upEPK = !!localStorage.getItem('gb_epk_upload');
+  const riderBtns = upRider
+    ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('rider')">✕ Remove</button>`
+    : `${riderBtns}`;
+  const epkBtns = upEPK
+    ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('epk')">✕ Remove</button>`
+    : `${epkBtns}`;
   el.innerHTML = `
     <div class="section-header" style="margin-bottom:6px">
       
@@ -2840,8 +2876,7 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
-      <button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">Edit</button>
-            <button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>
+      ${riderBtns}
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="rider-preview">${localStorage.getItem('gb_rider')||'No rider saved yet. Tap Edit to create your technical rider — PA requirements, microphone inputs, monitor needs, backline etc.'}</div>
@@ -2853,8 +2888,7 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Electronic Press Kit <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your EPK</span></div>
-      <button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">Edit</button>
-            <button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>
+      ${epkBtns}
     </div>
     <div class="detail-card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="epk-preview">${localStorage.getItem('gb_epk')||'No EPK saved yet. Tap Edit to build your Electronic Press Kit — bio, genre, links to recordings, social media, press quotes, and booking contact.'}</div>
@@ -3134,7 +3168,7 @@ function renderGigStats(){
   const years = Object.keys(byYear).sort();
 
   el.innerHTML = `
-    <div class="section-title" style="margin-bottom:16px">Gig History</div>
+    
     <div class="history-grid">
       <div class="history-stat"><div class="history-stat-val">${gigs.length}</div><div class="history-stat-lbl">Total gigs</div></div>
       <div class="history-stat"><div class="history-stat-val">${fmtMoney(totalEarned)}</div><div class="history-stat-lbl">Total earned</div></div>
@@ -3169,7 +3203,7 @@ function renderBand(){
 
   if(!tier){
     el.innerHTML = `
-      <div class="section-header" style="margin-bottom:18px"><div class="section-title">Ensemble Plan</div></div>
+      
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin:0 auto">
         <div class="tier-card">
           <div class="tier-card-eyebrow">For solo artists</div>
