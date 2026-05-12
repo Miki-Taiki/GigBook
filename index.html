@@ -2334,7 +2334,7 @@ function openCalPicker(){
   // Populate year dropdown: current year -5 to +10
   const yearSel=document.getElementById('calPickerYear');
   yearSel.innerHTML='';
-  for(let y=TODAY.getFullYear()-5; y<=TODAY.getFullYear()+10; y++){
+  for(let y=2026;y<=2050;y++){
     const opt=document.createElement('option');
     opt.value=y; opt.textContent=y;
     if(y===calYear) opt.selected=true;
