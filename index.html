@@ -1798,6 +1798,9 @@ function openModal(prefillDate){
   document.getElementById('f-dep-sym').textContent=c;
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
+
+  setTimeout(initFormSections, 150);
+  setTimeout(initFormSections, 500);
 }
 
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
