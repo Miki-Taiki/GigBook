@@ -444,6 +444,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .alias-bar-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);transition:all .15s;white-space:nowrap;}
 .alias-bar-pill:hover{border-color:var(--border2);background:var(--surface2);color:var(--text);}
 .alias-bar-pill.active{color:#fff;border-color:transparent;}
+.alias-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;flex-shrink:0;vertical-align:middle;}
 .alias-bar-pill .alias-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
 /* ── COLOUR SWATCHES ── */
@@ -546,22 +547,22 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
   </div>
   <div class="sidebar-nav">
     <div class="nav-section">Main</div>
-    <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">🏠</span>Dashboard</button>
-    <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">📅</span>Calendar</button>
-    <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">🎤</span>All Gigs</button>
+    <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◆</span>Dashboard</button>
+    <button class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">▦</span>Calendar</button>
+    <button class="nav-item" onclick="showPage('gigs',this)"><span class="nav-icon">♪</span>All Gigs</button>
     <div class="nav-section">Artist Info</div>
-    <button class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">👥</span>Contacts</button>
-    <button class="nav-item" onclick="showPage('aliases',this)"><span class="nav-icon">🎭</span>Aliases</button>
-    <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">📜</span>Gig History</button>
-    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📁</span>Documents</button>
+    <button class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">⌬</span>Contacts</button>
+    <button class="nav-item" onclick="showPage('aliases',this)"><span class="nav-icon">✺</span>Aliases</button>
+    <button class="nav-item" onclick="showPage('gigstats',this)"><span class="nav-icon">❖</span>Gig History</button>
+    <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">≣</span>Documents</button>
     <div class="nav-section">Finance</div>
-    <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">💷</span>Income</button>
-    <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">🧾</span>Expenses</button>
-    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">📊</span>Tax Summary</button>
+    <button class="nav-item" onclick="showPage('income',this)"><span class="nav-icon">£</span>Income</button>
+    <button class="nav-item" onclick="showPage('mileage',this)"><span class="nav-icon">⊟</span>Expenses</button>
+    <button class="nav-item" onclick="showPage('taxreport',this)"><span class="nav-icon">≡</span>Tax Summary</button>
     <div class="nav-section">Account</div>
-    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">🎵</span>Ensemble</button>
-    <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span>Settings</button>
-    <button class="nav-item upgrade-btn" onclick="showPage('pricing',this)"><span class="nav-icon">⭐</span>Upgrade</button>
+    <button class="nav-item" onclick="showPage('band',this)"><span class="nav-icon">♫</span>Ensemble</button>
+    <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙</span>Settings</button>
+    <button class="nav-item upgrade-btn" onclick="showPage('pricing',this)"><span class="nav-icon">✦</span>Upgrade</button>
   </div>
   <div class="sidebar-footer">
     <div class="tier-badge">
@@ -1282,6 +1283,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="form-row full" id="c-other-role-row" style="display:none">
         <div class="form-group"><label class="form-label">Custom role (max 15 chars)</label><input type="text" class="form-input" id="c-other-role" maxlength="15" placeholder="e.g. Stagehand, Driver, Lighting"></div>
       </div>
+      <div class="form-row full" id="c-alias-row">
+        <div class="form-group"><label class="form-label">Performing as <span style="color:var(--text3);font-weight:400">— optional</span></label><select class="form-select" id="c-alias"><option value="">All aliases / General</option></select></div>
+      </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="c-phone" placeholder="07xxx xxxxxx"></div>
         <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="c-email" placeholder="contact@venue.co.uk"></div>
@@ -1292,6 +1296,21 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeContactModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENT EDITOR MODAL -->
+<div class="modal-overlay" id="docEditorOverlay" onclick="closeDocEditorOutside(event)">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title" id="docEditorTitle">Edit Technical Rider</div>
+      <button class="modal-close" onclick="closeDocEditor()">✕</button>
+    </div>
+    <div class="modal-body" id="docEditorBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeDocEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDocEditor()">Save</button>
     </div>
   </div>
 </div>
@@ -1649,7 +1668,7 @@ function gigCardHTML(g, highlight=false){
   return `<div class="gig-card${highlight?' acc-border':''}" onclick="showGigDetail('${g.id}')">
     <div class="gig-date-block"><div class="gig-date-day">${d.getDate()}</div><div class="gig-date-mon">${mon[d.getMonth()]}</div></div>
     <div class="gig-info">
-      <div class="gig-venue">${g.venue}</div>
+      <div class="gig-venue">${g.alias?aliasDotHTML(g.alias):''}${g.venue}</div>
       <div class="gig-meta">${g.stage?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">🕐</span> ${g.stage}</span>`:''}${g.address?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">📍</span> ${g.address.split(',').slice(-2).join(',').trim()}</span>`:''}${g.transport&&g.distance?`<span><span class="gemoji" style="filter:grayscale(1);opacity:.65">🚗</span> ${g.distance} mi</span>`:''}</div>
     </div>
     <div class="gig-tags"><span class="tag ${si.cls}">${si.label}</span>${g.type&&g.type!=='Solo'?`<span class="tag tag-pending">${g.type}</span>`:''}</div>
@@ -1685,6 +1704,7 @@ function renderGigs(){
   if(gigFilter==='confirmed') gigs=gigs.filter(g=>g.paystatus==='confirmed'||g.paystatus==='deposit');
   if(gigFilter==='pending') gigs=gigs.filter(g=>g.paystatus==='pending'||g.paystatus==='awaiting');
   if(gigFilter==='paid') gigs=gigs.filter(g=>g.paystatus==='paid');
+  if(activeAliasFilter!=='all') gigs=gigs.filter(g=>g.alias===activeAliasFilter);
 
   gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
 
@@ -2541,6 +2561,9 @@ function renderContacts(){
 
   let filtered = [...contacts];
 
+  // Apply alias filter
+  if(activeAliasFilter !== 'all') filtered = filtered.filter(c => c.alias === activeAliasFilter);
+
   // Apply category filter
   if(contactFilter !== 'all'){
     filtered = filtered.filter(c => c.role === contactFilter);
@@ -2598,7 +2621,7 @@ function contactCardHTML(c, gigs){
   return `<div class="contact-card" style="margin-bottom:8px" onclick="openContactModal('${c.id}')">
     <div class="contact-avatar">${initials}</div>
     <div class="contact-info">
-      <div class="contact-name">${c.name}</div>
+      <div class="contact-name">${c.alias?aliasDotHTML(c.alias):''}${c.name}</div>
       ${subParts.length ? `<div class="contact-role">${subParts.join(' · ')}</div>` : ''}
       ${contactParts.length ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${contactParts.join(' · ')}</div>` : ''}
     </div>
@@ -2610,6 +2633,16 @@ function contactCardHTML(c, gigs){
 function openContactModal(id){
   document.getElementById('contactModalTitle').textContent = id ? 'Edit Contact' : 'Add Contact';
   document.getElementById('editContactId').value = id||'';
+  // Populate alias dropdown
+  const aliasSelect = document.getElementById('c-alias');
+  if(aliasSelect){
+    const aliases = loadAliases();
+    aliasSelect.innerHTML = '<option value="">All aliases / General</option>' +
+      aliases.map(a=>`<option value="${a.id}" style="background:var(--surface2)">${a.name}</option>`).join('');
+    // Hide row if no aliases
+    const aliasRow = document.getElementById('c-alias-row');
+    if(aliasRow) aliasRow.style.display = aliases.length ? '' : 'none';
+  }
   if(id){
     const c = loadContacts().find(x=>x.id===id);
     if(c){
@@ -2617,10 +2650,18 @@ function openContactModal(id){
         const el=document.getElementById('c-'+k);
         if(el) el.value = c[k]||'';
       });
+      if(aliasSelect) aliasSelect.value = c.alias||'';
+      const oi=document.getElementById('c-other-role-row');
+      if(oi) oi.style.display=c.role==='Other'?'':'none';
+      const cr=document.getElementById('c-other-role');
+      if(cr) cr.value=c.roleNote||'';
     }
   } else {
     ['name','phone','email','venue','notes'].forEach(k=>{const el=document.getElementById('c-'+k);if(el)el.value='';});
     const r=document.getElementById('c-role');if(r)r.selectedIndex=0;
+    if(aliasSelect) aliasSelect.value='';
+    const oi=document.getElementById('c-other-role-row');if(oi)oi.style.display='none';
+    const cr=document.getElementById('c-other-role');if(cr)cr.value='';
   }
   document.getElementById('contactModalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -2641,6 +2682,7 @@ function saveContact(){
     email: document.getElementById('c-email').value,
     venue: document.getElementById('c-venue').value,
     notes: document.getElementById('c-notes').value,
+    alias: document.getElementById('c-alias')?.value||'',
   };
   if(editId){ const i=contacts.findIndex(x=>x.id===editId); if(i>=0)contacts[i]=c; else contacts.push(c); }
   else contacts.push(c);
@@ -2894,7 +2936,12 @@ function renderContracts(){
       ${riderBtns}
     </div>
     <div class="detail-card" style="margin-bottom:22px">
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="rider-preview">${localStorage.getItem('gb_rider')||'No rider saved yet. Tap Edit to create your technical rider — PA requirements, microphone inputs, monitor needs, backline etc.'}</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="rider-preview">${(()=>{
+        const d=JSON.parse(localStorage.getItem('gb_rider_data')||'{}');
+        const sections=[['PA System',d.pa],['Microphones',d.mics],['Monitors',d.monitors],['Backline',d.backline],['Stage Requirements',d.stage],['Other Notes',d.notes]].filter(([,v])=>v&&v.trim());
+        if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No rider saved yet. Tap ＋ Add to build your technical rider.</span>';
+        return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
+      })()}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm btn-ghost" onclick="shareDocument('Technical Rider','email')">✉ Share via email</button>
         <button class="btn btn-sm btn-ghost" onclick="shareDocument('Technical Rider','social')">⊕ Copy share link</button>
@@ -2906,7 +2953,12 @@ function renderContracts(){
       ${epkBtns}
     </div>
     <div class="detail-card">
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:12px" id="epk-preview">${localStorage.getItem('gb_epk')||'No EPK saved yet. Tap Edit to build your Electronic Press Kit — bio, genre, links to recordings, social media, press quotes, and booking contact.'}</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="epk-preview">${(()=>{
+        const d=JSON.parse(localStorage.getItem('gb_epk_data')||'{}');
+        const sections=[['Bio',d.bio],['Genre & Style',d.genre],['Recordings & Links',d.links],['Social Media',d.social],['Press Quotes',d.press],['Booking Contact',d.booking]].filter(([,v])=>v&&v.trim());
+        if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No EPK saved yet. Tap ＋ Add to build your Electronic Press Kit.</span>';
+        return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
+      })()}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm btn-ghost" onclick="shareDocument('Electronic Press Kit','email')">✉ Share via email</button>
         <button class="btn btn-sm btn-ghost" onclick="shareDocument('Electronic Press Kit','social')">⊕ Copy share link</button>
@@ -2915,14 +2967,48 @@ function renderContracts(){
 }
 
 function openRiderEditor(){
-  const current = localStorage.getItem('gb_rider')||'';
-  const text = prompt('Edit your Technical Rider (PA requirements, inputs, backline, monitors etc.):', current);
-  if(text!==null){ localStorage.setItem('gb_rider',text); renderContracts(); }
+  const data = JSON.parse(localStorage.getItem('gb_rider_data')||'{}');
+  window._docEditorMode = 'rider';
+  document.getElementById('docEditorTitle').textContent = 'Technical Rider';
+  document.getElementById('docEditorBody').innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Fill in the sections that apply to you. Leave blank any that aren't relevant.</p>
+    <div class="form-section-header" style="margin-top:0">PA System</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-pa" rows="3" placeholder="e.g. Minimum 1kW PA per side, full-range cabinets, stereo mix. No column speakers.">${data.pa||''}</textarea></div>
+    <div class="form-section-header">Microphones</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-mics" rows="3" placeholder="e.g. 1x SM58 vocal mic on boom stand, 1x DI box for keyboard.">${data.mics||''}</textarea></div>
+    <div class="form-section-header">Monitors</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-monitors" rows="2" placeholder="e.g. 2x wedge monitors front-of-stage, independent mix.">${data.monitors||''}</textarea></div>
+    <div class="form-section-header">Backline</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-backline" rows="3" placeholder="e.g. Guitar amp: Fender Blues Junior or equivalent. Drum kit not required.">${data.backline||''}</textarea></div>
+    <div class="form-section-header">Stage Requirements</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-stage" rows="2" placeholder="e.g. Minimum 4m x 3m performance space. Power: 2x 13A sockets stage-left.">${data.stage||''}</textarea></div>
+    <div class="form-section-header">Other Notes</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-notes" rows="2" placeholder="Any other requirements, load-in times, hospitality etc.">${data.notes||''}</textarea></div>
+  `;
+  document.getElementById('docEditorOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
 }
 function openEPKEditor(){
-  const current = localStorage.getItem('gb_epk')||'';
-  const text = prompt('Edit your Electronic Press Kit (bio, genre, links, press quotes, booking contact):', current);
-  if(text!==null){ localStorage.setItem('gb_epk',text); renderContracts(); }
+  const data = JSON.parse(localStorage.getItem('gb_epk_data')||'{}');
+  window._docEditorMode = 'epk';
+  document.getElementById('docEditorTitle').textContent = 'Electronic Press Kit';
+  document.getElementById('docEditorBody').innerHTML = `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Your EPK is a one-stop document you send to promoters and venues. Fill in what you have.</p>
+    <div class="form-section-header" style="margin-top:0">Artist Bio</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-bio" rows="4" placeholder="A short paragraph about you or your act — who you are, your story, what makes you memorable.">${data.bio||''}</textarea></div>
+    <div class="form-section-header">Genre & Style</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-genre" rows="2" placeholder="e.g. Original indie folk with blues influences. Suitable for pubs, festivals, and seated venues.">${data.genre||''}</textarea></div>
+    <div class="form-section-header">Recordings & Links</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-links" rows="3" placeholder="Spotify, SoundCloud, YouTube, Bandcamp URLs — one per line.">${data.links||''}</textarea></div>
+    <div class="form-section-header">Social Media</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-social" rows="2" placeholder="Instagram, Facebook, TikTok handles or URLs.">${data.social||''}</textarea></div>
+    <div class="form-section-header">Press Quotes</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-press" rows="3" placeholder='e.g. "Effortlessly captivating" — Newport Music Blog'>${data.press||''}</textarea></div>
+    <div class="form-section-header">Booking Contact</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-booking" rows="2" placeholder="Name, email, phone number for booking enquiries.">${data.booking||''}</textarea></div>
+  `;
+  document.getElementById('docEditorOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
 }
 function shareDocument(name, method){
   if(method==='social'){
@@ -3355,6 +3441,71 @@ function renderAliasBar(){
       ${a.name}
     </button>`
   )).join('');
+}
+
+function aliasColourFor(id){
+  if(!id||id==='all') return null;
+  const a=loadAliases().find(x=>x.id===id);
+  return a?a.colour:null;
+}
+function aliasDotHTML(id){
+  const col=aliasColourFor(id);
+  return col
+    ? `<span class="alias-dot-sm" style="background:${col}"></span>`
+    : '<span class="alias-dot-sm" style="background:rgba(255,255,255,0.14)"></span>';
+}
+
+function closeDocEditor(){
+  document.getElementById('docEditorOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeDocEditorOutside(e){
+  if(e.target.id==='docEditorOverlay') closeDocEditor();
+}
+function saveDocEditor(){
+  const mode = window._docEditorMode;
+  if(mode==='rider'){
+    const data = {
+      pa: document.getElementById('de-pa')?.value||'',
+      mics: document.getElementById('de-mics')?.value||'',
+      monitors: document.getElementById('de-monitors')?.value||'',
+      backline: document.getElementById('de-backline')?.value||'',
+      stage: document.getElementById('de-stage')?.value||'',
+      notes: document.getElementById('de-notes')?.value||''
+    };
+    localStorage.setItem('gb_rider_data', JSON.stringify(data));
+    // Build flat text for preview/sharing
+    const parts = [
+      data.pa&&'PA System\n'+data.pa,
+      data.mics&&'Microphones\n'+data.mics,
+      data.monitors&&'Monitors\n'+data.monitors,
+      data.backline&&'Backline\n'+data.backline,
+      data.stage&&'Stage Requirements\n'+data.stage,
+      data.notes&&'Other Notes\n'+data.notes
+    ].filter(Boolean);
+    localStorage.setItem('gb_rider', parts.join('\n\n'));
+  } else if(mode==='epk'){
+    const data = {
+      bio: document.getElementById('de-bio')?.value||'',
+      genre: document.getElementById('de-genre')?.value||'',
+      links: document.getElementById('de-links')?.value||'',
+      social: document.getElementById('de-social')?.value||'',
+      press: document.getElementById('de-press')?.value||'',
+      booking: document.getElementById('de-booking')?.value||''
+    };
+    localStorage.setItem('gb_epk_data', JSON.stringify(data));
+    const parts = [
+      data.bio&&'Bio\n'+data.bio,
+      data.genre&&'Genre & Style\n'+data.genre,
+      data.links&&'Recordings & Links\n'+data.links,
+      data.social&&'Social Media\n'+data.social,
+      data.press&&'Press Quotes\n'+data.press,
+      data.booking&&'Booking Contact\n'+data.booking
+    ].filter(Boolean);
+    localStorage.setItem('gb_epk', parts.join('\n\n'));
+  }
+  closeDocEditor();
+  renderContracts();
 }
 
 function setAliasFilter(id){
