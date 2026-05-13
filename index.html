@@ -444,6 +444,12 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .alias-bar-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);transition:all .15s;white-space:nowrap;}
 .alias-bar-pill:hover{border-color:var(--border2);background:var(--surface2);color:var(--text);}
 .alias-bar-pill.active{color:#fff;border-color:transparent;}
+.tpl-picker-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:'Barlow Condensed',sans-serif;margin-bottom:6px;}
+.tpl-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.tpl-pill{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:6px 12px 6px 14px;font-size:12px;color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:'Barlow',sans-serif;transition:all .15s;}
+.tpl-pill:hover{border-color:var(--acc-border);color:var(--text);}
+.tpl-pill-del{opacity:.4;font-size:11px;line-height:1;padding:0 2px;}
+.tpl-pill-del:hover{opacity:1;color:var(--red);}
 .alias-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;flex-shrink:0;vertical-align:middle;}
 .alias-bar-pill .alias-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
@@ -1016,6 +1022,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
     <div class="modal-body">
       <input type="hidden" id="editGigId">
+      <div id="gig-template-picker" style="display:none;margin-bottom:14px"></div>
       <div class="form-section">
         <div class="form-section-title">Gig details</div>
         <div class="form-row"><div class="form-group"><label class="form-label">Venue name</label><input type="text" class="form-input" id="f-venue" placeholder="e.g. The Stag Inn"></div><div class="form-group"><label class="form-label">Type</label><select class="form-select" id="f-type"><option>Solo</option><option>Duo</option><option>Group / Band</option><option>Artist / Performer</option><option>Support slot</option><option>Headline</option><option>Festival</option><option>Private function</option><option>Corporate</option><option>Comedy night</option><option>Open mic</option><option>Theatre</option><option>Cabaret</option><option>DJ set</option><option>Other</option></select></div></div>
@@ -1065,36 +1072,34 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       </div>
       <!-- RECURRING TEMPLATE SECTION -->
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0" onclick="toggleTemplateSection()">
-          <div>
-            <div style="font-size:13px;font-weight:500;color:var(--text)">⊞ Save as recurring template</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">For residencies or regular gigs — create future instances in one tap</div>
+      <div class="form-section">
+        <div class="form-section-title">Save as template</div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span>
+                <span style="font-size:13px;font-weight:500;color:var(--text)">Save this gig as a reusable template</span>
+                <span style="display:block;font-size:11px;color:var(--text3);margin-top:2px">Next time, pick it from the top of the Add Gig form to prefill everything except the date.</span>
+              </span>
+              <label class="toggle" onclick="event.stopPropagation()" style="flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="f-make-template" onchange="toggleTemplateSection()">
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
           </div>
-          <label class="toggle" onclick="event.stopPropagation()">
-            <input type="checkbox" id="f-make-template" onchange="toggleTemplateSection()">
-            <span class="toggle-slider"></span>
-          </label>
         </div>
-        <div id="template-extra-fields" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div id="template-extra-fields" style="display:none">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Template name</label>
+              <label class="form-label">Template name <span style="color:var(--text3);font-weight:400">— optional</span></label>
               <input type="text" class="form-input" id="f-tpl-name" placeholder="e.g. Monthly residency — The Stag">
             </div>
             <div class="form-group">
-              <label class="form-label">How often?</label>
-              <select class="form-select" id="f-tpl-freq">
-                <option value="weekly">Weekly</option>
-                <option value="fortnightly">Fortnightly</option>
-                <option value="monthly" selected>Monthly</option>
-                <option value="irregular">Irregular / as needed</option>
-              </select>
+              <label class="form-label">Monthly recurrence <span style="color:var(--text3);font-weight:400">— optional</span></label>
+              <input type="text" class="form-input" id="f-tpl-days" placeholder="e.g. 5, 20 (days of month)">
             </div>
           </div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--text3);line-height:1.5">
-            A template will be saved with this gig's venue, transport, contacts, and logistics pre-filled. Use it next time from <strong style="color:var(--text2)">+ Add Gig</strong> to create a new instance in seconds.
-          </div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-top:4px">If you regularly perform on the same days each month, list them comma-separated. The template will remember those for next time.</div>
         </div>
       </div>
     </div>
@@ -1293,9 +1298,12 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="form-row full"><div class="form-group"><label class="form-label">Venue / Organisation</label><input type="text" class="form-input" id="c-venue" placeholder="e.g. The Stag Inn, Bristol"></div></div>
       <div class="form-row full"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="c-notes" placeholder="Working notes about this contact..."></textarea></div></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeContactModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-danger" id="contactDeleteBtn" onclick="deleteContactFromModal()" style="display:none">Delete contact</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-ghost" onclick="closeContactModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1704,7 +1712,7 @@ function renderGigs(){
   if(gigFilter==='confirmed') gigs=gigs.filter(g=>g.paystatus==='confirmed'||g.paystatus==='deposit');
   if(gigFilter==='pending') gigs=gigs.filter(g=>g.paystatus==='pending'||g.paystatus==='awaiting');
   if(gigFilter==='paid') gigs=gigs.filter(g=>g.paystatus==='paid');
-  if(activeAliasFilter!=='all') gigs=gigs.filter(g=>g.alias===activeAliasFilter);
+  if(activeAliasFilter!=='all') gigs=gigs.filter(g=>aliasIdFor(g.aliasId||g.alias)===activeAliasFilter);
 
   gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
 
@@ -1831,6 +1839,64 @@ function deleteCurrentGig(){
 // ─────────────────────────────────────────────
 // ADD / EDIT MODAL
 // ─────────────────────────────────────────────
+function renderTemplatePicker(){
+  const picker = document.getElementById('gig-template-picker');
+  if(!picker) return;
+  const tpls = loadTemplates();
+  if(!tpls.length){ picker.style.display='none'; picker.innerHTML=''; return; }
+  picker.style.display='block';
+  picker.innerHTML = '<div class="tpl-picker-label">Quick start from a saved template</div><div class="tpl-pills">'
+    + tpls.map(t => {
+        const dot = t.aliasId || t.alias ? aliasDotHTML(t.aliasId || t.alias) : '';
+        return `<span class="tpl-pill" onclick="applyTemplate('${t.id}')">${dot}${t.name}<span class="tpl-pill-del" onclick="event.stopPropagation();deleteTemplate('${t.id}')" title="Remove template">✕</span></span>`;
+      }).join('')
+    + '</div>';
+}
+
+function applyTemplate(id){
+  const t = loadTemplates().find(x => x.id === id);
+  if(!t) return;
+  const setVal = (eid, v) => { const el = document.getElementById(eid); if(el && v!==undefined && v!==null) el.value = v; };
+  setVal('f-venue', t.venue);
+  setVal('f-type', t.type);
+  setVal('f-setlength', t.setlength);
+  setVal('f-address', t.address);
+  setVal('f-parking', t.parking);
+  setVal('f-pa', t.pa);
+  setVal('f-transport', t.transport);
+  setVal('f-distance', t.distance);
+  setVal('f-fee', t.fee);
+  setVal('f-paymethod', t.paymethod);
+  setVal('f-contact', t.contact);
+  setVal('f-phone', t.phone);
+  setVal('f-notes', t.notes);
+  // Alias
+  const aliasSel = document.getElementById('f-alias');
+  if(aliasSel && t.aliasId){ aliasSel.value = t.aliasId; if(typeof onAliasChange==='function') onAliasChange(aliasSel); }
+  // If template has monthly days, suggest the next upcoming one in the date field
+  if(t.days && t.days.length){
+    const dateEl = document.getElementById('f-date');
+    if(dateEl && !dateEl.value){
+      const today = new Date();
+      const candidates = t.days.map(d => {
+        const cand = new Date(today.getFullYear(), today.getMonth(), d);
+        if(cand < today) cand.setMonth(cand.getMonth()+1);
+        return cand;
+      }).sort((a,b)=>a-b);
+      const next = candidates[0];
+      const iso = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0') + '-' + String(next.getDate()).padStart(2,'0');
+      dateEl.value = iso;
+    }
+  }
+}
+
+function deleteTemplate(id){
+  if(!confirm('Remove this template? Future gigs you have already saved are not affected.')) return;
+  const tpls = loadTemplates().filter(t => t.id !== id);
+  saveTemplates(tpls);
+  renderTemplatePicker();
+}
+
 function openModal(prefillDate){
   const p=loadPrefs();
   document.getElementById('modalTitle').textContent='Add New Gig';
@@ -1845,6 +1911,7 @@ function openModal(prefillDate){
   const c=currency();
   document.getElementById('f-curr-sym').textContent=c;
   document.getElementById('f-dep-sym').textContent=c;
+  renderTemplatePicker();
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 
@@ -1944,15 +2011,17 @@ function saveGig(){
   const makeTemplate = document.getElementById('f-make-template');
   if(makeTemplate && makeTemplate.checked){
     const tplName = (document.getElementById('f-tpl-name')?.value.trim()) || (g.venue + ' (template)');
-    const freq = document.getElementById('f-tpl-freq')?.value || 'monthly';
+    const daysStr = (document.getElementById('f-tpl-days')?.value||'').trim();
+    const days = daysStr ? daysStr.split(',').map(x=>parseInt(x.trim(),10)).filter(n=>n>=1&&n<=31) : [];
     const templates = loadTemplates();
     const t = {
-      id: uid(), name: tplName, freq,
+      id: uid(), name: tplName, days,
       venue: g.venue, type: g.type, setlength: g.setlength,
       address: g.address, parking: g.parking, pa: g.pa,
       transport: g.transport, distance: g.distance,
       fee: g.fee, paymethod: g.paymethod,
       contact: g.contact, phone: g.phone, notes: g.notes,
+      aliasId: g.aliasId, alias: g.alias, colour: g.colour
     };
     templates.push(t);
     saveTemplates(templates);
@@ -2562,7 +2631,7 @@ function renderContacts(){
   let filtered = [...contacts];
 
   // Apply alias filter
-  if(activeAliasFilter !== 'all') filtered = filtered.filter(c => c.alias === activeAliasFilter);
+  if(activeAliasFilter !== 'all') filtered = filtered.filter(c => aliasIdFor(c.alias) === activeAliasFilter);
 
   // Apply category filter
   if(contactFilter !== 'all'){
@@ -2626,7 +2695,6 @@ function contactCardHTML(c, gigs){
       ${contactParts.length ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${contactParts.join(' · ')}</div>` : ''}
     </div>
     ${gigCount > 0 ? `<div class="contact-gig-count">${gigCount} gig${gigCount!==1?'s':''}</div>` : ''}
-    <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteContact('${c.id}')">✕</button>
   </div>`;
 }
 
@@ -2663,10 +2731,22 @@ function openContactModal(id){
     const oi=document.getElementById('c-other-role-row');if(oi)oi.style.display='none';
     const cr=document.getElementById('c-other-role');if(cr)cr.value='';
   }
+  const delBtn=document.getElementById('contactDeleteBtn');
+  if(delBtn) delBtn.style.display=id?'':'none';
   document.getElementById('contactModalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
 function closeContactModal(){ document.getElementById('contactModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+function deleteContactFromModal(){
+  const id=document.getElementById('editContactId').value;
+  if(!id) return;
+  if(!confirm('Delete this contact? This cannot be undone.')) return;
+  const contacts=loadContacts().filter(c=>c.id!==id);
+  saveContacts(contacts);
+  closeContactModal();
+  renderContacts();
+}
 
 function saveContact(){
   const name = document.getElementById('c-name').value.trim();
@@ -2919,26 +2999,36 @@ function renderContracts(){
       <button class="btn btn-primary btn-sm" onclick="alert('Upload contract PDF — available in the mobile app.')">+ Upload</button>
     </div>
     <div style="margin-bottom:22px">
-      ${gigs.slice(0,3).map(g=>`
+      ${gigs.slice(0,3).map(g=>{
+        const pdf = localStorage.getItem('gb_contract_pdf_'+g.id);
+        return `
         <div class="contract-card" style="margin-bottom:8px">
           <div class="contract-icon">◧</div>
-          <div class="contract-info"><div class="contract-name">${g.venue}</div><div class="contract-sub">${fmtDate(g.date)} · Notes on file</div></div>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-sm btn-ghost" onclick="shareDocument('${g.venue} contract')">Share</button>
-            <button class="btn btn-sm btn-ghost" onclick="showGigDetail('${g.id}')">View</button>
+          <div class="contract-info">
+            <div class="contract-name">${g.venue}</div>
+            <div class="contract-sub">${fmtDate(g.date)} · ${pdf ? 'PDF attached' : 'Notes on file'}</div>
           </div>
-        </div>`).join('')}
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="file" accept="application/pdf" id="contract-pdf-${g.id}" style="display:none" onchange="uploadContractPDF('${g.id}', this)">
+            ${pdf
+              ? '<button class="btn btn-sm btn-ghost" onclick="viewContractPDF(\''+g.id+'\')">View PDF</button><button class="btn btn-sm btn-ghost" onclick="removeContractPDF(\''+g.id+'\')" title="Remove PDF">✕</button>'
+              : '<button class="btn btn-sm btn-ghost" onclick="document.getElementById(\'contract-pdf-'+g.id+'\').click()">↑ Upload PDF</button><button class="btn btn-sm btn-ghost" onclick="showGigDetail(\''+g.id+'\')">View notes</button>'
+            }
+            <button class="btn btn-sm btn-ghost" onclick="shareDocument('${g.venue} contract')">Share</button>
+          </div>
+        </div>`;
+      }).join('')}
       ${gigs.length===0?`<div class="empty-gig" onclick="openModal()"><div class="empty-add">+ Add gig</div><div class="empty-text">Gigs with notes will appear here as contract records</div></div>`:''}
     </div>
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
-      ${riderBtns}
+      <div style="display:flex;gap:6px;flex-shrink:0">${riderBtns}</div>
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="rider-preview">${(()=>{
         const d=JSON.parse(localStorage.getItem('gb_rider_data')||'{}');
-        const sections=[['PA System',d.pa],['Microphones',d.mics],['Monitors',d.monitors],['Backline',d.backline],['Stage Requirements',d.stage],['Other Notes',d.notes]].filter(([,v])=>v&&v.trim());
+        const sections=[['Technical',d.technical],['Hospitality',d.hospitality],['Logistics',d.logistics]].filter(([,v])=>v&&v.trim());
         if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No rider saved yet. Tap ＋ Add to build your technical rider.</span>';
         return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
       })()}</div>
@@ -2950,12 +3040,12 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Electronic Press Kit <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your EPK</span></div>
-      ${epkBtns}
+      <div style="display:flex;gap:6px;flex-shrink:0">${epkBtns}</div>
     </div>
     <div class="detail-card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="epk-preview">${(()=>{
         const d=JSON.parse(localStorage.getItem('gb_epk_data')||'{}');
-        const sections=[['Bio',d.bio],['Genre & Style',d.genre],['Recordings & Links',d.links],['Social Media',d.social],['Press Quotes',d.press],['Booking Contact',d.booking]].filter(([,v])=>v&&v.trim());
+        const sections=[['Bio',d.bio],['Style & Discipline',d.genre],['Work & Links',d.links],['Social Media',d.social],['Press & Quotes',d.press],['Booking Contact',d.booking]].filter(([,v])=>v&&v.trim());
         if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No EPK saved yet. Tap ＋ Add to build your Electronic Press Kit.</span>';
         return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
       })()}</div>
@@ -2971,19 +3061,13 @@ function openRiderEditor(){
   window._docEditorMode = 'rider';
   document.getElementById('docEditorTitle').textContent = 'Technical Rider';
   document.getElementById('docEditorBody').innerHTML = `
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Fill in the sections that apply to you. Leave blank any that aren't relevant.</p>
-    <div class="form-section-header" style="margin-top:0">PA System</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-pa" rows="3" placeholder="e.g. Minimum 1kW PA per side, full-range cabinets, stereo mix. No column speakers.">${data.pa||''}</textarea></div>
-    <div class="form-section-header">Microphones</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-mics" rows="3" placeholder="e.g. 1x SM58 vocal mic on boom stand, 1x DI box for keyboard.">${data.mics||''}</textarea></div>
-    <div class="form-section-header">Monitors</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-monitors" rows="2" placeholder="e.g. 2x wedge monitors front-of-stage, independent mix.">${data.monitors||''}</textarea></div>
-    <div class="form-section-header">Backline</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-backline" rows="3" placeholder="e.g. Guitar amp: Fender Blues Junior or equivalent. Drum kit not required.">${data.backline||''}</textarea></div>
-    <div class="form-section-header">Stage Requirements</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-stage" rows="2" placeholder="e.g. Minimum 4m x 3m performance space. Power: 2x 13A sockets stage-left.">${data.stage||''}</textarea></div>
-    <div class="form-section-header">Other Notes</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-notes" rows="2" placeholder="Any other requirements, load-in times, hospitality etc.">${data.notes||''}</textarea></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Three sections, completely flexible. Fill in whatever's relevant to your craft and how you work.</p>
+    <div class="form-section-header" style="margin-top:0">Technical</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-technical" rows="5" placeholder="Equipment, setup, sound, lighting, projection, materials, space — whatever you need from the venue or what you'll bring.">${data.technical||''}</textarea></div>
+    <div class="form-section-header">Hospitality</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-hospitality" rows="4" placeholder="Green room, refreshments, dietary needs, dressing space, guest list, anything that makes the day workable.">${data.hospitality||''}</textarea></div>
+    <div class="form-section-header">Logistics</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-logistics" rows="4" placeholder="Load-in / get-in times, parking, access, accommodation, timing, soundcheck or setup window.">${data.logistics||''}</textarea></div>
   `;
   document.getElementById('docEditorOverlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -2993,17 +3077,17 @@ function openEPKEditor(){
   window._docEditorMode = 'epk';
   document.getElementById('docEditorTitle').textContent = 'Electronic Press Kit';
   document.getElementById('docEditorBody').innerHTML = `
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Your EPK is a one-stop document you send to promoters and venues. Fill in what you have.</p>
-    <div class="form-section-header" style="margin-top:0">Artist Bio</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5">Your EPK is a one-stop document you send to promoters, venues, and bookers. Fill in what you have.</p>
+    <div class="form-section-header" style="margin-top:0">Bio</div>
     <div class="form-group"><textarea class="form-textarea" id="de-bio" rows="4" placeholder="A short paragraph about you or your act — who you are, your story, what makes you memorable.">${data.bio||''}</textarea></div>
-    <div class="form-section-header">Genre & Style</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-genre" rows="2" placeholder="e.g. Original indie folk with blues influences. Suitable for pubs, festivals, and seated venues.">${data.genre||''}</textarea></div>
-    <div class="form-section-header">Recordings & Links</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-links" rows="3" placeholder="Spotify, SoundCloud, YouTube, Bandcamp URLs — one per line.">${data.links||''}</textarea></div>
+    <div class="form-section-header">Style & Discipline</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-genre" rows="2" placeholder="e.g. Spoken-word poetry. Or: solo violinist, classical and folk crossover. Or: contemporary dance, improvised. Suitable for which kinds of spaces or audiences.">${data.genre||''}</textarea></div>
+    <div class="form-section-header">Work & Links</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-links" rows="3" placeholder="Links to recordings, videos, portfolio, website, past performances — one per line.">${data.links||''}</textarea></div>
     <div class="form-section-header">Social Media</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-social" rows="2" placeholder="Instagram, Facebook, TikTok handles or URLs.">${data.social||''}</textarea></div>
-    <div class="form-section-header">Press Quotes</div>
-    <div class="form-group"><textarea class="form-textarea" id="de-press" rows="3" placeholder='e.g. "Effortlessly captivating" — Newport Music Blog'>${data.press||''}</textarea></div>
+    <div class="form-group"><textarea class="form-textarea" id="de-social" rows="2" placeholder="Instagram, TikTok, X, Facebook, LinkedIn — handles or URLs.">${data.social||''}</textarea></div>
+    <div class="form-section-header">Press & Quotes</div>
+    <div class="form-group"><textarea class="form-textarea" id="de-press" rows="3" placeholder='Review snippets, audience testimonials, or publications you have appeared in.'>${data.press||''}</textarea></div>
     <div class="form-section-header">Booking Contact</div>
     <div class="form-group"><textarea class="form-textarea" id="de-booking" rows="2" placeholder="Name, email, phone number for booking enquiries.">${data.booking||''}</textarea></div>
   `;
@@ -3443,16 +3527,61 @@ function renderAliasBar(){
   )).join('');
 }
 
-function aliasColourFor(id){
-  if(!id||id==='all') return null;
-  const a=loadAliases().find(x=>x.id===id);
+function aliasColourFor(idOrName){
+  if(!idOrName||idOrName==='all') return null;
+  const all=loadAliases();
+  const a=all.find(x=>x.id===idOrName)||all.find(x=>x.name===idOrName);
   return a?a.colour:null;
+}
+function aliasIdFor(idOrName){
+  if(!idOrName||idOrName==='all') return idOrName;
+  const all=loadAliases();
+  const a=all.find(x=>x.id===idOrName)||all.find(x=>x.name===idOrName);
+  return a?a.id:idOrName;
 }
 function aliasDotHTML(id){
   const col=aliasColourFor(id);
   return col
     ? `<span class="alias-dot-sm" style="background:${col}"></span>`
     : '<span class="alias-dot-sm" style="background:rgba(255,255,255,0.14)"></span>';
+}
+
+function uploadContractPDF(gigId, input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  if(file.size > 4 * 1024 * 1024){
+    alert('PDF is too large (max 4MB). Please compress and try again.');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      localStorage.setItem('gb_contract_pdf_' + gigId, e.target.result);
+      localStorage.setItem('gb_contract_pdf_name_' + gigId, file.name);
+      renderContracts();
+    } catch(err){
+      alert('Could not save PDF — storage may be full. Try removing other PDFs first.');
+    }
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function viewContractPDF(gigId){
+  const data = localStorage.getItem('gb_contract_pdf_' + gigId);
+  if(!data) return;
+  const win = window.open();
+  if(win){
+    win.document.write('<iframe src="' + data + '" style="width:100%;height:100vh;border:0"></iframe>');
+  }
+}
+
+function removeContractPDF(gigId){
+  if(!confirm('Remove this PDF? The gig and its notes will remain.')) return;
+  localStorage.removeItem('gb_contract_pdf_' + gigId);
+  localStorage.removeItem('gb_contract_pdf_name_' + gigId);
+  renderContracts();
 }
 
 function closeDocEditor(){
@@ -3466,22 +3595,15 @@ function saveDocEditor(){
   const mode = window._docEditorMode;
   if(mode==='rider'){
     const data = {
-      pa: document.getElementById('de-pa')?.value||'',
-      mics: document.getElementById('de-mics')?.value||'',
-      monitors: document.getElementById('de-monitors')?.value||'',
-      backline: document.getElementById('de-backline')?.value||'',
-      stage: document.getElementById('de-stage')?.value||'',
-      notes: document.getElementById('de-notes')?.value||''
+      technical: document.getElementById('de-technical')?.value||'',
+      hospitality: document.getElementById('de-hospitality')?.value||'',
+      logistics: document.getElementById('de-logistics')?.value||''
     };
     localStorage.setItem('gb_rider_data', JSON.stringify(data));
-    // Build flat text for preview/sharing
     const parts = [
-      data.pa&&'PA System\n'+data.pa,
-      data.mics&&'Microphones\n'+data.mics,
-      data.monitors&&'Monitors\n'+data.monitors,
-      data.backline&&'Backline\n'+data.backline,
-      data.stage&&'Stage Requirements\n'+data.stage,
-      data.notes&&'Other Notes\n'+data.notes
+      data.technical&&'Technical\n'+data.technical,
+      data.hospitality&&'Hospitality\n'+data.hospitality,
+      data.logistics&&'Logistics\n'+data.logistics
     ].filter(Boolean);
     localStorage.setItem('gb_rider', parts.join('\n\n'));
   } else if(mode==='epk'){
@@ -3496,10 +3618,10 @@ function saveDocEditor(){
     localStorage.setItem('gb_epk_data', JSON.stringify(data));
     const parts = [
       data.bio&&'Bio\n'+data.bio,
-      data.genre&&'Genre & Style\n'+data.genre,
-      data.links&&'Recordings & Links\n'+data.links,
+      data.genre&&'Style & Discipline\n'+data.genre,
+      data.links&&'Work & Links\n'+data.links,
       data.social&&'Social Media\n'+data.social,
-      data.press&&'Press Quotes\n'+data.press,
+      data.press&&'Press & Quotes\n'+data.press,
       data.booking&&'Booking Contact\n'+data.booking
     ].filter(Boolean);
     localStorage.setItem('gb_epk', parts.join('\n\n'));
