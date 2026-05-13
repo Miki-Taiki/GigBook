@@ -1076,16 +1076,16 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-section-title">Save as template</div>
         <div class="form-row full">
           <div class="form-group">
-            <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-              <span>
-                <span style="font-size:13px;font-weight:500;color:var(--text)">Save this gig as a reusable template</span>
-                <span style="display:block;font-size:11px;color:var(--text3);margin-top:2px">Next time, pick it from the top of the Add Gig form to prefill everything except the date.</span>
-              </span>
-              <label class="toggle" onclick="event.stopPropagation()" style="flex-shrink:0;margin-left:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px" onclick="document.getElementById('f-make-template').click()">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--text)">Save this gig as a reusable template</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px">Next time, pick it from the top of the Add Gig form to prefill everything except the date.</div>
+              </div>
+              <label class="toggle" onclick="event.stopPropagation()" style="flex-shrink:0">
                 <input type="checkbox" id="f-make-template" onchange="toggleTemplateSection()">
                 <span class="toggle-slider"></span>
               </label>
-            </label>
+            </div>
           </div>
         </div>
         <div id="template-extra-fields" style="display:none">
@@ -1604,7 +1604,8 @@ function closeProfileOutside(e){ if(e.target===document.getElementById('profileM
 // DASHBOARD
 // ─────────────────────────────────────────────
 function renderDashboard(){
-  const gigs=loadGigs();
+  const allGigs=loadGigs();
+  const gigs = activeAliasFilter!=='all' ? allGigs.filter(g=>aliasIdFor(g.aliasId||g.alias)===activeAliasFilter) : allGigs;
   const now=TODAY.getTime();
   const level=authLevel();
 
@@ -1612,7 +1613,7 @@ function renderDashboard(){
 
   // Banner
   const bannerEl=document.getElementById('dash-next-banner');
-  if(gigs.length===0){
+  if(allGigs.length===0){
     // First-time / empty state
     bannerEl.innerHTML=`<div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:32px 24px;margin-bottom:20px;text-align:center">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--acc-text);margin-bottom:8px">Welcome to GigBook</div>
@@ -1720,7 +1721,11 @@ function renderGigs(){
   if(!listEl) return;
 
   if(gigs.length===0){
-    listEl.innerHTML=`<div class="no-results">No gigs found${search?' matching "'+search+'"':''}</div><div class="empty-gig" onclick="openModal()"><div class="empty-add">+ Add gig</div><div class="empty-text">Got more gigs lined up? Add them here</div></div>`;
+    const _aliasLabel = activeAliasFilter!=='all' ? (()=>{ const _a=loadAliases().find(x=>x.id===activeAliasFilter); return _a?_a.name:null; })() : null;
+    const _emptyMsg = _aliasLabel
+      ? `No gigs tagged to "${_aliasLabel}" yet. Edit a gig and set the alias field to assign it.`
+      : (search ? `No gigs found matching "${search}"` : 'No gigs added yet');
+    listEl.innerHTML=`<div class="no-results">${_emptyMsg}</div><div class="empty-gig" onclick="openModal()"><div class="empty-add">+ Add gig</div><div class="empty-text">Add more gigs to get started</div></div>`;
     return;
   }
   listEl.innerHTML=gigs.map(g=>gigCardHTML(g)).join('')+`<div class="empty-gig" onclick="openModal()"><div class="empty-add">+ Add gig</div><div class="empty-text">More gigs to add?</div></div>`;
