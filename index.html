@@ -1070,8 +1070,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row full"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="f-email" placeholder="booker@venue.co.uk"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="Anything else worth remembering..."></textarea></div></div>
       </div>
-      <!-- RECURRING TEMPLATE SECTION -->
-      </div>
       <div class="form-section">
         <div class="form-section-title">Save as template</div>
         <div class="form-row full">
@@ -1713,7 +1711,10 @@ function renderGigs(){
   if(gigFilter==='confirmed') gigs=gigs.filter(g=>g.paystatus==='confirmed'||g.paystatus==='deposit');
   if(gigFilter==='pending') gigs=gigs.filter(g=>g.paystatus==='pending'||g.paystatus==='awaiting');
   if(gigFilter==='paid') gigs=gigs.filter(g=>g.paystatus==='paid');
-  if(activeAliasFilter!=='all') gigs=gigs.filter(g=>aliasIdFor(g.aliasId||g.alias)===activeAliasFilter);
+  if(activeAliasFilter!=='all'){
+    const _af=loadAliases().find(a=>a.id===activeAliasFilter);
+    gigs=gigs.filter(g=>g.aliasId===activeAliasFilter||(_af&&(g.alias===_af.name||g.aliasId===_af.id)));
+  }
 
   gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
 
@@ -2636,7 +2637,10 @@ function renderContacts(){
   let filtered = [...contacts];
 
   // Apply alias filter
-  if(activeAliasFilter !== 'all') filtered = filtered.filter(c => aliasIdFor(c.alias) === activeAliasFilter);
+  if(activeAliasFilter !== 'all'){
+    const _af=loadAliases().find(a=>a.id===activeAliasFilter);
+    filtered=filtered.filter(c=>c.alias===activeAliasFilter||(_af&&(c.alias===_af.name||c.alias===_af.id)));
+  }
 
   // Apply category filter
   if(contactFilter !== 'all'){
