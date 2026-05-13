@@ -450,6 +450,22 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .tpl-pill:hover{border-color:var(--acc-border);color:var(--text);}
 .tpl-pill-del{opacity:.4;font-size:11px;line-height:1;padding:0 2px;}
 .tpl-pill-del:hover{opacity:1;color:var(--red);}
+/* hide number input spinners on fee/deposit */
+#f-fee::-webkit-outer-spin-button,#f-fee::-webkit-inner-spin-button,
+#f-deposit::-webkit-outer-spin-button,#f-deposit::-webkit-inner-spin-button
+{-webkit-appearance:none;margin:0}
+#f-fee[type=number],#f-deposit[type=number]{-moz-appearance:textfield}
+/* address autocomplete dropdown */
+.addr-suggest{position:absolute;z-index:9999;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);margin-top:2px}
+.addr-item{padding:9px 12px;font-size:12px;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--border);line-height:1.4}
+.addr-item:last-child{border-bottom:none}
+.addr-item:hover{background:var(--surface3);color:var(--text)}
+.addr-item strong{color:var(--text);font-weight:500}
+.addr-wrap{position:relative}
+/* doc alias picker */
+.doc-alias-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.doc-alias-btn{padding:5px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit}
+.doc-alias-btn.active,.doc-alias-btn:hover{color:var(--text);border-color:var(--acc-border)}
 .alias-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;flex-shrink:0;vertical-align:middle;}
 .alias-bar-pill .alias-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
@@ -1043,7 +1059,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       </div>
       <div class="form-section">
         <div class="form-section-title" onclick="toggleFSection('fsc-location')"><span>Location</span><span class="form-section-title-arrow" id="fsc-location-arr">▼</span></div>
-        <div class="form-row full"><div class="form-group"><label class="form-label">Full address</label><input type="text" class="form-input" id="f-address" placeholder="Street, City, Postcode"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">Full address</label><div class="addr-wrap"><input type="text" class="form-input" id="f-address" placeholder="Start typing a postcode or street…" autocomplete="off" oninput="addrSearch(this.value)"><div id="addr-suggest" class="addr-suggest" style="display:none"></div></div></div></div>
         <div class="form-row"><div class="form-group"><label class="form-label">Parking notes</label><input type="text" class="form-input" id="f-parking" placeholder="e.g. Loading bay, free after 6pm"></div><div class="form-group"><label class="form-label">PA / Sound provided?</label><select class="form-select" id="f-pa"><option>Yes — in house</option><option>Bring own</option><option>N/A</option></select></div></div>
       </div>
       <div class="form-section">
@@ -1845,6 +1861,55 @@ function deleteCurrentGig(){
 // ─────────────────────────────────────────────
 // ADD / EDIT MODAL
 // ─────────────────────────────────────────────
+let _addrTimer=null;
+function addrSearch(q){
+  const box=document.getElementById('addr-suggest');
+  if(!box) return;
+  clearTimeout(_addrTimer);
+  if(!q||q.length<3){box.style.display='none';box.innerHTML='';return;}
+  _addrTimer=setTimeout(()=>{
+    const url='https://nominatim.openstreetmap.org/search?format=json&limit=6&addressdetails=1&countrycodes=gb&q='+encodeURIComponent(q);
+    fetch(url,{headers:{'Accept-Language':'en'}})
+      .then(r=>r.json())
+      .then(results=>{
+        if(!results.length){box.style.display='none';return;}
+        box.innerHTML=results.map((r,i)=>{
+          const parts=[r.address.road,r.address.suburb,r.address.city||r.address.town||r.address.village,r.address.postcode].filter(Boolean);
+          const main=parts.slice(0,2).join(', ')||r.display_name.split(',')[0];
+          const sub=parts.slice(2).join(', ');
+          return '<div class="addr-item" onclick="pickAddr('+i+')" data-full="'+encodeURIComponent(r.display_name)+'"><strong>'+main+'</strong>'+(sub?'<br><span style='font-size:11px;color:var(--text3)'>'+sub+'</span>':'')+'</div>';
+        }).join('');
+        box.style.display='block';
+        // Store results for click handler
+        window._addrResults=results;
+      })
+      .catch(()=>{box.style.display='none';});
+  },500);
+}
+function pickAddr(i){
+  const r=window._addrResults&&window._addrResults[i];
+  if(!r) return;
+  const a=r.address;
+  const parts=[a.house_number,a.road,a.suburb,a.city||a.town||a.village,a.county,a.postcode].filter(Boolean);
+  const addr=parts.join(', ');
+  const inp=document.getElementById('f-address');
+  if(inp){inp.value=addr;inp.dispatchEvent(new Event('input',{bubbles:true}));}
+  const box=document.getElementById('addr-suggest');
+  if(box){box.style.display='none';}
+  // Pre-fill venue if empty
+  if(!document.getElementById('f-venue')?.value){
+    const venue=a.amenity||a.building||a.leisure||a.tourism||'';
+    if(venue) document.getElementById('f-venue').value=venue;
+  }
+}
+// Close suggestions on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.addr-wrap')){
+    const b=document.getElementById('addr-suggest');
+    if(b) b.style.display='none';
+  }
+},{capture:true,passive:true});
+
 function renderTemplatePicker(){
   const picker = document.getElementById('gig-template-picker');
   if(!picker) return;
@@ -2991,11 +3056,22 @@ function renderContracts(){
   const upEPK = !!localStorage.getItem('gb_epk_upload');
   const riderBtns = upRider
     ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('rider')">✕ Remove</button>`
-    : `<button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">${builtRider ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>`;
+    : `<button class="btn btn-sm btn-ghost" onclick="generateRiderPDF()">⬇ PDF</button><button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">${builtRider ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>`;
   const epkBtns = upEPK
     ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('epk')">✕ Remove</button>`
-    : `<button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">${builtEPK ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>`;
-  el.innerHTML = `
+    : `<button class="btn btn-sm btn-ghost" onclick="generateEPKPDF()">⬇ PDF</button><button class="btn btn-sm btn-ghost" onclick="openEPKEditor()">${builtEPK ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('epk')">↑ Upload</button>`;
+  // Build alias picker for Documents page
+  const _docAliases=loadAliases();
+  const _aliasPicker=_docAliases.length?
+    '<div class="doc-alias-row">'+
+    '<button class="doc-alias-btn'+(activeDocAlias==='general'?' active':'')+'" onclick="setDocAlias(\'general\')" '+
+      'style="'+(activeDocAlias==='general'?'border-color:var(--acc-border);color:var(--text);background:var(--surface3)':'')+'">'+'All / General</button>'+
+    _docAliases.map(a=>
+      '<button class="doc-alias-btn'+(activeDocAlias===a.id?' active':'')+'" onclick="setDocAlias(\''+a.id+'\')" '+
+      'style="'+(activeDocAlias===a.id?'background:'+a.colour+';border-color:'+a.colour+';color:#fff;':'')+'">'+'<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+a.colour+';margin-right:5px;vertical-align:middle"></span>'+a.name+'</button>'
+    ).join('')+'</div>':'';
+
+  el.innerHTML = (_docAliases.length ? _aliasPicker : '') + `
     <div class="section-header" style="margin-bottom:6px">
       
     </div>
@@ -3036,7 +3112,7 @@ function renderContracts(){
     </div>
     <div class="detail-card" style="margin-bottom:22px">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="rider-preview">${(()=>{
-        const d=JSON.parse(localStorage.getItem('gb_rider_data')||'{}');
+        const d=JSON.parse(localStorage.getItem('gb_rider_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_rider_data')||'{}');
         const sections=[['Technical',d.technical],['Hospitality',d.hospitality],['Logistics',d.logistics]].filter(([,v])=>v&&v.trim());
         if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No rider saved yet. Tap ＋ Add to build your technical rider.</span>';
         return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
@@ -3053,7 +3129,7 @@ function renderContracts(){
     </div>
     <div class="detail-card">
       <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="epk-preview">${(()=>{
-        const d=JSON.parse(localStorage.getItem('gb_epk_data')||'{}');
+        const d=JSON.parse(localStorage.getItem('gb_epk_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_epk_data')||'{}');
         const sections=[['Bio',d.bio],['Style & Discipline',d.genre],['Work & Links',d.links],['Social Media',d.social],['Press & Quotes',d.press],['Booking Contact',d.booking]].filter(([,v])=>v&&v.trim());
         if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No EPK saved yet. Tap ＋ Add to build your Electronic Press Kit.</span>';
         return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
@@ -3066,7 +3142,7 @@ function renderContracts(){
 }
 
 function openRiderEditor(){
-  const data = JSON.parse(localStorage.getItem('gb_rider_data')||'{}');
+  const data = JSON.parse(localStorage.getItem('gb_rider_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_rider_data')||'{}');
   window._docEditorMode = 'rider';
   document.getElementById('docEditorTitle').textContent = 'Technical Rider';
   document.getElementById('docEditorBody').innerHTML = `
@@ -3082,7 +3158,7 @@ function openRiderEditor(){
   document.body.style.overflow='hidden';
 }
 function openEPKEditor(){
-  const data = JSON.parse(localStorage.getItem('gb_epk_data')||'{}');
+  const data = JSON.parse(localStorage.getItem('gb_epk_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_epk_data')||'{}');
   window._docEditorMode = 'epk';
   document.getElementById('docEditorTitle').textContent = 'Electronic Press Kit';
   document.getElementById('docEditorBody').innerHTML = `
@@ -3515,6 +3591,8 @@ function aliasLimit(){
 }
 
 let activeAliasFilter = 'all';
+let activeDocAlias = 'general'; // for Documents page alias picker
+function setDocAlias(id){activeDocAlias=id;renderContracts();}
 
 function renderAliasBar(){
   const aliases = loadAliases();
@@ -3593,6 +3671,151 @@ function removeContractPDF(gigId){
   renderContracts();
 }
 
+function getDocAliasInfo(){
+  const aliases=loadAliases();
+  const alias=aliases.find(a=>a.id===activeDocAlias);
+  const profile=loadProfile&&loadProfile();
+  const artistName=alias?alias.name:(profile?.name||'Artist');
+  const colour=alias?alias.colour:'#6a3090';
+  return {artistName,colour,alias};
+}
+
+function generateRiderPDF(){
+  const {artistName,colour}=getDocAliasInfo();
+  const key='gb_rider_data_'+(activeDocAlias||'general');
+  const data=JSON.parse(localStorage.getItem(key)||localStorage.getItem('gb_rider_data')||'{}');
+  if(!data.technical&&!data.hospitality&&!data.logistics){
+    alert('Nothing to export yet — click Edit to fill in your rider first.');
+    return;
+  }
+  // Pull recent gig credits for this alias
+  const aliases=loadAliases();
+  const alias=aliases.find(a=>a.id===activeDocAlias);
+  const gigs=loadGigs().filter(g=>
+    activeDocAlias==='general'
+      ? true
+      : g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)
+  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,8);
+
+  const sec=(title,body)=>body?
+    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
+/g,'<br>')+'</p></div>':'';
+  const credits=gigs.length?
+    '<div class="credits"><h4>Recent Credits</h4><p>'+
+    gigs.map(g=>g.venue+(g.date?' &middot; '+fmtDate(g.date):'')).join(' &nbsp; | &nbsp; ')+'</p></div>':'';
+
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${artistName} — Technical Rider</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;padding:52px 56px;max-width:800px;margin:0 auto;font-size:13px}
+.bar{height:5px;background:${colour};border-radius:2px;margin-bottom:36px}
+.hdr{margin-bottom:36px}
+.artist{font-size:30px;font-weight:700;letter-spacing:-0.5px;color:#1a1a2e}
+.doc-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${colour};margin-top:6px}
+.date{font-size:11px;color:#aaa;margin-top:6px}
+.sec{margin-bottom:28px;border-left:3px solid ${colour};padding-left:16px}
+.sec h3{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:7px}
+.sec p{font-size:13px;line-height:1.75;color:#333}
+hr{border:none;border-top:1px solid #eee;margin:32px 0}
+.credits h4{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#bbb;margin-bottom:6px}
+.credits p{font-size:12px;color:#777;line-height:1.7}
+.footer{margin-top:44px;font-size:10px;color:#ccc;border-top:1px solid #f0f0f0;padding-top:12px;display:flex;justify-content:space-between}
+.pdfbtn{position:fixed;top:24px;right:24px;background:${colour};color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;letter-spacing:.04em}
+@media print{.pdfbtn{display:none}body{padding:32px}}
+</style></head><body>
+<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>
+<div class="bar"></div>
+<div class="hdr">
+  <div class="artist">${artistName}</div>
+  <div class="doc-label">Technical Rider</div>
+  <div class="date">Prepared ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+</div>
+${sec('Technical',data.technical)}
+${sec('Hospitality',data.hospitality)}
+${sec('Logistics',data.logistics)}
+${credits?'<hr>'+credits:''}
+<div class="footer">
+  <span>Generated by GigBook</span>
+  <span>${new Date().getFullYear()}</span>
+</div>
+</body></html>`;
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+}
+
+function generateEPKPDF(){
+  const {artistName,colour}=getDocAliasInfo();
+  const key='gb_epk_data_'+(activeDocAlias||'general');
+  const data=JSON.parse(localStorage.getItem(key)||localStorage.getItem('gb_epk_data')||'{}');
+  if(!data.bio&&!data.genre&&!data.links&&!data.booking){
+    alert('Nothing to export yet — click Edit to fill in your EPK first.');
+    return;
+  }
+  // Pull stats and recent gigs for this alias
+  const aliases=loadAliases();
+  const alias=aliases.find(a=>a.id===activeDocAlias);
+  const gigs=loadGigs().filter(g=>
+    activeDocAlias==='general'?true:g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)
+  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+  const totalGigs=gigs.length;
+  const totalFees=gigs.reduce((t,g)=>t+(parseFloat(g.fee)||0),0);
+  const recentVenues=gigs.slice(0,6).map(g=>g.venue+(g.date?' ('+fmtDate(g.date)+')':'')).join(', ');
+
+  const sec=(title,body)=>body?
+    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
+/g,'<br>')+'</p></div>':'';
+
+  const stats=totalGigs?
+    '<div class="stats"><span>'+totalGigs+' performances</span><span>Avg fee £'+
+    (totalFees/totalGigs).toFixed(0)+'</span>'+(recentVenues?'<span>Recent: '+recentVenues+'</span>':'')+'</div>':'';
+
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${artistName} — Press Kit</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;padding:52px 56px;max-width:800px;margin:0 auto;font-size:13px}
+.bar{height:5px;background:${colour};border-radius:2px;margin-bottom:36px}
+.hdr{margin-bottom:36px;display:flex;justify-content:space-between;align-items:flex-end}
+.hdr-left{}
+.artist{font-size:30px;font-weight:700;letter-spacing:-.5px;color:#1a1a2e}
+.doc-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${colour};margin-top:6px}
+.date{font-size:11px;color:#aaa;margin-top:6px}
+.sec{margin-bottom:26px;border-left:3px solid ${colour};padding-left:16px}
+.sec h3{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:7px}
+.sec p{font-size:13px;line-height:1.75;color:#333}
+hr{border:none;border-top:1px solid #eee;margin:28px 0}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px}
+.stats span{font-size:11px;color:#777;background:#f7f7f7;padding:5px 10px;border-radius:4px}
+.footer{margin-top:44px;font-size:10px;color:#ccc;border-top:1px solid #f0f0f0;padding-top:12px;display:flex;justify-content:space-between}
+.pdfbtn{position:fixed;top:24px;right:24px;background:${colour};color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500}
+@media print{.pdfbtn{display:none}body{padding:32px}}
+</style></head><body>
+<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>
+<div class="bar"></div>
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="artist">${artistName}</div>
+    <div class="doc-label">Electronic Press Kit</div>
+    <div class="date">Prepared ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+  </div>
+</div>
+${sec('Bio',data.bio)}
+${sec('Style & Discipline',data.genre)}
+${sec('Work & Links',data.links)}
+${sec('Social Media',data.social)}
+${sec('Press & Quotes',data.press)}
+${sec('Booking Contact',data.booking)}
+${stats?'<hr><div class="sec"><h3>Performance Record</h3>'+stats+'</div>':''}
+<div class="footer">
+  <span>Generated by GigBook</span>
+  <span>${new Date().getFullYear()}</span>
+</div>
+</body></html>`;
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+}
+
 function closeDocEditor(){
   document.getElementById('docEditorOverlay').classList.remove('open');
   document.body.style.overflow='';
@@ -3608,7 +3831,9 @@ function saveDocEditor(){
       hospitality: document.getElementById('de-hospitality')?.value||'',
       logistics: document.getElementById('de-logistics')?.value||''
     };
-    localStorage.setItem('gb_rider_data', JSON.stringify(data));
+    const _rkey='gb_rider_data_'+(activeDocAlias||'general');
+    localStorage.setItem(_rkey, JSON.stringify(data));
+    localStorage.setItem('gb_rider_data', JSON.stringify(data)); // legacy
     const parts = [
       data.technical&&'Technical\n'+data.technical,
       data.hospitality&&'Hospitality\n'+data.hospitality,
@@ -3624,7 +3849,9 @@ function saveDocEditor(){
       press: document.getElementById('de-press')?.value||'',
       booking: document.getElementById('de-booking')?.value||''
     };
-    localStorage.setItem('gb_epk_data', JSON.stringify(data));
+    const _ekey='gb_epk_data_'+(activeDocAlias||'general');
+    localStorage.setItem(_ekey, JSON.stringify(data));
+    localStorage.setItem('gb_epk_data', JSON.stringify(data)); // legacy
     const parts = [
       data.bio&&'Bio\n'+data.bio,
       data.genre&&'Style & Discipline\n'+data.genre,
