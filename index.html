@@ -1877,7 +1877,7 @@ function addrSearch(q){
           const parts=[r.address.road,r.address.suburb,r.address.city||r.address.town||r.address.village,r.address.postcode].filter(Boolean);
           const main=parts.slice(0,2).join(', ')||r.display_name.split(',')[0];
           const sub=parts.slice(2).join(', ');
-          return '<div class="addr-item" onclick="pickAddr('+i+')" data-full="'+encodeURIComponent(r.display_name)+'"><strong>'+main+'</strong>'+(sub?'<br><span style='font-size:11px;color:var(--text3)'>'+sub+'</span>':'')+'</div>';
+          return '<div class="addr-item" onclick="pickAddr('+i+')" data-full="'+encodeURIComponent(r.display_name)+'"><strong>'+main+'</strong>'+(sub?'<br><span style="font-size:11px;color:var(--text3)">'+sub+'</span>':'')+'</div>';
         }).join('');
         box.style.display='block';
         // Store results for click handler
