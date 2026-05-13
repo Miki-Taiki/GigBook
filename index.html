@@ -3698,8 +3698,7 @@ function generateRiderPDF(){
   ).sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,8);
 
   const sec=(title,body)=>body?
-    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
-/g,'<br>')+'</p></div>':'';
+    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p></div>':'';
   const credits=gigs.length?
     '<div class="credits"><h4>Recent Credits</h4><p>'+
     gigs.map(g=>g.venue+(g.date?' &middot; '+fmtDate(g.date):'')).join(' &nbsp; | &nbsp; ')+'</p></div>':'';
@@ -3763,8 +3762,7 @@ function generateEPKPDF(){
   const recentVenues=gigs.slice(0,6).map(g=>g.venue+(g.date?' ('+fmtDate(g.date)+')':'')).join(', ');
 
   const sec=(title,body)=>body?
-    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
-/g,'<br>')+'</p></div>':'';
+    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p></div>':'';
 
   const stats=totalGigs?
     '<div class="stats"><span>'+totalGigs+' performances</span><span>Avg fee £'+
