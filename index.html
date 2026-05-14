@@ -3604,10 +3604,17 @@ const STORE_ALIASES = 'gb_aliases';
 const ALIAS_LIMITS = { guest: 0, free: 1, pro: 5, proplus: 999, band: 5, orchestra: 5 };
 
 function getPrimaryAliasId(){
+  // Returns the explicitly set primary alias id, or '' (None) if not set.
+  // No automatic fallback — None is the safe default for non-musicians, crew, etc.
   const stored=localStorage.getItem('gb_primary_alias');
   const all=loadAliases();
   if(stored && all.find(a=>a.id===stored)) return stored;
-  return all.length ? all[0].id : '';
+  return '';
+}
+function clearPrimaryAlias(){
+  localStorage.removeItem('gb_primary_alias');
+  renderAliasSettings();
+  populateAliasDropdowns();
 }
 function setPrimaryAlias(id){
   localStorage.setItem('gb_primary_alias', id);
@@ -3964,7 +3971,7 @@ function renderAliasSettings(){
         <div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px">${a.name}${isPrimary?'<span title="Main alias — used as the default across the app" style="font-size:10px;color:'+a.colour+';letter-spacing:.08em;font-weight:500">★ MAIN</span>':''}</div>
         <div style="font-size:11px;color:var(--text3)">${loadGigs().filter(g=>g.aliasId===a.id||g.alias===a.name).length} gigs</div>
       </div>
-      ${isPrimary ? '' : '<button class="btn btn-sm btn-ghost" onclick="setPrimaryAlias(\''+a.id+'\')" title="Make this your main alias">Set main</button>'}
+      ${isPrimary ? '<button class="btn btn-sm btn-ghost" onclick="clearPrimaryAlias()" title="Stop using this as the default — revert to None">Use None</button>' : '<button class="btn btn-sm btn-ghost" onclick="setPrimaryAlias(\''+a.id+'\')" title="Make this the default alias for new gigs">Set main</button>'}
       <button class="btn btn-sm btn-ghost" onclick="openAddAliasModal('${a.id}')">Edit</button>
       <button class="btn btn-sm btn-danger" onclick="deleteAlias('${a.id}')">✕</button>
     </div>`;
@@ -4043,6 +4050,10 @@ function saveAlias(){
   if(editId){ const i=aliases.findIndex(a=>a.id===editId); if(i>=0) aliases[i]=alias; else aliases.push(alias); }
   else aliases.push(alias);
   saveAliases(aliases);
+  // First-created alias becomes the default automatically — user can clear in settings
+  if(!editId && !localStorage.getItem('gb_primary_alias')){
+    localStorage.setItem('gb_primary_alias', alias.id);
+  }
   closeAliasModal();
   renderAliasSettings();
   renderAliasBar();
@@ -4067,12 +4078,12 @@ function populateAliasDropdowns(){
   const selects = document.querySelectorAll('.alias-select');
   selects.forEach(sel => {
     const currentVal = sel.value;
-    if(aliases.length === 0){
-      sel.innerHTML = '<option value="">None (no alias)</option>';
-      return;
-    }
-    sel.innerHTML = aliases.map(a => `<option value="${a.id}" style="color:${a.colour}">${a.name}</option>`).join('');
-    sel.value = (currentVal && aliases.find(a=>a.id===currentVal)) ? currentVal : primary;
+    // Always show None option — usable by anyone (crew, tour, etc.)
+    sel.innerHTML = '<option value="">None (no alias)</option>' +
+      aliases.map(a => `<option value="${a.id}" style="color:${a.colour}">${a.name}</option>`).join('');
+    // Preserve existing value if valid (including empty/None); else use primary (which may be '')
+    const valid = currentVal === '' || aliases.find(a => a.id === currentVal);
+    sel.value = valid ? currentVal : primary;
     if(typeof onAliasChange === 'function') onAliasChange(sel);
   });
 }
