@@ -2435,8 +2435,16 @@ function renderMileage(){
     return;
   }
 
-  const gigs=loadGigs().filter(g=>g.distance>0);
-  const expenses=loadExpenses();
+  // Apply alias filter (set in sidebar)
+  let _g = loadGigs().filter(g=>g.distance>0);
+  let _exp = loadExpenses();
+  if(activeAliasFilter && activeAliasFilter !== 'all'){
+    const _af = loadAliases().find(a=>a.id===activeAliasFilter);
+    _g = _g.filter(g => g.aliasId===activeAliasFilter || (_af && g.alias===_af.name));
+    _exp = _exp.filter(e => e.aliasId===activeAliasFilter || (!e.aliasId && _af && e.alias===_af.name));
+  }
+  const gigs = _g;
+  const expenses = _exp;
   const totalMiles=gigs.reduce((s,g)=>s+((Number(g.distance)||0)*2),0);
   const mileageValue=totalMiles*0.45;
   const totalExpenses=expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
@@ -2460,7 +2468,7 @@ function renderMileage(){
           :gigs.sort((a,b)=>parseDate(b.date)-parseDate(a.date)).map(g=>`
           <div class="mileage-row" style="border-bottom:1px solid var(--border);padding:10px 16px">
             <div class="mileage-date">${fmtShortDate(g.date)}</div>
-            <div class="mileage-info"><div class="mileage-venue">${g.venue}</div><div class="mileage-sub">${g.transport||'Driving'} · ${g.distance} mi each way</div></div>
+            <div class="mileage-info"><div class="mileage-venue" style="display:flex;align-items:center;gap:6px">${(()=>{const _k=g.aliasId||g.alias;const _c=_k?aliasColourFor(_k):null;return _c?'<span style="display:inline-block;width:3px;height:14px;background:'+_c+';border-radius:1px;flex-shrink:0"></span>':'';})()}<span>${g.venue}</span></div><div class="mileage-sub">${g.transport||'Driving'} · ${g.distance} mi each way</div></div>
             <div class="mileage-val">${Math.round((Number(g.distance)||0)*2)} mi</div>
           </div>`).join('')}
       </div>
@@ -2487,7 +2495,7 @@ function renderMileage(){
         ${expenses.sort((a,b)=>new Date(b.date)-new Date(a.date)).map((e,i)=>`
           <div class="mileage-row" style="border-bottom:1px solid var(--border);padding:10px 16px">
             <div class="mileage-date">${e.date?fmtShortDate(e.date):'—'}</div>
-            <div class="mileage-info"><div class="mileage-venue">${e.desc}</div><div class="mileage-sub">${e.cat}</div></div>
+            <div class="mileage-info"><div class="mileage-venue" style="display:flex;align-items:center;gap:6px">${(()=>{const _c=e.aliasId?aliasColourFor(e.aliasId):null;return _c?'<span style="display:inline-block;width:3px;height:14px;background:'+_c+';border-radius:1px;flex-shrink:0"></span>':'';})()}<span>${e.desc}</span></div><div class="mileage-sub">${e.cat}</div></div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="mileage-val" style="color:var(--amber)">${fmtMoney(e.amount)}</div>
               <button class="btn btn-sm btn-danger" onclick="deleteExpense(${i})">✕</button>
@@ -2502,9 +2510,11 @@ function addExpense(){
   const amount=parseFloat(document.getElementById('exp-amount').value)||0;
   const cat=document.getElementById('exp-cat').value;
   const date=document.getElementById('exp-date').value;
+  const aliasEl=document.getElementById('exp-alias');
+  const aliasId=aliasEl?aliasEl.value:'';
   if(!desc||!amount){ alert('Please enter a description and amount.'); return; }
   const expenses=loadExpenses();
-  expenses.push({desc,amount,cat,date,id:uid()});
+  expenses.push({desc,amount,cat,date,aliasId,id:uid()});
   saveExpenses(expenses);
   renderMileage();
 }
@@ -3076,6 +3086,74 @@ function copyChaser(msg){
 // ─────────────────────────────────────────────
 // CONTRACTS & RIDERS (Pro)
 // ─────────────────────────────────────────────
+// Render a single rider card for a specific scope (alias id or 'general')
+function _renderRiderCard(scope, label, colour){
+  const data = JSON.parse(localStorage.getItem('gb_rider_data_'+scope) || '{}');
+  const sections = [['Technical',data.technical],['Hospitality',data.hospitality],['Logistics',data.logistics]].filter(([,v])=>v&&v.trim());
+  const has = sections.length > 0;
+  const accent = colour && scope!=='general' ? 'border-top:3px solid '+colour : '';
+  const editBtn = has ? 'Edit' : '+ Add';
+  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');generateRiderPDF()">⬇ PDF</button>' : '';
+  const labelHTML = colour && scope!=='general'
+    ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+colour+';margin-right:7px;vertical-align:middle"></span>'+label
+    : label;
+  return '<div class="detail-card" style="margin-bottom:14px;'+accent+'">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px">'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text)">'+labelHTML+'</div>'+
+      '<div style="display:flex;gap:6px">'+pdfBtn+
+        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');openRiderEditor()">'+editBtn+'</button>'+
+      '</div>'+
+    '</div>'+
+    '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
+      (has
+        ? sections.map(([k,v])=>'<div style="margin-bottom:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">'+k+'</div><div style="white-space:pre-wrap">'+v+'</div></div>').join('')
+        : '<span style="color:var(--text3);font-style:italic">No rider for '+label+' yet.</span>')+
+    '</div></div>';
+}
+function _renderEpkCard(scope, label, colour){
+  const data = JSON.parse(localStorage.getItem('gb_epk_data_'+scope) || '{}');
+  const sections = [['Bio',data.bio],['Style & Discipline',data.genre],['Work & Links',data.links],['Social Media',data.social],['Press & Quotes',data.press],['Booking Contact',data.booking]].filter(([,v])=>v&&v.trim());
+  const has = sections.length > 0;
+  const accent = colour && scope!=='general' ? 'border-top:3px solid '+colour : '';
+  const editBtn = has ? 'Edit' : '+ Add';
+  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');generateEPKPDF()">⬇ PDF</button>' : '';
+  const labelHTML = colour && scope!=='general'
+    ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+colour+';margin-right:7px;vertical-align:middle"></span>'+label
+    : label;
+  return '<div class="detail-card" style="margin-bottom:14px;'+accent+'">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px">'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text)">'+labelHTML+'</div>'+
+      '<div style="display:flex;gap:6px">'+pdfBtn+
+        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');openEPKEditor()">'+editBtn+'</button>'+
+      '</div>'+
+    '</div>'+
+    '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
+      (has
+        ? sections.map(([k,v])=>'<div style="margin-bottom:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">'+k+'</div><div style="white-space:pre-wrap">'+v+'</div></div>').join('')
+        : '<span style="color:var(--text3);font-style:italic">No EPK for '+label+' yet.</span>')+
+    '</div></div>';
+}
+function _renderRidersForScope(){
+  if(activeDocAlias && activeDocAlias !== 'general'){
+    const a = loadAliases().find(x=>x.id===activeDocAlias);
+    return _renderRiderCard(activeDocAlias, a?a.name:'Selected', a?a.colour:null);
+  }
+  // All / General view: render one card per alias + a General one
+  const out = [];
+  out.push(_renderRiderCard('general', 'General / Master', null));
+  loadAliases().forEach(a => out.push(_renderRiderCard(a.id, a.name, a.colour)));
+  return out.join('');
+}
+function _renderEpksForScope(){
+  if(activeDocAlias && activeDocAlias !== 'general'){
+    const a = loadAliases().find(x=>x.id===activeDocAlias);
+    return _renderEpkCard(activeDocAlias, a?a.name:'Selected', a?a.colour:null);
+  }
+  const out = [];
+  out.push(_renderEpkCard('general', 'General / Master', null));
+  loadAliases().forEach(a => out.push(_renderEpkCard(a.id, a.name, a.colour)));
+  return out.join('');
+}
 function renderContracts(){
   if(!activeDocAlias){
     const _primary=getPrimaryAliasId();
@@ -3155,37 +3233,15 @@ function renderContracts(){
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Technical Rider <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your requirements</span></div>
-      <div style="display:flex;gap:6px;flex-shrink:0">${riderBtns}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0"></div>
     </div>
-    <div class="detail-card" style="margin-bottom:22px;${(()=>{const c=aliasColourFor(activeDocAlias);return c&&activeDocAlias!=='general'?'border-top:3px solid '+c:'';})()}">
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="rider-preview">${(()=>{
-        const d=JSON.parse(localStorage.getItem('gb_rider_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_rider_data')||'{}');
-        const sections=[['Technical',d.technical],['Hospitality',d.hospitality],['Logistics',d.logistics]].filter(([,v])=>v&&v.trim());
-        if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No rider saved yet. Tap ＋ Add to build your technical rider.</span>';
-        return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
-      })()}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-ghost" onclick="shareDocument('Technical Rider','email')">✉ Share via email</button>
-        <button class="btn btn-sm btn-ghost" onclick="shareDocument('Technical Rider','social')">⊕ Copy share link</button>
-      </div>
-    </div>
+    <div style="margin-bottom:22px">${_renderRidersForScope()}</div>
 
     <div class="section-header" style="margin-bottom:10px">
       <div class="section-title" style="font-size:14px">Electronic Press Kit <span style="font-size:11px;color:var(--text3);font-family:'Barlow',sans-serif;letter-spacing:0;font-weight:400">— your EPK</span></div>
-      <div style="display:flex;gap:6px;flex-shrink:0">${epkBtns}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0"></div>
     </div>
-    <div class="detail-card" style="${(()=>{const c=aliasColourFor(activeDocAlias);return c&&activeDocAlias!=='general'?'border-top:3px solid '+c:'';})()}">
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px" id="epk-preview">${(()=>{
-        const d=JSON.parse(localStorage.getItem('gb_epk_data_'+(activeDocAlias||'general'))||localStorage.getItem('gb_epk_data')||'{}');
-        const sections=[['Bio',d.bio],['Style & Discipline',d.genre],['Work & Links',d.links],['Social Media',d.social],['Press & Quotes',d.press],['Booking Contact',d.booking]].filter(([,v])=>v&&v.trim());
-        if(!sections.length) return '<span style="color:var(--text3);font-style:italic">No EPK saved yet. Tap ＋ Add to build your Electronic Press Kit.</span>';
-        return sections.map(([k,v])=>`<div style="margin-bottom:10px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px">${k}</div><div style="white-space:pre-wrap">${v}</div></div>`).join('');
-      })()}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-ghost" onclick="shareDocument('Electronic Press Kit','email')">✉ Share via email</button>
-        <button class="btn btn-sm btn-ghost" onclick="shareDocument('Electronic Press Kit','social')">⊕ Copy share link</button>
-      </div>
-    </div>`;
+    <div>${_renderEpksForScope()}</div>`;
 }
 
 function openRiderEditor(){
@@ -3250,8 +3306,21 @@ function renderTaxReport(){
     return;
   }
 
-  const gigs = loadGigs();
-  const expenses = loadExpenses();
+  // Apply alias filter
+  let _g = loadGigs();
+  let _exp = loadExpenses();
+  let _scopeLabel = 'All aliases';
+  if(activeAliasFilter && activeAliasFilter !== 'all'){
+    const _af = loadAliases().find(a=>a.id===activeAliasFilter);
+    if(_af){
+      _g = _g.filter(g => g.aliasId===activeAliasFilter || g.alias===_af.name);
+      _exp = _exp.filter(e => e.aliasId===activeAliasFilter || (!e.aliasId && e.alias===_af.name));
+      _scopeLabel = _af.name;
+    }
+  }
+  const gigs = _g;
+  const expenses = _exp;
+  const _scopeColour = activeAliasFilter && activeAliasFilter!=='all' ? aliasColourFor(activeAliasFilter) : null;
   const now = new Date();
   // UK tax year: April 6 to April 5
   const taxYearStart = new Date(now.getMonth()>=3 ? now.getFullYear() : now.getFullYear()-1, 3, 6);
@@ -3283,6 +3352,7 @@ function renderTaxReport(){
         <button class="btn btn-sm btn-primary" onclick="emailTaxReport('${taxYearLabel}')">✉ Email</button>
       </div>
     </div>
+    ${_scopeColour ? '<div style="background:'+_scopeColour+'15;border:1px solid '+_scopeColour+'66;border-left:3px solid '+_scopeColour+';border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;font-size:11px;color:var(--text2);letter-spacing:.04em"><span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:1.5px;color:'+_scopeColour+'">'+_scopeLabel.toUpperCase()+'</span> &nbsp;·&nbsp; showing income, mileage and expenses for this alias only</div>' : ''}
     <div style="background:var(--acc);border:1px solid var(--acc-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:16px;font-size:12px;color:var(--acc-text)">
       UK Tax Year ${taxYearLabel} (6 April ${taxYearStart.getFullYear()} – 5 April ${taxYearEnd.getFullYear()})
     </div>
@@ -3753,57 +3823,76 @@ function generateRiderPDF(){
     alert('Nothing to export yet — click Edit to fill in your rider first.');
     return;
   }
-  // Pull recent gig credits for this alias
   const aliases=loadAliases();
   const alias=aliases.find(a=>a.id===activeDocAlias);
   const gigs=loadGigs().filter(g=>
     activeDocAlias==='general'
       ? true
       : g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)
-  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,8);
+  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,10);
 
-  const sec=(title,body)=>body?
-    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p></div>':'';
-  const credits=gigs.length?
-    '<div class="credits"><h4>Recent Credits</h4><p>'+
-    gigs.map(g=>g.venue+(g.date?' &middot; '+fmtDate(g.date):'')).join(' &nbsp; | &nbsp; ')+'</p></div>':'';
+  const epkKey='gb_epk_data_'+(activeDocAlias||'general');
+  const epkData=JSON.parse(localStorage.getItem(epkKey)||'{}');
+  const bookingLine=(epkData.booking||'').split(/\n/).filter(l=>l.trim())[0]||'';
 
-  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<title>${artistName} — Technical Rider</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;padding:52px 56px;max-width:800px;margin:0 auto;font-size:13px}
-.bar{height:5px;background:${colour};border-radius:2px;margin-bottom:36px}
-.hdr{margin-bottom:36px}
-.artist{font-size:30px;font-weight:700;letter-spacing:-0.5px;color:#1a1a2e}
-.doc-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${colour};margin-top:6px}
-.date{font-size:11px;color:#aaa;margin-top:6px}
-.sec{margin-bottom:28px;border-left:3px solid ${colour};padding-left:16px}
-.sec h3{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:7px}
-.sec p{font-size:13px;line-height:1.75;color:#333}
-hr{border:none;border-top:1px solid #eee;margin:32px 0}
-.credits h4{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#bbb;margin-bottom:6px}
-.credits p{font-size:12px;color:#777;line-height:1.7}
-.footer{margin-top:44px;font-size:10px;color:#ccc;border-top:1px solid #f0f0f0;padding-top:12px;display:flex;justify-content:space-between}
-.pdfbtn{position:fixed;top:24px;right:24px;background:${colour};color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;letter-spacing:.04em}
-@media print{.pdfbtn{display:none}body{padding:32px}}
-</style></head><body>
-<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>
-<div class="bar"></div>
-<div class="hdr">
-  <div class="artist">${artistName}</div>
-  <div class="doc-label">Technical Rider</div>
-  <div class="date">Prepared ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
-</div>
-${sec('Technical',data.technical)}
-${sec('Hospitality',data.hospitality)}
-${sec('Logistics',data.logistics)}
-${credits?'<hr>'+credits:''}
-<div class="footer">
-  <span>Generated by GigBook</span>
-  <span>${new Date().getFullYear()}</span>
-</div>
-</body></html>`;
+  const esc=t=>(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+  const sectionHTML=(title,body)=>body?'<section class="rider-section"><h3>'+title+'</h3><div class="body">'+esc(body)+'</div></section>':'';
+  const venuesList=gigs.length?gigs.map(g=>'<li><span class="venue">'+esc(g.venue)+'</span><span class="date">'+(g.date?fmtDate(g.date):'')+'</span></li>').join(''):'';
+  const initial=(artistName||'?').trim().charAt(0).toUpperCase();
+
+  const html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'+
+'<title>'+artistName+' — Technical Rider</title>'+
+'<style>'+
+'@page{size:A4;margin:0}'+
+'*{margin:0;padding:0;box-sizing:border-box}'+
+'body{font-family:Georgia,"Times New Roman",serif;color:#161616;background:#fff;font-size:11.5pt;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+'.page{max-width:210mm;margin:0 auto;padding:0;position:relative;background:#fff;min-height:297mm}'+
+'.hero{background:'+colour+';color:#fff;padding:38mm 22mm 16mm 22mm;position:relative;overflow:hidden}'+
+'.hero::before{content:"'+initial+'";position:absolute;right:-15mm;top:-30mm;font-size:240mm;font-weight:900;color:rgba(255,255,255,0.08);font-family:Georgia,serif;line-height:1;letter-spacing:-8mm;pointer-events:none}'+
+'.hero-doctype{font-family:Helvetica,Arial,sans-serif;font-size:9pt;font-weight:700;letter-spacing:.32em;text-transform:uppercase;opacity:.85;margin-bottom:6mm}'+
+'.hero-name{font-size:42pt;font-weight:700;line-height:1;letter-spacing:-.5pt;margin-bottom:4mm;font-family:Georgia,serif}'+
+'.hero-tag{font-family:Helvetica,Arial,sans-serif;font-size:10pt;letter-spacing:.05em;opacity:.85;font-weight:300}'+
+'.hero-meta{position:absolute;bottom:8mm;left:22mm;right:22mm;display:flex;justify-content:space-between;font-family:Helvetica,Arial,sans-serif;font-size:8pt;letter-spacing:.18em;text-transform:uppercase;opacity:.75}'+
+'.content{padding:14mm 22mm 22mm 22mm}'+
+'.rider-section{margin-bottom:11mm;break-inside:avoid;page-break-inside:avoid}'+
+'.rider-section h3{font-family:Helvetica,Arial,sans-serif;font-size:9pt;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:'+colour+';margin-bottom:4mm;padding-bottom:2mm;border-bottom:2pt solid '+colour+';display:inline-block;padding-right:8mm}'+
+'.rider-section .body{font-size:11pt;line-height:1.7;color:#222;white-space:pre-wrap}'+
+'.credits{margin-top:14mm;padding-top:10mm;border-top:1pt solid #e5e5e5}'+
+'.credits h4{font-family:Helvetica,Arial,sans-serif;font-size:8pt;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#888;margin-bottom:5mm}'+
+'.credits ul{list-style:none;columns:2;column-gap:10mm}'+
+'.credits li{font-size:9.5pt;color:#444;margin-bottom:2mm;break-inside:avoid;display:flex;justify-content:space-between;gap:4mm;border-bottom:0.5pt dotted #ddd;padding-bottom:1mm}'+
+'.credits li .venue{flex:1}'+
+'.credits li .date{color:#999;font-size:8.5pt;flex-shrink:0}'+
+'.footer{margin-top:auto;padding:6mm 22mm 12mm;border-top:1pt solid #eee;font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:#aaa;display:flex;justify-content:space-between}'+
+'.booking{background:#fafafa;border-left:3pt solid '+colour+';padding:5mm 7mm;margin-top:8mm;font-size:10pt;color:#444}'+
+'.booking-label{font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:'+colour+';margin-bottom:2mm}'+
+'.pdfbtn{position:fixed;top:18px;right:18px;background:'+colour+';color:#fff;border:none;padding:11px 22px;border-radius:3px;cursor:pointer;font-size:11pt;font-family:Helvetica,Arial,sans-serif;font-weight:500;letter-spacing:.06em;z-index:1000;text-transform:uppercase}'+
+'@media print{.pdfbtn{display:none}body{font-size:11pt}}'+
+'</style></head><body>'+
+'<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>'+
+'<div class="page">'+
+  '<div class="hero">'+
+    '<div class="hero-doctype">Technical Rider</div>'+
+    '<div class="hero-name">'+esc(artistName)+'</div>'+
+    '<div class="hero-tag">Performance requirements &amp; logistics</div>'+
+    '<div class="hero-meta">'+
+      '<span>Prepared '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</span>'+
+      '<span>'+(gigs.length?gigs.length+'+ recent shows':'')+'</span>'+
+    '</div>'+
+  '</div>'+
+  '<div class="content">'+
+    sectionHTML('Technical Requirements',data.technical)+
+    sectionHTML('Hospitality',data.hospitality)+
+    sectionHTML('Logistics &amp; Access',data.logistics)+
+    (bookingLine?'<div class="booking"><div class="booking-label">Booking Contact</div>'+esc(bookingLine)+'</div>':'')+
+    (venuesList?'<div class="credits"><h4>Recent Engagements</h4><ul>'+venuesList+'</ul></div>':'')+
+  '</div>'+
+  '<div class="footer">'+
+    '<span>'+esc(artistName)+' &nbsp;·&nbsp; Technical Rider</span>'+
+    '<span>Page 1</span>'+
+  '</div>'+
+'</div>'+
+'</body></html>';
   const w=window.open('','_blank');
   if(w){w.document.write(html);w.document.close();}
 }
@@ -3812,69 +3901,89 @@ function generateEPKPDF(){
   const {artistName,colour}=getDocAliasInfo();
   const key='gb_epk_data_'+(activeDocAlias||'general');
   const data=JSON.parse(localStorage.getItem(key)||localStorage.getItem('gb_epk_data')||'{}');
-  if(!data.bio&&!data.genre&&!data.links&&!data.booking){
+  if(!data.bio&&!data.genre&&!data.links&&!data.social&&!data.press&&!data.booking){
     alert('Nothing to export yet — click Edit to fill in your EPK first.');
     return;
   }
-  // Pull stats and recent gigs for this alias
   const aliases=loadAliases();
   const alias=aliases.find(a=>a.id===activeDocAlias);
   const gigs=loadGigs().filter(g=>
-    activeDocAlias==='general'?true:g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)
-  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date));
-  const totalGigs=gigs.length;
-  const totalFees=gigs.reduce((t,g)=>t+(parseFloat(g.fee)||0),0);
-  const recentVenues=gigs.slice(0,6).map(g=>g.venue+(g.date?' ('+fmtDate(g.date)+')':'')).join(', ');
+    activeDocAlias==='general'
+      ? true
+      : g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)
+  ).sort((a,b)=>parseDate(b.date)-parseDate(a.date)).slice(0,8);
+  const totalGigs=loadGigs().filter(g=>activeDocAlias==='general'?true:g.aliasId===activeDocAlias||(alias&&g.alias===alias.name)).length;
 
-  const sec=(title,body)=>body?
-    '<div class="sec"><h3>'+title+'</h3><p>'+body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</p></div>':'';
+  const esc=t=>(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+  const initial=(artistName||'?').trim().charAt(0).toUpperCase();
 
-  const stats=totalGigs?
-    '<div class="stats"><span>'+totalGigs+' performances</span><span>Avg fee £'+
-    (totalFees/totalGigs).toFixed(0)+'</span>'+(recentVenues?'<span>Recent: '+recentVenues+'</span>':'')+'</div>':'';
-
-  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<title>${artistName} — Press Kit</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;padding:52px 56px;max-width:800px;margin:0 auto;font-size:13px}
-.bar{height:5px;background:${colour};border-radius:2px;margin-bottom:36px}
-.hdr{margin-bottom:36px;display:flex;justify-content:space-between;align-items:flex-end}
-.hdr-left{}
-.artist{font-size:30px;font-weight:700;letter-spacing:-.5px;color:#1a1a2e}
-.doc-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${colour};margin-top:6px}
-.date{font-size:11px;color:#aaa;margin-top:6px}
-.sec{margin-bottom:26px;border-left:3px solid ${colour};padding-left:16px}
-.sec h3{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:7px}
-.sec p{font-size:13px;line-height:1.75;color:#333}
-hr{border:none;border-top:1px solid #eee;margin:28px 0}
-.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px}
-.stats span{font-size:11px;color:#777;background:#f7f7f7;padding:5px 10px;border-radius:4px}
-.footer{margin-top:44px;font-size:10px;color:#ccc;border-top:1px solid #f0f0f0;padding-top:12px;display:flex;justify-content:space-between}
-.pdfbtn{position:fixed;top:24px;right:24px;background:${colour};color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500}
-@media print{.pdfbtn{display:none}body{padding:32px}}
-</style></head><body>
-<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>
-<div class="bar"></div>
-<div class="hdr">
-  <div class="hdr-left">
-    <div class="artist">${artistName}</div>
-    <div class="doc-label">Electronic Press Kit</div>
-    <div class="date">Prepared ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
-  </div>
-</div>
-${sec('Bio',data.bio)}
-${sec('Style & Discipline',data.genre)}
-${sec('Work & Links',data.links)}
-${sec('Social Media',data.social)}
-${sec('Press & Quotes',data.press)}
-${sec('Booking Contact',data.booking)}
-${stats?'<hr><div class="sec"><h3>Performance Record</h3>'+stats+'</div>':''}
-<div class="footer">
-  <span>Generated by GigBook</span>
-  <span>${new Date().getFullYear()}</span>
-</div>
-</body></html>`;
+  const html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'+
+'<title>'+artistName+' — Electronic Press Kit</title>'+
+'<style>'+
+'@page{size:A4;margin:0}'+
+'*{margin:0;padding:0;box-sizing:border-box}'+
+'body{font-family:Georgia,"Times New Roman",serif;color:#161616;background:#fff;font-size:11pt;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+'.page{max-width:210mm;margin:0 auto;background:#fff;min-height:297mm}'+
+'.hero{background:'+colour+';color:#fff;padding:42mm 22mm 18mm 22mm;position:relative;overflow:hidden}'+
+'.hero::before{content:"'+initial+'";position:absolute;right:-20mm;top:-40mm;font-size:280mm;font-weight:900;color:rgba(255,255,255,0.07);font-family:Georgia,serif;line-height:1;letter-spacing:-10mm;pointer-events:none}'+
+'.hero-doctype{font-family:Helvetica,Arial,sans-serif;font-size:9pt;font-weight:700;letter-spacing:.32em;text-transform:uppercase;opacity:.85;margin-bottom:8mm}'+
+'.hero-name{font-size:48pt;font-weight:700;line-height:1;letter-spacing:-1pt;margin-bottom:5mm;font-family:Georgia,serif}'+
+'.hero-tag{font-family:Helvetica,Arial,sans-serif;font-size:11pt;letter-spacing:.04em;opacity:.9;font-weight:300;max-width:130mm}'+
+'.stats{display:flex;gap:0;background:#fafafa;border-bottom:1pt solid #eee;padding:0 22mm}'+
+'.stat{flex:1;padding:6mm 0;text-align:left;border-right:1pt solid #eee;padding-right:8mm;margin-right:8mm}'+
+'.stat:last-child{border-right:none;margin-right:0}'+
+'.stat-val{font-family:Georgia,serif;font-size:18pt;font-weight:700;color:'+colour+';line-height:1}'+
+'.stat-lbl{font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;letter-spacing:.2em;text-transform:uppercase;color:#888;margin-top:2mm}'+
+'.content{padding:14mm 22mm 16mm 22mm}'+
+'.bio{font-size:11.5pt;line-height:1.75;color:#222;margin-bottom:11mm;column-count:2;column-gap:8mm;text-align:justify;white-space:pre-wrap}'+
+'.row{display:flex;gap:10mm;margin-bottom:9mm;break-inside:avoid;page-break-inside:avoid}'+
+'.col{flex:1}'+
+'.col h3{font-family:Helvetica,Arial,sans-serif;font-size:8.5pt;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:'+colour+';margin-bottom:3mm;padding-bottom:1.5mm;border-bottom:1.5pt solid '+colour+';display:inline-block}'+
+'.col .body{font-size:10pt;line-height:1.7;color:#333;white-space:pre-wrap}'+
+'.press{background:#fafafa;border-left:3pt solid '+colour+';padding:6mm 8mm;margin:8mm 0;font-style:italic;font-size:11pt;color:#444;line-height:1.7;white-space:pre-wrap}'+
+'.press::before{content:"\201C";font-size:40pt;color:'+colour+';float:left;line-height:.8;margin-right:3mm;font-family:Georgia,serif}'+
+'.credits{margin-top:6mm;padding-top:7mm;border-top:1pt solid #eee}'+
+'.credits h4{font-family:Helvetica,Arial,sans-serif;font-size:8pt;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#888;margin-bottom:4mm}'+
+'.credits ul{list-style:none;columns:2;column-gap:10mm}'+
+'.credits li{font-size:9.5pt;color:#555;margin-bottom:2mm;break-inside:avoid;border-bottom:0.5pt dotted #ddd;padding-bottom:1mm;display:flex;justify-content:space-between;gap:4mm}'+
+'.credits li .date{color:#999;font-size:8.5pt;flex-shrink:0}'+
+'.footer{margin-top:8mm;padding:6mm 22mm 10mm;border-top:1pt solid #eee;font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:#aaa;display:flex;justify-content:space-between}'+
+'.booking{background:'+colour+';color:#fff;padding:7mm 22mm;margin-top:4mm}'+
+'.booking-label{font-family:Helvetica,Arial,sans-serif;font-size:8pt;font-weight:700;letter-spacing:.26em;text-transform:uppercase;opacity:.8;margin-bottom:3mm}'+
+'.booking-text{font-size:11.5pt;font-family:Georgia,serif;white-space:pre-wrap}'+
+'.pdfbtn{position:fixed;top:18px;right:18px;background:'+colour+';color:#fff;border:none;padding:11px 22px;border-radius:3px;cursor:pointer;font-size:11pt;font-family:Helvetica,Arial,sans-serif;font-weight:500;letter-spacing:.06em;z-index:1000;text-transform:uppercase}'+
+'@media print{.pdfbtn{display:none}body{font-size:11pt}}'+
+'</style></head><body>'+
+'<button class="pdfbtn" onclick="window.print()">⬇ Save as PDF</button>'+
+'<div class="page">'+
+  '<div class="hero">'+
+    '<div class="hero-doctype">Electronic Press Kit</div>'+
+    '<div class="hero-name">'+esc(artistName)+'</div>'+
+    '<div class="hero-tag">'+(data.genre?esc((data.genre||'').split(/\n/)[0]):'Live performance &amp; artistry')+'</div>'+
+  '</div>'+
+  (totalGigs>0||gigs.length?
+  '<div class="stats">'+
+    (totalGigs>0?'<div class="stat"><div class="stat-val">'+totalGigs+'</div><div class="stat-lbl">Shows logged</div></div>':'')+
+    (gigs.length?'<div class="stat"><div class="stat-val">'+gigs.length+'+</div><div class="stat-lbl">Recent venues</div></div>':'')+
+    '<div class="stat"><div class="stat-val">'+new Date().getFullYear()+'</div><div class="stat-lbl">Active year</div></div>'+
+  '</div>':'')+
+  '<div class="content">'+
+    (data.bio?'<div class="bio">'+esc(data.bio)+'</div>':'')+
+    '<div class="row">'+
+      (data.genre?'<div class="col"><h3>Style &amp; Discipline</h3><div class="body">'+esc(data.genre)+'</div></div>':'')+
+      (data.links?'<div class="col"><h3>Work &amp; Links</h3><div class="body">'+esc(data.links)+'</div></div>':'')+
+    '</div>'+
+    (data.social?'<div class="row"><div class="col"><h3>Social Media</h3><div class="body">'+esc(data.social)+'</div></div></div>':'')+
+    (data.press?'<div class="press">'+esc(data.press)+'</div>':'')+
+    (gigs.length?'<div class="credits"><h4>Recent Engagements</h4><ul>'+gigs.map(g=>'<li><span>'+esc(g.venue)+'</span><span class="date">'+(g.date?fmtDate(g.date):'')+'</span></li>').join('')+'</ul></div>':'')+
+  '</div>'+
+  (data.booking?'<div class="booking"><div class="booking-label">Booking &amp; Management</div><div class="booking-text">'+esc(data.booking)+'</div></div>':'')+
+  '<div class="footer">'+
+    '<span>'+esc(artistName)+' &nbsp;·&nbsp; EPK '+new Date().getFullYear()+'</span>'+
+    '<span>Generated with GigBook</span>'+
+  '</div>'+
+'</div>'+
+'</body></html>';
   const w=window.open('','_blank');
   if(w){w.document.write(html);w.document.close();}
 }
