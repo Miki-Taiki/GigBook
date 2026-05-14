@@ -1995,6 +1995,7 @@ function openModal(prefillDate){
   document.getElementById('modalTitle').textContent='Add New Gig';
   document.getElementById('editGigId').value='';
   clearForm();
+  populateAliasDropdowns();
   // Apply defaults from settings
   if(p.defaultTransport) document.getElementById('f-transport').value=p.defaultTransport;
   if(p.defaultPayment) document.getElementById('f-paymethod').value=p.defaultPayment;
@@ -3065,6 +3066,10 @@ function copyChaser(msg){
 // CONTRACTS & RIDERS (Pro)
 // ─────────────────────────────────────────────
 function renderContracts(){
+  if(!activeDocAlias){
+    const _primary=getPrimaryAliasId();
+    activeDocAlias=_primary||'general';
+  }
   const el = document.getElementById('contracts-content');
   if(!el) return;
   if(!isPro()){
@@ -3598,6 +3603,17 @@ function proLockScreen(icon, title, desc){
 const STORE_ALIASES = 'gb_aliases';
 const ALIAS_LIMITS = { guest: 0, free: 1, pro: 5, proplus: 999, band: 5, orchestra: 5 };
 
+function getPrimaryAliasId(){
+  const stored=localStorage.getItem('gb_primary_alias');
+  const all=loadAliases();
+  if(stored && all.find(a=>a.id===stored)) return stored;
+  return all.length ? all[0].id : '';
+}
+function setPrimaryAlias(id){
+  localStorage.setItem('gb_primary_alias', id);
+  renderAliasSettings();
+  populateAliasDropdowns();
+}
 function loadAliases(){ try{ return JSON.parse(localStorage.getItem(STORE_ALIASES)||'[]'); }catch(e){return[];} }
 function saveAliases(a){ localStorage.setItem(STORE_ALIASES, JSON.stringify(a)); }
 
@@ -3613,7 +3629,7 @@ function aliasLimit(){
 }
 
 let activeAliasFilter = 'all';
-let activeDocAlias = 'general'; // for Documents page alias picker
+let activeDocAlias = ''; // resolved to primary alias on first render, else 'general'
 function setDocAlias(id){activeDocAlias=id;renderContracts();}
 
 function renderAliasBar(){
@@ -3938,17 +3954,21 @@ function renderAliasSettings(){
     return;
   }
 
-  listEl.innerHTML = aliases.map(a => `
+  const primaryId = getPrimaryAliasId();
+  listEl.innerHTML = aliases.map(a => {
+    const isPrimary = a.id === primaryId;
+    return `
     <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);border-left:3px solid ${a.colour}">
       <span style="width:28px;height:28px;border-radius:50%;background:${a.colour};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-family:'Bebas Neue',sans-serif;flex-shrink:0">${a.name.slice(0,2).toUpperCase()}</span>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--text)">${a.name}</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px">${a.name}${isPrimary?'<span title="Main alias — used as the default across the app" style="font-size:10px;color:'+a.colour+';letter-spacing:.08em;font-weight:500">★ MAIN</span>':''}</div>
         <div style="font-size:11px;color:var(--text3)">${loadGigs().filter(g=>g.aliasId===a.id||g.alias===a.name).length} gigs</div>
       </div>
+      ${isPrimary ? '' : '<button class="btn btn-sm btn-ghost" onclick="setPrimaryAlias(\''+a.id+'\')" title="Make this your main alias">Set main</button>'}
       <button class="btn btn-sm btn-ghost" onclick="openAddAliasModal('${a.id}')">Edit</button>
       <button class="btn btn-sm btn-danger" onclick="deleteAlias('${a.id}')">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openAddAliasModal(id){
@@ -4043,12 +4063,17 @@ renderAliasSwitcher();
 
 function populateAliasDropdowns(){
   const aliases = loadAliases();
+  const primary = getPrimaryAliasId();
   const selects = document.querySelectorAll('.alias-select');
   selects.forEach(sel => {
     const currentVal = sel.value;
-    sel.innerHTML = '<option value="">None (no alias)</option>' +
-      aliases.map(a => `<option value="${a.id}" style="color:${a.colour}">${a.name}</option>`).join('');
-    if(currentVal) sel.value = currentVal;
+    if(aliases.length === 0){
+      sel.innerHTML = '<option value="">None (no alias)</option>';
+      return;
+    }
+    sel.innerHTML = aliases.map(a => `<option value="${a.id}" style="color:${a.colour}">${a.name}</option>`).join('');
+    sel.value = (currentVal && aliases.find(a=>a.id===currentVal)) ? currentVal : primary;
+    if(typeof onAliasChange === 'function') onAliasChange(sel);
   });
 }
 
