@@ -1778,7 +1778,7 @@ function showGigDetail(id){
   }
   aliasEl.textContent = g.alias ? 'Performing as: ' + g.alias : '';
   aliasEl.style.display = g.alias ? '' : 'none';
-  document.getElementById('detail-meta').innerHTML=`<span>◷ ${fmtDate(g.date)}</span>${g.soundcheck?`<span>Soundcheck ${g.soundcheck}`+(g.stage?` · Stage ${g.stage}`:'')+`</span>`:''}${g.setlength?`<span>${g.setlength}</span>`:''}${g.alias?`<span style="color:var(--acc-text)">as ${g.alias}</span>`:''}`;
+  document.getElementById('detail-meta').innerHTML=`<span>◷ ${fmtDate(g.date)}</span>${g.soundcheck?`<span>Soundcheck ${g.soundcheck}`+(g.stage?` · Stage ${g.stage}`:'')+`</span>`:''}${g.setlength?`<span>${g.setlength}</span>`:''}`;
 
   // Status selector
   const sel=document.getElementById('detail-status-sel');
@@ -3087,11 +3087,20 @@ function renderContracts(){
     el.innerHTML = proLockScreen('◧','Documents','Store venue contracts, your technical rider, and your Electronic Press Kit. Share them instantly via email or social media.');
     return;
   }
-  const gigs = loadGigs().filter(g => g.notes && g.notes.length > 10);
-  const builtRider = !!localStorage.getItem('gb_rider');
-  const upRider = !!localStorage.getItem('gb_rider_upload');
-  const builtEPK = !!localStorage.getItem('gb_epk');
-  const upEPK = !!localStorage.getItem('gb_epk_upload');
+  // Filter contracts by active alias unless in All/General mode
+  let _allNoteGigs = loadGigs().filter(g => g.notes && g.notes.length > 10);
+  if(activeDocAlias && activeDocAlias !== 'general'){
+    const _curAlias = loadAliases().find(a => a.id === activeDocAlias);
+    _allNoteGigs = _allNoteGigs.filter(g => g.aliasId === activeDocAlias || (_curAlias && g.alias === _curAlias.name));
+  }
+  const gigs = _allNoteGigs;
+  const _scope = activeDocAlias || 'general';
+  const _riderData = JSON.parse(localStorage.getItem('gb_rider_data_'+_scope)||'{}');
+  const _epkData = JSON.parse(localStorage.getItem('gb_epk_data_'+_scope)||'{}');
+  const builtRider = !!(_riderData.technical||_riderData.hospitality||_riderData.logistics);
+  const upRider = !!localStorage.getItem('gb_rider_upload_'+_scope);
+  const builtEPK = !!(_epkData.bio||_epkData.genre||_epkData.links||_epkData.social||_epkData.press||_epkData.booking);
+  const upEPK = !!localStorage.getItem('gb_epk_upload_'+_scope);
   const riderBtns = upRider
     ? `<button class="btn btn-sm btn-ghost" onclick="removeUpload('rider')">✕ Remove</button>`
     : `<button class="btn btn-sm btn-ghost" onclick="generateRiderPDF()">⬇ PDF</button><button class="btn btn-sm btn-ghost" onclick="openRiderEditor()">${builtRider ? 'Edit' : '+ Add'}</button><button class="btn btn-sm btn-ghost" onclick="uploadDocument('rider')">↑ Upload</button>`;
