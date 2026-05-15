@@ -3093,7 +3093,7 @@ function _renderRiderCard(scope, label, colour){
   const has = sections.length > 0;
   const accent = colour && scope!=='general' ? 'border-top:3px solid '+colour : '';
   const editBtn = has ? 'Edit' : '+ Add';
-  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');generateRiderPDF()">⬇ PDF</button>' : '';
+  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias(&quot;'+scope+'&quot;);generateRiderPDF()">⬇ PDF</button>' : '';
   const labelHTML = colour && scope!=='general'
     ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+colour+';margin-right:7px;vertical-align:middle"></span>'+label
     : label;
@@ -3101,7 +3101,7 @@ function _renderRiderCard(scope, label, colour){
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px">'+
       '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text)">'+labelHTML+'</div>'+
       '<div style="display:flex;gap:6px">'+pdfBtn+
-        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');openRiderEditor()">'+editBtn+'</button>'+
+        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias(&quot;'+scope+'&quot;);openRiderEditor()">'+editBtn+'</button>'+
       '</div>'+
     '</div>'+
     '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
@@ -3116,7 +3116,7 @@ function _renderEpkCard(scope, label, colour){
   const has = sections.length > 0;
   const accent = colour && scope!=='general' ? 'border-top:3px solid '+colour : '';
   const editBtn = has ? 'Edit' : '+ Add';
-  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');generateEPKPDF()">⬇ PDF</button>' : '';
+  const pdfBtn = has ? '<button class="btn btn-sm btn-ghost" onclick="setDocAlias(&quot;'+scope+'&quot;);generateEPKPDF()">⬇ PDF</button>' : '';
   const labelHTML = colour && scope!=='general'
     ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+colour+';margin-right:7px;vertical-align:middle"></span>'+label
     : label;
@@ -3124,7 +3124,7 @@ function _renderEpkCard(scope, label, colour){
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px">'+
       '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text)">'+labelHTML+'</div>'+
       '<div style="display:flex;gap:6px">'+pdfBtn+
-        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias('+JSON.stringify(scope)+');openEPKEditor()">'+editBtn+'</button>'+
+        '<button class="btn btn-sm btn-ghost" onclick="setDocAlias(&quot;'+scope+'&quot;);openEPKEditor()">'+editBtn+'</button>'+
       '</div>'+
     '</div>'+
     '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
